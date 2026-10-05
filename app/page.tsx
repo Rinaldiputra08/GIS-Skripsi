@@ -1,69 +1,341 @@
-import Image from "next/image";
+'use client';
+
+import React, { useState, useMemo, useEffect } from 'react';
+import { Header } from '@/components/Header';
+import { Sidebar } from '@/components/Sidebar';
+import { MapWrapper } from '@/components/MapWrapper';
+import { MethodologyAuditModal } from '@/components/MethodologyAuditModal';
+import { SurveyLocationModal } from '@/components/SurveyLocationModal';
+import {
+  BOGOR_DISTRICTS,
+  BOGOR_COMPETITORS,
+  BOGOR_ROADS,
+  BOGOR_CROWD_CENTERS,
+  BOGOR_GRID_CANDIDATES,
+} from '@/data/bogor-spatial';
+import { buildAhpMatrix, calculateAhp, AHP_PRESETS } from '@/lib/ahp';
+import { calculateTopsis } from '@/lib/topsis';
+import { evaluateSurveyLocation } from '@/lib/survey-evaluator';
+import {
+  AhpResult,
+  TopsisSummary,
+  TopsisCandidateResult,
+  LayerToggleState,
+  FilterState,
+  CompetitorPoint,
+  CrowdCenterPoint,
+  SurveyPointEvaluation,
+} from '@/lib/types';
 
 export default function Home() {
+  // 1. Spatial Entities State (loaded from Supabase or embedded defaults)
+  const [competitors, setCompetitors] = useState<CompetitorPoint[]>(BOGOR_COMPETITORS);
+  const [crowdCenters, setCrowdCenters] = useState<CrowdCenterPoint[]>(BOGOR_CROWD_CENTERS);
+  const [dataSource, setDataSource] = useState<string>('embedded');
+
+  // 3. AHP State
+  const [activePreset, setActivePreset] = useState<string | null>('balanced');
+  const [pairs, setPairs] = useState<Record<string, number>>({
+    'c1-c2': 1,
+    'c1-c3': 1,
+    'c1-c4': 1,
+    'c2-c3': 1,
+    'c2-c4': 1,
+    'c3-c4': 1,
+  });
+
+  // Calculate live AHP matrix & consistency
+  const ahpResult: AhpResult = useMemo(() => {
+    const matrix = buildAhpMatrix(pairs);
+    return calculateAhp(matrix);
+  }, [pairs]);
+
+  // 4. TOPSIS Results State
+  const [topsisResult, setTopsisResult] = useState<TopsisSummary>(() => {
+    return calculateTopsis(BOGOR_GRID_CANDIDATES, [0.25, 0.25, 0.25, 0.25]);
+  });
+
+  const [isCalculating, setIsCalculating] = useState(false);
+
+  // 5. UI & Selection State
+  const [activeTab, setActiveTab] = useState<'ahp' | 'recommendations' | 'layers' | 'survey' | 'info'>('ahp');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  const [selectedCandidate, setSelectedCandidate] = useState<TopsisCandidateResult | null>(null);
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
+
+  // 6. Live Field Survey State
+  const [surveyResult, setSurveyResult] = useState<SurveyPointEvaluation | null>(null);
+  const [isSurveyModalOpen, setIsSurveyModalOpen] = useState(false);
+  const [isSurveyClickMode, setIsSurveyClickMode] = useState(false);
+
+  // 7. Layer Toggles State (with Exclusion Zones enabled by default)
+  const [layers, setLayers] = useState<LayerToggleState>({
+    showDistricts: true,
+    showCompetitors: true,
+    showRoads: true,
+    showCrowdCenters: true,
+    showRecommendations: true,
+    showHeatmap: true,
+    showExclusionZones: true,
+  });
+
+  // 8. Filter State (with Exclusion Filter enabled by default to remove cemeteries/police)
+  const [filters, setFilters] = useState<FilterState>({
+    district: 'ALL',
+    minScore: 0,
+    category: 'all',
+    excludeRestricted: true,
+  });
+
+  // Fetch live layers from Supabase API on mount
+  useEffect(() => {
+    async function loadLayers() {
+      try {
+        const res = await fetch('/api/layers/overview');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success) {
+            setDataSource(data.source);
+            if (data.competitors && data.competitors.length > 0) {
+              setCompetitors(data.competitors);
+            }
+            if (data.crowdCenters && data.crowdCenters.length > 0) {
+              setCrowdCenters(data.crowdCenters);
+            }
+          }
+        }
+      } catch (err) {
+        console.warn('Could not fetch /api/layers/overview:', err);
+      }
+    }
+    loadLayers();
+  }, []);
+
+  // Handle Pairwise Matrix Change
+  const handlePairChange = (pairKey: string, value: number) => {
+    setActivePreset(null);
+    setPairs((prev) => ({
+      ...prev,
+      [pairKey]: value,
+    }));
+  };
+
+  // Handle Preset Strategy Selection
+  const handleApplyPreset = (presetId: string) => {
+    const found = AHP_PRESETS.find((p) => p.id === presetId);
+    if (found) {
+      setActivePreset(presetId);
+      setPairs(found.pairs);
+    }
+  };
+
+  // Handle TOPSIS Computation Trigger
+  const handleCalculate = async () => {
+    if (!ahpResult.isConsistent) return;
+    setIsCalculating(true);
+
+    try {
+      const res = await fetch('/api/spatial/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          weights: ahpResult.weightsArray,
+          pairs,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.topsisResult) {
+          setTopsisResult(data.topsisResult);
+          const firstValid = data.topsisResult.candidates.find((c: TopsisCandidateResult) => !c.isRestricted) || data.topsisResult.candidates[0];
+          if (firstValid) {
+            setSelectedCandidate(firstValid);
+          }
+        }
+      } else {
+        const result = calculateTopsis(BOGOR_GRID_CANDIDATES, ahpResult.weightsArray);
+        setTopsisResult(result);
+        const firstValid = result.candidates.find((c) => !c.isRestricted) || result.candidates[0];
+        if (firstValid) {
+          setSelectedCandidate(firstValid);
+        }
+      }
+
+      // Re-evaluate survey point if active
+      if (surveyResult) {
+        const updatedSurvey = evaluateSurveyLocation(
+          surveyResult.lat,
+          surveyResult.lng,
+          ahpResult.weightsArray,
+          BOGOR_GRID_CANDIDATES
+        );
+        setSurveyResult(updatedSurvey);
+      }
+
+      setActiveTab('recommendations');
+    } catch (err) {
+      console.warn('API call fallback to local calculation:', err);
+      const result = calculateTopsis(BOGOR_GRID_CANDIDATES, ahpResult.weightsArray);
+      setTopsisResult(result);
+      const firstValid = result.candidates.find((c) => !c.isRestricted) || result.candidates[0];
+      if (firstValid) {
+        setSelectedCandidate(firstValid);
+      }
+      setActiveTab('recommendations');
+    } finally {
+      setIsCalculating(false);
+    }
+  };
+
+  // Reset to default balanced preset
+  const handleReset = () => {
+    handleApplyPreset('balanced');
+    setFilters({ district: 'ALL', minScore: 0, category: 'all', excludeRestricted: true });
+    const defaultRes = calculateTopsis(BOGOR_GRID_CANDIDATES, [0.25, 0.25, 0.25, 0.25]);
+    setTopsisResult(defaultRes);
+    const firstValid = defaultRes.candidates.find((c) => !c.isRestricted) || defaultRes.candidates[0];
+    setSelectedCandidate(firstValid ?? null);
+    setSurveyResult(null);
+    setIsSurveyClickMode(false);
+  };
+
+  const handleToggleLayer = (layerKey: keyof LayerToggleState) => {
+    setLayers((prev) => ({
+      ...prev,
+      [layerKey]: !prev[layerKey],
+    }));
+  };
+
+  const handleFilterChange = (updated: Partial<FilterState>) => {
+    setFilters((prev) => ({
+      ...prev,
+      ...updated,
+    }));
+  };
+
+  // Field Survey Handlers
+  const handleSurveyPointSelected = (lat: number, lng: number) => {
+    const evalResult = evaluateSurveyLocation(
+      lat,
+      lng,
+      ahpResult.weightsArray,
+      BOGOR_GRID_CANDIDATES
+    );
+    setSurveyResult(evalResult);
+    setIsSurveyModalOpen(true);
+    setIsSurveyClickMode(false);
+  };
+
+  const handleToggleSurveyClickMode = () => {
+    setIsSurveyClickMode((prev) => !prev);
+  };
+
+  const handleClearSurvey = () => {
+    setSurveyResult(null);
+    setIsSurveyClickMode(false);
+  };
+
+  const visibleCandidatesCount = useMemo(() => {
+    return topsisResult.candidates.filter((c) => {
+      if (filters.excludeRestricted && c.isRestricted) return false;
+      if (c.score < filters.minScore) return false;
+      if (filters.category !== 'all' && c.category !== filters.category) return false;
+      if (filters.district !== 'ALL' && c.district.toLowerCase() !== filters.district.toLowerCase()) {
+        return false;
+      }
+      return true;
+    }).length;
+  }, [topsisResult.candidates, filters]);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 font-sans text-slate-100">
+      {/* Header Navigation */}
+      <Header
+        ahpResult={ahpResult}
+        totalCompetitors={competitors.length}
+        totalCandidates={topsisResult.candidates.length}
+        onOpenAudit={() => setIsAuditModalOpen(true)}
+        onOpenInfo={() => setActiveTab('info')}
+        onReset={handleReset}
+        onOpenSurvey={() => setActiveTab('survey')}
+      />
+
+      {/* Main Workspace: Sidebar + Map */}
+      <div className="flex flex-1 w-full h-[calc(100vh-57px)] overflow-hidden relative">
+        {/* Sidebar Panel */}
+        <Sidebar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          isCollapsed={isSidebarCollapsed}
+          onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
+          pairs={pairs}
+          onPairChange={handlePairChange}
+          onApplyPreset={handleApplyPreset}
+          activePreset={activePreset}
+          ahpResult={ahpResult}
+          onCalculate={handleCalculate}
+          isCalculating={isCalculating}
+          candidates={topsisResult.candidates}
+          selectedCandidateId={selectedCandidate?.id ?? null}
+          onSelectCandidate={(c) => setSelectedCandidate(c)}
+          layers={layers}
+          onToggleLayer={handleToggleLayer}
+          filters={filters}
+          onFilterChange={handleFilterChange}
+          totalVisibleCandidates={visibleCandidatesCount}
+          // Survey Props
+          surveyResult={surveyResult}
+          onSurveyPointSelected={handleSurveyPointSelected}
+          onOpenSurveyModal={() => setIsSurveyModalOpen(true)}
+          onClearSurvey={handleClearSurvey}
+          isSurveyClickMode={isSurveyClickMode}
+          onToggleSurveyClickMode={handleToggleSurveyClickMode}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+
+        {/* Web-GIS Map Canvas */}
+        <main className="flex-1 h-full w-full relative">
+          <MapWrapper
+            districts={BOGOR_DISTRICTS}
+            competitors={competitors}
+            roads={BOGOR_ROADS}
+            crowdCenters={crowdCenters}
+            candidates={topsisResult.candidates}
+            layers={layers}
+            filters={filters}
+            selectedCandidate={selectedCandidate}
+            onSelectCandidate={(c) => setSelectedCandidate(c)}
+            // Field Survey Map Props
+            surveyResult={surveyResult}
+            onSurveyPointSelected={handleSurveyPointSelected}
+            onOpenSurveyModal={() => setIsSurveyModalOpen(true)}
+            onClearSurvey={handleClearSurvey}
+            isSurveyClickMode={isSurveyClickMode}
+            onToggleSurveyClickMode={handleToggleSurveyClickMode}
+          />
+        </main>
+      </div>
+
+      {/* Skripsi Methodology & Academic Audit Modal */}
+      <MethodologyAuditModal
+        isOpen={isAuditModalOpen}
+        onClose={() => setIsAuditModalOpen(false)}
+        ahpResult={ahpResult}
+        topsisResult={topsisResult}
+      />
+
+      {/* Live Field Survey Modal */}
+      <SurveyLocationModal
+        isOpen={isSurveyModalOpen}
+        onClose={() => setIsSurveyModalOpen(false)}
+        survey={surveyResult}
+        onFocusMap={(lat, lng) => {
+          setIsSurveyModalOpen(false);
+        }}
+        onNewSurvey={() => {
+          setIsSurveyClickMode(true);
+        }}
+      />
     </div>
   );
 }
