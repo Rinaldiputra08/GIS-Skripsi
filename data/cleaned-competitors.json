@@ -1,0 +1,2202 @@
+[
+  {
+    "id": "fdde305b-b460-4093-9ae2-fad494d695de",
+    "name": "Indomaret",
+    "lat": -6.599493,
+    "lng": 106.7791483,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "8763ba98-b807-4d39-903f-e58dc8d8f1bd",
+    "name": "Indomaret",
+    "lat": -6.6116907,
+    "lng": 106.8152344,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "cbb3bb7f-89a3-4380-82ac-7745181e70d2",
+    "name": "Apotek Tanpa Nama",
+    "lat": -6.6175376,
+    "lng": 106.8147692,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "e61af4e0-80b5-4684-95e5-43cfc2398bed",
+    "name": "Apotek Tanpa Nama",
+    "lat": -6.5948477,
+    "lng": 106.8062786,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "dbee4ba9-c7ac-4693-8f73-f4d464998627",
+    "name": "Circle K",
+    "lat": -6.6175115,
+    "lng": 106.8112997,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "68a2baf5-a8a7-4a69-97eb-cd89431a48e2",
+    "name": "Alfamart",
+    "lat": -6.6185199,
+    "lng": 106.8068886,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "565b134f-c68c-4b2e-9a41-1b145c382653",
+    "name": "Toko Budi",
+    "lat": -6.6187627,
+    "lng": 106.8241946,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "60ffaf03-85b4-4891-8293-70b53e82d1bd",
+    "name": "Warung",
+    "lat": -6.6185845,
+    "lng": 106.8219294,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "062023d8-eea2-46fa-821b-67d453d3c212",
+    "name": "Minimarket Tanpa Nama",
+    "lat": -6.5669551,
+    "lng": 106.7532244,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "2532c278-829d-4504-b415-6318ebd43e28",
+    "name": "Indomaret",
+    "lat": -6.5472247,
+    "lng": 106.8496156,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "d13e935c-d31d-459e-a134-fcbb02ef98ed",
+    "name": "Indomart Vila Bogor Indah",
+    "lat": -6.5470836,
+    "lng": 106.806349,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "bcb025a3-05d8-4160-b6d0-34413b395e40",
+    "name": "Alfamart",
+    "lat": -6.5474486,
+    "lng": 106.8058687,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "e7388787-71d4-408f-b2f2-7ae979ba507f",
+    "name": "Apotek Deli",
+    "lat": -6.6272185,
+    "lng": 106.8224206,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "84c11fcb-5a45-4b4a-b5f3-58140afbd638",
+    "name": "Indomaret",
+    "lat": -6.5208113,
+    "lng": 106.8395519,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "6065de7b-4dc5-4af8-b838-8a6b3b400746",
+    "name": "Alfamart",
+    "lat": -6.5270458,
+    "lng": 106.8405671,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "a3e42a5a-3c8e-424c-a80f-463ac6190afe",
+    "name": "Alfamart",
+    "lat": -6.6333399,
+    "lng": 106.825494,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "6beeee43-27f7-4f36-a967-82c2c03d7c8a",
+    "name": "Indomaret",
+    "lat": -6.6374545,
+    "lng": 106.8310976,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "7d7d9764-b1d5-4794-aca5-0b14bb0ab29f",
+    "name": "Shangri-la Plaza",
+    "lat": -6.6182865,
+    "lng": 106.812792,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "bc6b3888-d524-4bda-b814-23564aee4d31",
+    "name": "Alfamart",
+    "lat": -6.5524014,
+    "lng": 106.8211839,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "ac3a64dd-83bd-4abb-9434-9ce9acb34fb8",
+    "name": "Circle K",
+    "lat": -6.6162114,
+    "lng": 106.8042867,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "77e9820c-7705-41d6-896b-9e518ae29962",
+    "name": "Indomaret",
+    "lat": -6.5789586,
+    "lng": 106.8066468,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "5ba693f8-c536-4bb3-8dbe-67a602d99735",
+    "name": "Alfamart",
+    "lat": -6.6141966,
+    "lng": 106.8036243,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "310e303c-8729-44db-bc99-950fb6636de6",
+    "name": "Alfamart",
+    "lat": -6.6055202,
+    "lng": 106.7930856,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "7bef7924-4e1e-492c-a71c-a8b687c52a18",
+    "name": "Indomaret",
+    "lat": -6.6009318,
+    "lng": 106.7612817,
+    "district": "Bogor Barat",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "1e8b2575-7d4d-4e68-80ab-9e3ae7069963",
+    "name": "Indomaret",
+    "lat": -6.5947554,
+    "lng": 106.7908726,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "ac6b9599-58a9-4192-ae00-cfc9e7700428",
+    "name": "Indomaret",
+    "lat": -6.5884081,
+    "lng": 106.795875,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "8a63c264-8378-46c7-af69-2ce1c9834577",
+    "name": "Alfamart",
+    "lat": -6.5947813,
+    "lng": 106.7908693,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "e9030156-fd59-41b3-8fcc-977e4cf16b6c",
+    "name": "FamilyMart",
+    "lat": -6.5952167,
+    "lng": 106.7902907,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "5d004a81-cc13-46e1-b61e-6e8557c32dae",
+    "name": "Sawojajar",
+    "lat": -6.5883571,
+    "lng": 106.7941886,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "33dfe9fb-d384-45b8-b3bc-6a3b59e969a6",
+    "name": "Circle K",
+    "lat": -6.5876834,
+    "lng": 106.797207,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "238c0440-3721-49ea-b8aa-f44e3ef78c76",
+    "name": "Indomaret",
+    "lat": -6.5848346,
+    "lng": 106.797071,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "70917a9b-663c-4c47-a354-dbd5e9402b40",
+    "name": "Indomaret",
+    "lat": -6.5821532,
+    "lng": 106.7969545,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "c116f4ba-9b9f-4252-a3ba-f0d0ca05c913",
+    "name": "Alfamart",
+    "lat": -6.5693305,
+    "lng": 106.8085853,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "b815784f-e7b7-4383-a9d3-768af3960496",
+    "name": "Century",
+    "lat": -6.5697053,
+    "lng": 106.8084805,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "fc42777f-0f61-474b-9f81-c888d0903b30",
+    "name": "Indomaret",
+    "lat": -6.5715813,
+    "lng": 106.8081908,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "92de373e-1ed9-4ac5-94ac-f6e99a4fc089",
+    "name": "Indomaret",
+    "lat": -6.5774436,
+    "lng": 106.807071,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "29c42432-1dcd-4081-bef9-5a0ddc44df30",
+    "name": "Circle K",
+    "lat": -6.585774,
+    "lng": 106.8053847,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "9afbce14-e6d2-464f-8e6f-1ff2c3fac2be",
+    "name": "Indomaret",
+    "lat": -6.6159287,
+    "lng": 106.8041837,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "bbc809a0-956c-42cb-a9ae-0cc4c9b8cd8c",
+    "name": "Toko Hijau Daun",
+    "lat": -6.5701627,
+    "lng": 106.788462,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "465c6155-5589-4073-aefb-7af8c58c6802",
+    "name": "F-One Mart",
+    "lat": -6.5657235,
+    "lng": 106.7897326,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "21eb4b12-9ff2-4141-96ca-2b0f2a30c104",
+    "name": "Inti Mart",
+    "lat": -6.5648374,
+    "lng": 106.7887165,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "160927dc-cae9-46a1-942d-69fc26e547b4",
+    "name": "Apotek Sehat Raga Dua",
+    "lat": -6.6611509,
+    "lng": 106.8524624,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "49bc65f4-0704-46f4-bb73-82c5c098bd9d",
+    "name": "Apotek Al-Fath 21",
+    "lat": -6.5568562,
+    "lng": 106.776919,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "036376fe-626b-4347-a853-87f42830e82a",
+    "name": "Apotek Tanpa Nama",
+    "lat": -6.579917,
+    "lng": 106.7777055,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "ba88348b-45e5-4134-be70-83fa9607fad7",
+    "name": "Indomaret",
+    "lat": -6.5344773,
+    "lng": 106.7941379,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "a6bdf4bd-3d17-41e2-ba84-32bd388637eb",
+    "name": "Alfamart",
+    "lat": -6.5350476,
+    "lng": 106.7940843,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "cf887e0d-d5c2-4a69-ae7b-bee92b8e367f",
+    "name": "Indomaret",
+    "lat": -6.5221814,
+    "lng": 106.8162525,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "9271ef3c-a236-4ea4-b570-2333bb936369",
+    "name": "Istana Buah Segar",
+    "lat": -6.6115255,
+    "lng": 106.8008423,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "dc1fb1bc-5221-41e6-905d-d8f28889a1cd",
+    "name": "Apotek Delta",
+    "lat": -6.608835,
+    "lng": 106.7975549,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "fe0ebf39-3c1d-422d-b4f6-260abe079ab6",
+    "name": "Alfamart",
+    "lat": -6.6075942,
+    "lng": 106.7947966,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "f4aa5e9d-6687-43d3-9667-9f6717207f36",
+    "name": "Indomaret",
+    "lat": -6.5756356,
+    "lng": 106.8381648,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "8f4bd224-f504-43fd-a521-a287257fbc25",
+    "name": "Alfamart",
+    "lat": -6.5825534,
+    "lng": 106.8218909,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "afa886ee-bb0d-4b0c-a47f-e493da0d47ed",
+    "name": "Alfamart",
+    "lat": -6.6060471,
+    "lng": 106.8009337,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "81f66dba-9211-4dc3-bc42-98e7a4f02286",
+    "name": "Indomaret",
+    "lat": -6.6098974,
+    "lng": 106.8045861,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "effd5e5e-8003-4bbb-ae1d-5495f0b3ee7d",
+    "name": "Indomaret",
+    "lat": -6.5826432,
+    "lng": 106.7901823,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "d20f4e07-ede5-4359-bcbf-b882535a3a48",
+    "name": "Apotek Dramaga",
+    "lat": -6.5796346,
+    "lng": 106.7461219,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "61e3b22a-a778-42f3-9d2b-a7a71fcf6854",
+    "name": "Apotek Bunda 3 Laladon",
+    "lat": -6.5733189,
+    "lng": 106.7507956,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "56994998-029c-420d-a3b8-a3141e28616f",
+    "name": "Apotek Yumna Farma",
+    "lat": -6.572848,
+    "lng": 106.7441813,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "5fa580f4-56f0-40c6-b4d1-17ad229c37c1",
+    "name": "Apotek Shafana",
+    "lat": -6.5722329,
+    "lng": 106.7404758,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "5d723f04-eb84-409a-95ef-02ee4beb0cbc",
+    "name": "Apotek Delta",
+    "lat": -6.5680683,
+    "lng": 106.7379683,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "93c9095f-aa77-4655-8e6d-bfcf2d8fd38d",
+    "name": "Apotek Zam Zam Farma",
+    "lat": -6.5710898,
+    "lng": 106.7398104,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "640d715a-39b4-48ba-83de-306cc69fa5d2",
+    "name": "Apotek Syafaa Farma",
+    "lat": -6.5700548,
+    "lng": 106.7555894,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "34c09170-aca3-432f-830e-2c68d5bdb49b",
+    "name": "Apotek Delfi",
+    "lat": -6.5799177,
+    "lng": 106.7627127,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "cbf8a60c-e659-4f72-a175-e39c39300349",
+    "name": "Apotek As Syifa",
+    "lat": -6.5806491,
+    "lng": 106.7636032,
+    "district": "Bogor Barat",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "12a823f3-8098-478f-ae49-28e1ea20479f",
+    "name": "Apotek Askia",
+    "lat": -6.5694619,
+    "lng": 106.7667655,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "16830c70-321f-4e40-9a4f-b83eb2c69ba1",
+    "name": "Apotek Afiat",
+    "lat": -6.5901434,
+    "lng": 106.7592761,
+    "district": "Bogor Barat",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "8e9dbe74-d491-424c-a90a-1f3afb6d7a14",
+    "name": "Apotek Qairen Farma",
+    "lat": -6.5828474,
+    "lng": 106.7581127,
+    "district": "Bogor Barat",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "50993997-37a7-4872-879f-b7bdf4eb5449",
+    "name": "Apotek Sindang Barang",
+    "lat": -6.582445,
+    "lng": 106.7690789,
+    "district": "Bogor Barat",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "f4eb2926-691d-4f1e-b64a-91ab1e3aa5b3",
+    "name": "Kimia Farma Apotek",
+    "lat": -6.5595609,
+    "lng": 106.7626812,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "cafc8b18-4d2d-4723-90b0-b0aef4be60db",
+    "name": "Apotek Zentrum 3",
+    "lat": -6.5552468,
+    "lng": 106.7614594,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "7b48b332-ee72-48f4-8f60-350da64c426e",
+    "name": "Apotek BTU",
+    "lat": -6.5846665,
+    "lng": 106.7710416,
+    "district": "Bogor Barat",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "65d55e25-d0af-4572-bd82-b9e9c9700c24",
+    "name": "Apotek Jaya Medika",
+    "lat": -6.5591179,
+    "lng": 106.7787563,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "691ade71-540a-4d5d-b34c-61e524fa8b03",
+    "name": "Apotek Khanza Farma",
+    "lat": -6.5575857,
+    "lng": 106.7780214,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "d9ea0ec3-a5d7-4ece-97fe-6f5dd387466f",
+    "name": "Apotek Askia",
+    "lat": -6.5644678,
+    "lng": 106.7827582,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "fae34fab-c195-48a2-8195-54d27c740896",
+    "name": "Apotek Gunung Batu",
+    "lat": -6.5928559,
+    "lng": 106.7767889,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "9b1c9525-e87b-4a0b-8632-0a32aef9e71a",
+    "name": "Apotek Cordelia",
+    "lat": -6.5914957,
+    "lng": 106.7755437,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "fa407b73-b989-4d04-9fa1-ba010032d3a5",
+    "name": "Apotek Budi",
+    "lat": -6.596361,
+    "lng": 106.7798728,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "93919e0c-bf62-494b-97b3-ae0d9ae13e2d",
+    "name": "Naga Farma",
+    "lat": -6.5951693,
+    "lng": 106.7850092,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "8041b9ce-c100-4033-97db-0964a9f716cd",
+    "name": "Apotik Yasa",
+    "lat": -6.5868008,
+    "lng": 106.783715,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "4d331854-1cc0-4da1-bb65-6fdeae4d7609",
+    "name": "Apotik Taman Sari",
+    "lat": -6.582094,
+    "lng": 106.7781924,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "3fb4cd52-90ab-4276-8102-db0cebbd2f1a",
+    "name": "Apotik Kita Farma",
+    "lat": -6.5835381,
+    "lng": 106.7796582,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "d3008159-ec9f-47df-8e73-6de1df6f718a",
+    "name": "Alfamart",
+    "lat": -6.5827228,
+    "lng": 106.7969772,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "bdce3d7a-e4ca-434a-b198-6a38261918ab",
+    "name": "Apotek K24",
+    "lat": -6.587405,
+    "lng": 106.7971428,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "7638c731-2822-4f28-9154-cb057e0eb27d",
+    "name": "Apotik Satria",
+    "lat": -6.5772298,
+    "lng": 106.7996863,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "6dc5a90d-1e79-415e-89e8-b2bca7179560",
+    "name": "Watsons Apotek",
+    "lat": -6.5904405,
+    "lng": 106.8049715,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "70cfd2e2-fef1-4ab3-935d-ea130cb3a1fe",
+    "name": "Century",
+    "lat": -6.5612249,
+    "lng": 106.7907746,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "8187ba8b-0b3d-4892-97ca-d9680b134d14",
+    "name": "Apotek Zam Zam Farma 2",
+    "lat": -6.5653831,
+    "lng": 106.7618966,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "08f538a9-b7d8-4ca7-8e29-ac548a1563bb",
+    "name": "Indomaret",
+    "lat": -6.5608386,
+    "lng": 106.7912842,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "f8159710-2a34-41b0-a7e8-2d2f0cac5e5d",
+    "name": "Apotik Sehat",
+    "lat": -6.5654184,
+    "lng": 106.8100007,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "4fa92230-da2b-49c1-a33c-3e61d6ed99d1",
+    "name": "Apotek Paledang Farma",
+    "lat": -6.6013755,
+    "lng": 106.7929707,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "6adf4b0c-8223-4b49-b4c1-9adadfe4595f",
+    "name": "Apotek Ummi",
+    "lat": -6.6085041,
+    "lng": 106.7950098,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "a8b769fd-ada5-4afe-900e-f6055e769f90",
+    "name": "Apotek Zam Zam Farma 3",
+    "lat": -6.6078413,
+    "lng": 106.7960163,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "bc97ac22-4dcc-4542-945a-8c92c64a79a9",
+    "name": "Apotek Sehat Kota Bogor",
+    "lat": -6.6100374,
+    "lng": 106.7983451,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "bef4e183-70b8-4a75-91ab-c144c0f411d6",
+    "name": "Kimia Farma Apotek",
+    "lat": -6.6006701,
+    "lng": 106.7793176,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "b2ce50d1-b00a-4067-b3e0-2b0f8a3da499",
+    "name": "Apotek JagJag Waringkas",
+    "lat": -6.5982607,
+    "lng": 106.7792626,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "6cd7b84a-d1c1-4613-9b99-11028f24f137",
+    "name": "Apotek Deli",
+    "lat": -6.6013941,
+    "lng": 106.7798674,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "345afec6-3c22-45d4-b5e7-4d3ad6252654",
+    "name": "Apotek 99",
+    "lat": -6.6169028,
+    "lng": 106.8047912,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "ca117061-f301-4184-a9db-3699373d8aae",
+    "name": "Apotek Desma",
+    "lat": -6.6049951,
+    "lng": 106.7919776,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "255a59bc-dfc3-4dd7-8170-8a5cbc77c0d3",
+    "name": "Apotek Bunda Pancasan",
+    "lat": -6.6071499,
+    "lng": 106.7889474,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "4befa45f-4386-4f95-887f-ad896af1a0e0",
+    "name": "Apotek Pancasan",
+    "lat": -6.6068295,
+    "lng": 106.7887898,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "14ff2bbb-778c-4f5d-8be5-9d6411c433dd",
+    "name": "Apotik Empang",
+    "lat": -6.6135464,
+    "lng": 106.8032663,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "7d801142-84a7-423a-9e27-787a88dffe64",
+    "name": "Apotek Pangestu",
+    "lat": -6.6186047,
+    "lng": 106.8124281,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "924aad41-6702-4c86-bb03-6bec8265d016",
+    "name": "Apotek Kencana",
+    "lat": -6.6102386,
+    "lng": 106.8045551,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "66c2aa25-55c4-4de6-b861-4dbec045d36e",
+    "name": "Apotik Rosalina",
+    "lat": -6.6077774,
+    "lng": 106.8020422,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "b6c270f4-302e-40b3-8102-aeabf5a59435",
+    "name": "Apotik Medika",
+    "lat": -6.6056765,
+    "lng": 106.8005747,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "c2ecd9cf-d880-4387-9525-67f8fdd16bac",
+    "name": "Apotek Villa Duta",
+    "lat": -6.6120537,
+    "lng": 106.8142017,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "b81e222a-23fd-48ed-bf96-b1b716b71784",
+    "name": "Apotik Mandapa",
+    "lat": -6.6090383,
+    "lng": 106.8101744,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "a2c76885-120e-4778-bdf7-4653a769ccdb",
+    "name": "Apotek Century",
+    "lat": -6.6218019,
+    "lng": 106.8173553,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "25469565-a760-4547-83e0-ed0995e8ea35",
+    "name": "Apotek Deli Tajur",
+    "lat": -6.6270732,
+    "lng": 106.8226547,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "813bb026-1f41-452b-992c-cea75fd244ec",
+    "name": "Apotek Yapni",
+    "lat": -6.6258749,
+    "lng": 106.8216207,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "fc27c811-1481-4787-a204-095123d3834a",
+    "name": "Guardian",
+    "lat": -6.6334927,
+    "lng": 106.8267766,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "b2e1729c-3871-4e9c-8b73-b9e8f2fbc78b",
+    "name": "Apotek DNA Favorit",
+    "lat": -6.6363308,
+    "lng": 106.8286816,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "2d5d2e3e-8150-4fe1-b982-8abffe058d46",
+    "name": "Deka Farma",
+    "lat": -6.6366359,
+    "lng": 106.829149,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "85b00a93-b5db-4e8c-953b-64e397e9fba5",
+    "name": "Oke Apotek",
+    "lat": -6.6399159,
+    "lng": 106.8347367,
+    "district": "Bogor Selatan",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "860e552c-990f-42d7-8faa-1f7040c52480",
+    "name": "Apotek Mika",
+    "lat": -6.569418,
+    "lng": 106.8113304,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "0cc9a50e-0919-49af-be99-185f2c1f6966",
+    "name": "Dan Dan",
+    "lat": -6.5697564,
+    "lng": 106.8127955,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "db064d15-135c-4831-a1a6-a6e106625015",
+    "name": "Apotek Pakuan Farma",
+    "lat": -6.5698157,
+    "lng": 106.8132207,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "9edd82bd-8463-476f-894b-180c4e2ec6c5",
+    "name": "Apotek SBS Farma",
+    "lat": -6.5882163,
+    "lng": 106.8166311,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "9069be3e-1091-448a-9d1d-6adf50d859c7",
+    "name": "Apotek Sentral",
+    "lat": -6.5815717,
+    "lng": 106.812986,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "09532b2c-b1a0-436b-9186-9b23b55e8031",
+    "name": "Dan Dan",
+    "lat": -6.581649,
+    "lng": 106.8131939,
+    "district": "Bogor Timur",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "71156c2a-9858-4f39-8674-518c238c73a6",
+    "name": "kimia farma Apotek",
+    "lat": -6.5662963,
+    "lng": 106.8009288,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "13d0a168-c263-483b-8fab-caec5e072ce4",
+    "name": "Apotek Afiat Binarum",
+    "lat": -6.5667102,
+    "lng": 106.8010459,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "6ec59c4f-80af-4149-8b0d-2ed8b3ce7141",
+    "name": "HAGU Coffee & Space",
+    "lat": -6.5915131,
+    "lng": 106.8080215,
+    "district": "Bogor Tengah",
+    "address": "Jl. Sancang. 22 A RT 003/007, Babakan, Bogor Tengah, Bogor City, West Java 16128",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "90c9dd0f-c09c-4777-9013-ed5109c9ef29",
+    "name": "Third Wave Coffee Co Indonesia",
+    "lat": -6.5993439,
+    "lng": 106.8056651,
+    "district": "Bogor Tengah",
+    "address": "Jl. Prof. DR. H. Andi Hakim Nasoetion No.1, Tegallega, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16129",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "c4e6fc2b-02b9-4ca0-ad5c-4a3e4f710760",
+    "name": "COFFEERIGHT - A. YANI BOGOR",
+    "lat": -6.5746463,
+    "lng": 106.800988,
+    "district": "Bogor Utara",
+    "address": "Jl. A. Yani No.29A, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "65a9370b-124c-4960-ad88-1c66d592f05c",
+    "name": "MARACA BOOKS AND COFFEE",
+    "lat": -6.5932014,
+    "lng": 106.8030081,
+    "district": "Bogor Tengah",
+    "address": "Jl. Jalak Harupat No.9a, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16122",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "5237b070-d1d8-494f-9ffa-d3cc9a6cc023",
+    "name": "Tanmu Coffee",
+    "lat": -6.611064,
+    "lng": 106.8142145,
+    "district": "Bogor Timur",
+    "address": "Jl. Pajajaran Indah V No.38, RT.01/RW.11, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "b2ed4578-56c3-40d7-8931-0892fb624f43",
+    "name": "Cabin Coffee Bogor",
+    "lat": -6.6108598,
+    "lng": 106.8199169,
+    "district": "Bogor Timur",
+    "address": "Jl. Kol. Ahmad Syam, RT.02/RW.05, Katulampa, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16144",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "2f8d9fb4-4aef-4cd3-af94-4bd9f38a59c8",
+    "name": "Kopitagram - Malabar",
+    "lat": -6.5948743,
+    "lng": 106.8062927,
+    "district": "Bogor Tengah",
+    "address": "Jl. Malabar Ujung No.1, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16128",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "b24e8f44-1a06-4764-bfe3-70696e30bef7",
+    "name": "KOBA Coffee.id",
+    "lat": -6.6007363,
+    "lng": 106.7922251,
+    "district": "Tanah Sareal",
+    "address": "Jl. Paledang No.41, Paledang, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16122",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "6ecb6483-a041-49fa-9bdc-698b3cfef227",
+    "name": "FOUR CORNERS - Coffee Shop Bogor",
+    "lat": -6.5892521,
+    "lng": 106.7853718,
+    "district": "Tanah Sareal",
+    "address": "Jl. DR. Sumeru No.44, Kota, Kec. Bogor Bar., Kota Bogor, Jawa Barat 16111",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "ee89edbf-4eae-464f-a04e-22fcff1a8f6e",
+    "name": "HAFA Coffee & Kitchen",
+    "lat": -6.5744574,
+    "lng": 106.8178475,
+    "district": "Bogor Utara",
+    "address": "Jl. Pandu Raya No.3 blok G2, Tegal Gundil, Kec. Bogor Utara, Kota Bogor, Jawa Barat 16152",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "1aa7613f-d269-4f9a-afb6-b3f8969caf31",
+    "name": "Anami Coffee",
+    "lat": -6.575703,
+    "lng": 106.8000686,
+    "district": "Bogor Utara",
+    "address": "Jl. A. Yani No.15, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "ebdaca45-842c-4db0-8dc9-5292a0edc8d4",
+    "name": "Awal Mula Coffee",
+    "lat": -6.6043804,
+    "lng": 106.8102878,
+    "district": "Bogor Timur",
+    "address": "Jl. Binamarga II No.5A, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "557b46e9-b557-4061-b2c9-f91d5890c9cc",
+    "name": "POPOLO Coffee",
+    "lat": -6.6055017,
+    "lng": 106.810707,
+    "district": "Bogor Timur",
+    "address": "Jl. Loader No.9, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "823ebc37-b541-4aa5-8829-8c2217072d63",
+    "name": "Agreya Coffee - Bogor",
+    "lat": -6.5924597,
+    "lng": 106.816228,
+    "district": "Bogor Timur",
+    "address": "Jl. Kol. Enjo Martadisastra Jl. Kol. Ahmad Syam No.45 E, RT.04/RW.10, Tanah Baru, Kec. Bogor Utara, Kota Bogor, Jawa Barat 16154",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "9dab4e98-1f8a-4c4d-acc7-ea477f11c6be",
+    "name": "Lorong Temu Coffee & Eatery",
+    "lat": -6.5702616,
+    "lng": 106.8034132,
+    "district": "Bogor Utara",
+    "address": "Jl. Bangau No.22, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "c04b42ae-907d-4367-abca-0888771caf57",
+    "name": "The Gade Coffee & Gold Bogor",
+    "lat": -6.584385,
+    "lng": 106.7878394,
+    "district": "Tanah Sareal",
+    "address": "Jalan Merdeka No.156 RT.1/RW.5, RT.01/RW.05, Ciwaringin, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16111",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "a9a3c3d3-ee3d-40cf-aab0-30495d127733",
+    "name": "Baked & Brewed Coffee and Kitchen",
+    "lat": -6.5921575,
+    "lng": 106.8022838,
+    "district": "Bogor Tengah",
+    "address": "Jl. Salak No.6, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16152",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "cb13900b-90e4-4272-8d0a-8905eabefa58",
+    "name": "Rumah Seduh Coffee and Kitchen",
+    "lat": -6.5913578,
+    "lng": 106.8074248,
+    "district": "Bogor Tengah",
+    "address": "Jl. Sancang No.16, RT.03/RW.07, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16128",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "53609aee-5972-40d3-b3ef-2e51b42c3848",
+    "name": "Kedai Kopi Handoko",
+    "lat": -6.5996647,
+    "lng": 106.8178428,
+    "district": "Bogor Timur",
+    "address": "Jl. Kolonel Martadisastra Jl. Kol. Ahmad Syam, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16154",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "fbc8b95b-0bea-444a-98a6-552a0455be48",
+    "name": "Kopi Nako & Warung Nako Padjajaran",
+    "lat": -6.609612,
+    "lng": 106.8130402,
+    "district": "Bogor Timur",
+    "address": "Jl. Pajajaran Indah V No.7, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "9a6aa72c-e368-4904-891f-7e87c08edf77",
+    "name": "shu coffee",
+    "lat": -6.5920881,
+    "lng": 106.7880895,
+    "district": "Tanah Sareal",
+    "address": "Jl. Merdeka No.78, RT.01/RW.02, Ciwaringin, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16124",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "56c4396c-5204-4c1f-ab16-a161592797eb",
+    "name": "Tsuin Bogor Raya at Padi Space",
+    "lat": -6.5976351,
+    "lng": 106.8189419,
+    "district": "Bogor Timur",
+    "address": "Jl. Kp. Sawah No.2, Tanah Baru, Kec. Bogor Utara, Kota Bogor, Jawa Barat 16154",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "6a5467da-52ca-4ab2-b431-3502586c6beb",
+    "name": "LATERRA CAFE",
+    "lat": -6.5724473,
+    "lng": 106.742097,
+    "district": "Bogor Utara",
+    "address": "Jl. Raya Dramaga No.1, Margajaya, Kec. Bogor Bar., Kota Bogor, Jawa Barat 16116",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "2557e877-6991-49a4-84d5-58b5dc2cac38",
+    "name": "Dimitree Cafe",
+    "lat": -6.5895609,
+    "lng": 106.802522,
+    "district": "Bogor Tengah",
+    "address": "Jl. Pangrango No.5, RT.04/RW.04, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16128",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "17745683-a6a8-448e-a4ef-e98a43a96c1d",
+    "name": "Miru Coffee",
+    "lat": -6.6117969,
+    "lng": 106.8143544,
+    "district": "Bogor Timur",
+    "address": "Jl. Pajajaran Indah No.7, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "085720db-9de5-40fa-abc6-c30d43891049",
+    "name": "MODESTO Coffee & Tea",
+    "lat": -6.5822142,
+    "lng": 106.7880193,
+    "district": "Tanah Sareal",
+    "address": "Jl. Tentara Pelajar Jl. Balitro No.4, RT.03/RW.5, Ciwaringin, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16111",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "100e1539-d37b-4a6b-800f-9e8e4a112dd6",
+    "name": "Fanaticoffee - Coffeetaria",
+    "lat": -6.6073095,
+    "lng": 106.8016274,
+    "district": "Bogor Tengah",
+    "address": "Suryakencana St No.172, Gudang, Bogor Tengah, Bogor City, West Java 16123",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "7947fd93-f1b2-49ab-a457-f7db8f4af1f3",
+    "name": "KOPI TUGOH SIGNATURE",
+    "lat": -6.5887213,
+    "lng": 106.8046859,
+    "district": "Bogor Tengah",
+    "address": "Jl. Raya Pajajaran No.2, RT.02/RW.04, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16128",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "33fd4173-c470-4aa0-a067-7c8c84dc274d",
+    "name": "TR Coffee",
+    "lat": -6.6097913,
+    "lng": 106.8131365,
+    "district": "Bogor Timur",
+    "address": "Jl. Pajajaran Indah V No.8, RT.01/RW.11, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "2fb1d072-6755-489f-b554-981d797a6df2",
+    "name": "TOMORO COFFEE - Pandu Raya Bogor",
+    "lat": -6.5870134,
+    "lng": 106.8165136,
+    "district": "Bogor Timur",
+    "address": "Achmad Adnawijaya St No.113a, RT.02/RW.16, Tegal Gundil, Bogor Utara, Bogor City, West Java 16152",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "c9eebe0d-7fec-405c-9150-2211565d9168",
+    "name": "Anthology Coffee And Tea",
+    "lat": -6.5753676,
+    "lng": 106.8644623,
+    "district": "Bogor Utara",
+    "address": "Komplek Danau Teratai Jl. MH. Thamrin, RT.03/RW.08, Cijayanti, Kec. Babakan Madang, Kabupaten Bogor, Jawa Barat 16810",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "d0286d8b-bafd-4e03-82c3-98ac8fff72e4",
+    "name": "Volcan Coffee & Space",
+    "lat": -6.5850479,
+    "lng": 106.804463,
+    "district": "Bogor Tengah",
+    "address": "Jl. Guntur No.34, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16128",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "ac05903a-ffbd-4b7c-b8e5-a145b665f744",
+    "name": "Lumos Coffee Studio",
+    "lat": -6.5694265,
+    "lng": 106.7772017,
+    "district": "Bogor Utara",
+    "address": "Jl. Bambu Raya No.22, RT.05/RW.11, Cilendek Tim., Kec. Bogor Bar., Kota Bogor, Jawa Barat 16112",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "4954812f-02cc-416c-b679-f56c9229af56",
+    "name": "EveryThey Coffee and Plant",
+    "lat": -6.5801637,
+    "lng": 106.7509668,
+    "district": "Bogor Barat",
+    "address": "CQ92+WFJ, Jl. Sawah Baru No.85, Laladon, Kec. Ciomas, Kabupaten Bogor, Jawa Barat 16610",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "0a8f2053-0895-4c0d-898e-938e946fa820",
+    "name": "Spoke Coffee Bogor",
+    "lat": -6.5856449,
+    "lng": 106.816602,
+    "district": "Bogor Timur",
+    "address": "Jl. Achmad Adnawijaya No.85, RT.02/RW.16, Tegal Gundil, Kec. Bogor Utara, Kota Bogor, Jawa Barat 16152",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "5c3c8494-d6a6-4bf4-9c9b-bf187c9c4cec",
+    "name": "Legacy indonesian coffee",
+    "lat": -6.5725312,
+    "lng": 106.7747495,
+    "district": "Bogor Utara",
+    "address": "Jl. Cilendek Timur Raya No.10, RT.001/RW.003, Cilendek Tim., Kec. Bogor Bar., Kota Bogor, Jawa Barat 16112",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "29c1f4f5-0b4b-4998-a7a7-7517714884a9",
+    "name": "Shell Select",
+    "lat": -6.5652818,
+    "lng": 106.8459718,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "e1af5cca-9f08-4f3b-b0e3-1da63656dd10",
+    "name": "SNDAY COFFEE",
+    "lat": -6.5706068,
+    "lng": 106.802529,
+    "district": "Bogor Utara",
+    "address": "Jl. Beo No.3, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "82f8240e-ca38-4f6a-b2c2-f2d770720f19",
+    "name": "The Coffee Companion Coffee Roaster",
+    "lat": -6.5824469,
+    "lng": 106.811316,
+    "district": "Bogor Timur",
+    "address": "Jl. Artzimar I No.16B, Tegal Gundil, Kec. Bogor Utara, Kota Bogor, Jawa Barat 16152",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "dc2d20c9-9a56-4038-ae3c-7c60ace0388d",
+    "name": "Fore Coffee - Yogya Bogor Junction",
+    "lat": -6.5893091,
+    "lng": 106.7965333,
+    "district": "Tanah Sareal",
+    "address": "Jl. Pabaton No.63, RT.02/RW.03, Sempur, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16121",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "a7a33320-4bd8-4a7b-bafb-7667e6060731",
+    "name": "Second Home Coffee & Eatery",
+    "lat": -6.5884089,
+    "lng": 106.8053913,
+    "district": "Bogor Tengah",
+    "address": "Jl. Raya Pajajaran No.1, RT.03/RW.06, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16128",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "c1c04735-cf4a-4e2d-95ae-a81865d08838",
+    "name": "Ejji Coffee Corner District 26 Bogor Utara",
+    "lat": -6.5817782,
+    "lng": 106.8167374,
+    "district": "Bogor Timur",
+    "address": "Jl. Achmad Sobana No.21, RT.02/RW.14, Tegal Gundil, Kec. Bogor Utara, Kota Bogor, Jawa Barat 16152",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "406b35f9-c4fc-4fb8-aa14-204fe7cca014",
+    "name": "Resto coffee sisi barat",
+    "lat": -6.5625107,
+    "lng": 106.7442433,
+    "district": "Bogor Utara",
+    "address": "Jl. Batu Hulung, RT.02/RW.02, Balungbangjaya, Kec. Bogor Bar., Kota Bogor, Jawa Barat 16116",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "53ed85e9-0349-4b5b-9596-2728919c448d",
+    "name": "Kopi Cinta Asli Bogor",
+    "lat": -6.6013142,
+    "lng": 106.7924432,
+    "district": "Tanah Sareal",
+    "address": "Jl. Paledang no 26&28, RT.01/RW.10, Paledang, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16125",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "ffb5efc4-f810-4d83-8e0d-3583f1b8948d",
+    "name": "Say Hello Coffee-Cakes Story",
+    "lat": -6.6052125,
+    "lng": 106.810097,
+    "district": "Bogor Timur",
+    "address": "Jl. Bina Marga No.23, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "a9f2ff36-1ee7-42fc-99d1-661c2e2eb721",
+    "name": "Artisan Coffee Indonesia",
+    "lat": -6.595648,
+    "lng": 106.8063099,
+    "district": "Bogor Tengah",
+    "address": "RT.02/RW.08, Babakan, Bogor Tengah, Bogor City, West Java 16129",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "7741bfff-fa38-4876-80d0-bf62eea5cfbe",
+    "name": "Kawan Baru | Coffee & Kitchen",
+    "lat": -6.6088147,
+    "lng": 106.8122691,
+    "district": "Bogor Timur",
+    "address": "RT.01/RW.11, Baranangsiang, Bogor Timur, Bogor City, West Java 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "fa6f55e3-d350-405b-8cc8-35fdb9cdbda6",
+    "name": "PICCOLO COFFEE LOUNGE",
+    "lat": -6.5906121,
+    "lng": 106.8033287,
+    "district": "Bogor Tengah",
+    "address": "Jl. Pangrango No.9A, RT.04/RW.04, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16151",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "eb920ba0-04ea-4394-8747-928d68b22d31",
+    "name": "Seahorse Coffee and Kitchen",
+    "lat": -6.6103203,
+    "lng": 106.8198977,
+    "district": "Bogor Timur",
+    "address": "Jl. Kol. Ahmad Syam, RT.05/RW.05, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "87a326c9-6433-4e3e-9642-12dd34a2afc3",
+    "name": "UNCLEJOKOPI.ID",
+    "lat": -6.5940392,
+    "lng": 106.7924582,
+    "district": "Tanah Sareal",
+    "address": "Jalan Gedong Sawah 1 No. 30A, RT.02/RW.01, Pabaton, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16121",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "bc71fbdb-0ede-4503-8992-e6c8accb6456",
+    "name": "No.101 Coffee",
+    "lat": -6.5993779,
+    "lng": 106.8155229,
+    "district": "Bogor Timur",
+    "address": "Jl. Padi No.101, RT.03/RW.09, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "4428230b-d475-4500-be53-7f9ab32305c2",
+    "name": "Mardika coffee roastery etc BINA MARGA",
+    "lat": -6.6046556,
+    "lng": 106.808141,
+    "district": "Bogor Tengah",
+    "address": "Jl. Bina Marga No.1, RT.04/RW.11, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "c83b6e81-cfa6-4b97-b0bb-230494013f06",
+    "name": "Imah Nini Coffee & Kitchen",
+    "lat": -6.590997,
+    "lng": 106.806387,
+    "district": "Bogor Tengah",
+    "address": "Jl. Sancang No.7, A-B, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16151",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "3e486ffb-85b3-4fd9-8f9e-fee26fe838e8",
+    "name": "Crove coffee",
+    "lat": -6.6080662,
+    "lng": 106.8191664,
+    "district": "Bogor Timur",
+    "address": "Jln Kol H Achmad Syam No.003/014, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "4f936ba7-8793-4f05-b036-51e1eefeef9a",
+    "name": "Dreezel Coffee Bincarung Bogor",
+    "lat": -6.57038,
+    "lng": 106.80091,
+    "district": "Bogor Utara",
+    "address": "Jl. Bincarung No.14, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "e830fe50-a21e-4496-afd8-cb9f4774d666",
+    "name": "JCO RESERVE SUDIRMAN BOGOR",
+    "lat": -6.5845928,
+    "lng": 106.7970422,
+    "district": "Tanah Sareal",
+    "address": "Jl. Jend. Sudirman No.37, RT.01/RW.05, Sempur, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16121",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "95c21717-0e3f-4fb9-9b54-4003c7f01773",
+    "name": "Ta-Mu Coffee",
+    "lat": -6.5666884,
+    "lng": 106.8028476,
+    "district": "Bogor Utara",
+    "address": "Jl. Dadali No.7, RT.03/RW.05, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "a216a946-6965-490d-a0fc-71ea1036e035",
+    "name": "Kopi Oey Bogor",
+    "lat": -6.6025458,
+    "lng": 106.8061615,
+    "district": "Bogor Tengah",
+    "address": "Gedung Himpunan Alumni IPB, Jl. Cidangiang No.1, RT.04/RW.05, Tegallega, Bogor Tengah, Bogor City, West Java 16680",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "85d78128-10bf-4923-8990-84caf5bea0d6",
+    "name": "Aumont Kofie",
+    "lat": -6.5707789,
+    "lng": 106.8043429,
+    "district": "Bogor Utara",
+    "address": "Jl. A. Yani No.2, RT.05/RW.04, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "f410163e-789c-46b1-8c45-e66f60fa7ff3",
+    "name": "Cafe de Aut",
+    "lat": -6.6098269,
+    "lng": 106.8044633,
+    "district": "Bogor Tengah",
+    "address": "Suryakencana St No.287, RT.04/RW.02, Babakan Pasar, Bogor Tengah, Bogor City, West Java 16123",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "86c3fd7f-df70-4007-bc92-a8228122e612",
+    "name": "Groovy Space",
+    "lat": -6.5887047,
+    "lng": 106.7944397,
+    "district": "Tanah Sareal",
+    "address": "Jl. Sawojajar, Pabaton, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16121",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "9bfd98b2-8f61-4ab8-9308-ea9960070f93",
+    "name": "Btari Coffee & Coworking Space",
+    "lat": -6.5826705,
+    "lng": 106.7787782,
+    "district": "Tanah Sareal",
+    "address": "Jl. DR. Sumeru No.3, Menteng, Kec. Bogor Bar., Kota Bogor, Jawa Barat 16111",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "ea239013-a0a0-4601-9bcf-263f65e01777",
+    "name": "High & Dry Coffee Company",
+    "lat": -6.6075948,
+    "lng": 106.7948644,
+    "district": "Tanah Sareal",
+    "address": "Jl. Empang No.12, Empang, Kec. Bogor Sel., Kota Bogor, Jawa Barat 16132",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "f8079e4a-6691-4a5b-8c15-b477633d26f7",
+    "name": "INI CAFÉ",
+    "lat": -6.5917677,
+    "lng": 106.8023441,
+    "district": "Bogor Tengah",
+    "address": "Jl. Salak No.8, RT.04/RW.04, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16129",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "d1a617d8-f7ac-4547-8326-cfce54b79bb1",
+    "name": "BUITENS",
+    "lat": -6.5698506,
+    "lng": 106.8000277,
+    "district": "Bogor Utara",
+    "address": "Jl. Puter No.07, RT.03/RW.06, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "260251b4-58a5-4ca0-af41-9aba0bd686fb",
+    "name": "Starbucks Sudirman",
+    "lat": -6.5905202,
+    "lng": 106.7972608,
+    "district": "Tanah Sareal",
+    "address": "Jl. Jend. Sudirman No.12, RT.03/RW.05, Sempur, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16121",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "5a92837e-7fd7-4402-952d-85c41b8e51f5",
+    "name": "I Love Bogor Warung Kopi Kereta",
+    "lat": -6.595758,
+    "lng": 106.7908385,
+    "district": "Tanah Sareal",
+    "address": "CQ3R+P8G, RT.04/RW.06, Cibogor, Bogor Tengah, Bogor City, West Java",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "eb185b02-f47d-4ca2-8979-57103da97552",
+    "name": "KOPI KLAN - Beo",
+    "lat": -6.5704844,
+    "lng": 106.8018843,
+    "district": "Bogor Utara",
+    "address": "Jl. Beo No.7, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "91a3d206-2511-4cc4-9dd0-7e16ecab6258",
+    "name": "The Classic Cafe Bogor",
+    "lat": -6.560503,
+    "lng": 106.7846437,
+    "district": "Bogor Utara",
+    "address": "Jl. Pelita Jaya Ⅲ No.2, Kedung Jaya, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16164",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "07eadbfc-605d-40ca-be89-c7a6b55884ab",
+    "name": "Kopi Nako Djuanda Bogor",
+    "lat": -6.6014859,
+    "lng": 106.7948799,
+    "district": "Tanah Sareal",
+    "address": "9QXW+C27, RT.01/RW.07, Paledang, Bogor Tengah, Bogor City, West Java 16122",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "0e5d1bff-a18c-4cce-9c89-28a343ec4aa1",
+    "name": "Vivere Coffee",
+    "lat": -6.5977051,
+    "lng": 106.8058286,
+    "district": "Bogor Tengah",
+    "address": "Jl. Taman Malabar No.20a, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16129",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "28e5a657-6199-4045-9091-a5d49c28192a",
+    "name": "Stockholm Syndrome",
+    "lat": -6.614055,
+    "lng": 106.8129772,
+    "district": "Bogor Timur",
+    "address": "Jl. Pulo Armin No.15, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "6ca7726d-73aa-4c3d-a432-284c32c33a43",
+    "name": "Lili seduh saji",
+    "lat": -6.5963156,
+    "lng": 106.806075,
+    "district": "Bogor Tengah",
+    "address": "Jl. Taman Malabar No.5, RT.01/RW.04, Babakan, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16128",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "635031e3-49fe-4844-b09b-f2d67f2b488f",
+    "name": "Kafe Studente Yasmin",
+    "lat": -6.5611524,
+    "lng": 106.7659084,
+    "district": "Bogor Utara",
+    "address": "Ringroad Utara, Jl. KH. R. Abdullah Bin Nuh Jl. Ring Road Taman Yasmin, Curugmekar, Kec. Bogor Bar., Kota Bogor, Jawa Barat 16118",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "25008e20-fe58-41a1-9281-05fb13f27de5",
+    "name": "Indomaret",
+    "lat": -6.5564961,
+    "lng": 106.7819231,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "00589ba7-4f24-4fe2-ada5-beceb66696d8",
+    "name": "RP House BOGOR by KOPI KAMU",
+    "lat": -6.5842442,
+    "lng": 106.8002797,
+    "district": "Bogor Tengah",
+    "address": "Jl. Ciremei Ujung No.20, RT.05/RW.03, Bantarjati, Kec. Bogor Utara, Kota Bogor, Jawa Barat 16153",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "c0425574-edcc-42d2-bfae-81562c8864f8",
+    "name": "Point Coffee",
+    "lat": -6.6099558,
+    "lng": 106.7924786,
+    "district": "Tanah Sareal",
+    "address": "Jl. Kapten Yusuf No.11, RT.02/RW.08, RT.02/RW.08, Kp. Parung Jambu, Pasir Jaya, Kec. Bogor Bar., Kota Bogor, Jawa Barat 16119",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "a7704a09-64c5-48a0-aa53-e8a0773c8ebd",
+    "name": "Popolo Coffee Mini",
+    "lat": -6.6092842,
+    "lng": 106.8169335,
+    "district": "Bogor Timur",
+    "address": "Jl. Rena Wijaya, RT.08/RW.14, Baranangsiang, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16143",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "d18db364-13c8-4273-af3b-76fa1ac5b0d9",
+    "name": "Point Coffee",
+    "lat": -6.5756508,
+    "lng": 106.8381015,
+    "district": "Bogor Utara",
+    "address": "Cimahpar, Bogor Utara, Bogor City, West Java 16710",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "93ea0fe6-65f9-40ac-b163-ad45620c9ca2",
+    "name": "AR Carwash & KumenAnti Coffee",
+    "lat": -6.5661295,
+    "lng": 106.7841432,
+    "district": "Bogor Utara",
+    "address": "Jl. Raya Taman Cimanggu No.47A, RT.03/RW.15, Kedung Waringin, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16163",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "929084c6-b5db-4ca6-acf9-d61adf9e73ef",
+    "name": "Cinta Lagi Coffee",
+    "lat": -6.623332,
+    "lng": 106.8119008,
+    "district": "Bogor Selatan",
+    "address": "Jl. Lawang Gintung No.57, RT.02/RW.06, Lawanggintung, Kec. Bogor Sel., Kota Bogor, Jawa Barat 16134",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "397f4d9c-5a21-49bf-9d0c-dc64df3327c4",
+    "name": "UD. Djaya Coffee House - Puter",
+    "lat": -6.5702285,
+    "lng": 106.7999783,
+    "district": "Bogor Utara",
+    "address": "Jl. Puter No.4, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "7e1bb636-0475-4114-8d78-7ab104d70df1",
+    "name": "Genus Coffee & Boutique",
+    "lat": -6.5611108,
+    "lng": 106.7494972,
+    "district": "Bogor Utara",
+    "address": "Jl. Raya Cifor No.8, RT.01/RW.05, Situgede, Kec. Bogor Bar., Kota Bogor, Jawa Barat 16115",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "2de9cfe7-1da2-4026-9268-6d4fbec177bc",
+    "name": "1996 Coffee & Talk",
+    "lat": -6.5698722,
+    "lng": 106.8118357,
+    "district": "Bogor Utara",
+    "address": "Jl. Achmad Adnawijaya No.9, RT.06/RW.15, Bantarjati, Kec. Bogor Utara, Kota Bogor, Jawa Barat 16153",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "7f70943e-0678-46ea-b758-295590d8c5ac",
+    "name": "Kopi Kenangan - Ruko Sudirman Bogor",
+    "lat": -6.5818811,
+    "lng": 106.7969521,
+    "district": "Tanah Sareal",
+    "address": "Jl. Jend. Sudirman No.60, RT.03/RW.05, Sempur, Kecamatan Bogor Tengah, Kota Bogor, Jawa Barat 16121",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "6f21fdaa-29c4-41dd-8595-30c1e4d95914",
+    "name": "UD. Djaya Coffee House - Cimanggu",
+    "lat": -6.564085,
+    "lng": 106.7886793,
+    "district": "Bogor Utara",
+    "address": "Jl. Singosari, Jl. Dahlia Mesjid Blk. A1 Perumahan Cimanggu Permai No.1, RT.04/RW.06, Kedung Jaya, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16164",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "20c4496d-aae6-4ac5-b9cc-b85932ae31e4",
+    "name": "DARI BHUMI",
+    "lat": -6.572731,
+    "lng": 106.8029708,
+    "district": "Bogor Utara",
+    "address": "Jl. A. Yani No.94 B, RT.01/RW.03, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "b14549d7-f6df-4fcb-a61a-698285ca73b8",
+    "name": "Eiger Coffee",
+    "lat": -6.6224367,
+    "lng": 106.8171173,
+    "district": "Bogor Selatan",
+    "address": "Jl. Siliwangi No.70, RW.04, Sukasari, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16131",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "d60467c7-07d5-421f-859b-1e6548ac731e",
+    "name": "Kopi Kebun Coffee Crafter",
+    "lat": -6.5677224,
+    "lng": 106.8022075,
+    "district": "Bogor Utara",
+    "address": "Jl. Ciung No.3, RT.04/RW.05, Tanah Sareal, Kec. Tanah Sereal, Kota Bogor, Jawa Barat 16161",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "8afcb6fd-d12b-4b00-bc17-6ca0f36e873a",
+    "name": "Koffie By Sarah (KBS)",
+    "lat": -6.6229122,
+    "lng": 106.8249575,
+    "district": "Bogor Selatan",
+    "address": "Jl. Parung Banteng No.89, RT.02/RW.01, Katulampa, Kec. Bogor Tim., Kota Bogor, Jawa Barat 16144",
+    "category": "Coffee Shop",
+    "businessType": "coffee_shop"
+  },
+  {
+    "id": "adbe0ed9-32f1-4b23-9da6-8f215feca379",
+    "name": "Circle K",
+    "lat": -6.5920208,
+    "lng": 106.8059034,
+    "district": "Bogor Tengah",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "b14a331e-1783-4536-81ec-611d79bba5c4",
+    "name": "Apotek Utama",
+    "lat": -6.602511,
+    "lng": 106.7676825,
+    "district": "Bogor Barat",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "44e70483-9e45-4a64-8bed-4eb72e90f14f",
+    "name": "Apotek Gama",
+    "lat": -6.5306303,
+    "lng": 106.7973333,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  },
+  {
+    "id": "293b938a-b3a5-4b84-a74e-f47e96542c94",
+    "name": "Alfamart",
+    "lat": -6.575049,
+    "lng": 106.811104,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "67af1482-726a-44d5-a7cb-4d8d642d3be2",
+    "name": "Indomaret",
+    "lat": -6.6009708,
+    "lng": 106.7810205,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "3bc211f6-6db0-4730-9a8a-53f762715ce6",
+    "name": "Indomaret",
+    "lat": -6.5949872,
+    "lng": 106.7903153,
+    "district": "Tanah Sareal",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "5bb12aa4-31ad-4281-a1ae-ca223b6c3827",
+    "name": "Podjok Halal",
+    "lat": -6.5639874,
+    "lng": 106.8362183,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Minimarket",
+    "businessType": "minimarket"
+  },
+  {
+    "id": "763672e8-fb9e-46df-8778-7d6d1fd99198",
+    "name": "Apotek Ceria",
+    "lat": -6.5307833,
+    "lng": 106.7984603,
+    "district": "Bogor Utara",
+    "address": "",
+    "category": "Apotek",
+    "businessType": "apotek"
+  }
+]

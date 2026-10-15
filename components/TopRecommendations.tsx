@@ -15,7 +15,7 @@ import {
   Star,
   Radio,
 } from 'lucide-react';
-import { TopsisCandidateResult } from '@/lib/types';
+import { TopsisCandidateResult, BusinessType, BUSINESS_TYPES } from '@/lib/types';
 import { BOGOR_DISTRICTS } from '@/data/bogor-spatial';
 import {
   formatBusinessScore,
@@ -27,6 +27,7 @@ interface TopRecommendationsProps {
   selectedCandidateId: string | null;
   onSelectCandidate: (candidate: TopsisCandidateResult) => void;
   radiusMeters?: number;
+  businessType?: BusinessType;
 }
 
 export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
@@ -34,8 +35,10 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
   selectedCandidateId,
   onSelectCandidate,
   radiusMeters = 250,
+  businessType = 'coffee_shop',
 }) => {
   const [districtFilter, setDistrictFilter] = useState<string>('ALL');
+  const currentBusiness = BUSINESS_TYPES[businessType] || BUSINESS_TYPES.coffee_shop;
 
   // Filter out restricted spots (cemeteries, police, military) and apply district filter
   const filteredCandidates = candidates.filter((c) => {
@@ -104,7 +107,7 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
             <Trophy className="w-4 h-4 text-amber-400" />
-            <span>Top 10 Zona Rekomendasi (±{radiusMeters}m)</span>
+            <span>Top 10 Zona Rekomendasi {currentBusiness.shortName} (±{radiusMeters}m)</span>
           </span>
           <span className="text-[11px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded font-mono">
             {filteredCandidates.length} Titik Layak Usaha
@@ -214,7 +217,7 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
                 <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-800/70 pl-2 text-[11px]">
                   <div className="flex items-center gap-1.5 text-slate-300">
                     <Compass className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                    <span className="text-slate-400">Jarak Kafe:</span>
+                    <span className="text-slate-400">Jarak {currentBusiness.shortName}:</span>
                     <strong className="text-white ml-auto font-mono">
                       {Math.round(candidate.c1_dist_competitor)} m
                     </strong>

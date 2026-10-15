@@ -20,7 +20,7 @@ import {
   BarChart3,
   Star,
 } from 'lucide-react';
-import { SurveyPointEvaluation } from '@/lib/types';
+import { SurveyPointEvaluation, BusinessType, BUSINESS_TYPES } from '@/lib/types';
 import {
   formatBusinessScore,
   getStarRating,
@@ -32,6 +32,7 @@ interface SurveyLocationModalProps {
   survey: SurveyPointEvaluation | null;
   onFocusMap?: (lat: number, lng: number) => void;
   onNewSurvey?: () => void;
+  businessType?: BusinessType;
 }
 
 export const SurveyLocationModal: React.FC<SurveyLocationModalProps> = ({
@@ -40,9 +41,11 @@ export const SurveyLocationModal: React.FC<SurveyLocationModalProps> = ({
   survey,
   onFocusMap,
   onNewSurvey,
+  businessType = 'coffee_shop',
 }) => {
   const [copied, setCopied] = useState(false);
   const [activeTab, setActiveTab] = useState<'summary' | 'swot' | 'matrix'>('summary');
+  const currentBusiness = BUSINESS_TYPES[businessType] || BUSINESS_TYPES.coffee_shop;
 
   if (!isOpen || !survey) return null;
 
@@ -93,7 +96,7 @@ export const SurveyLocationModal: React.FC<SurveyLocationModalProps> = ({
 
   const handleCopyReport = () => {
     const reportText = `
-=== LAPORAN EVALUASI KELAYAKAN LOKASI KEDAI KOPI ===
+=== LAPORAN EVALUASI KELAYAKAN LOKASI ${currentBusiness.name.toUpperCase()} ===
 Koordinat: ${survey.lat.toFixed(5)}, ${survey.lng.toFixed(5)}
 Kecamatan: ${survey.districtName || 'Luar Wilayah Kota'}
 Skor Kelayakan: ${businessScore}/100 (${badge.badgeText})
@@ -264,7 +267,7 @@ ${survey.swot.verdict}
                 <div className="p-3 rounded-xl bg-slate-950/60 border border-slate-800 space-y-1">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-semibold text-amber-400 flex items-center gap-1">
-                      🏪 Faktor Persaingan Kafe
+                      🏪 Faktor Persaingan {currentBusiness.shortName}
                     </span>
                     <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 font-mono">
                       {survey.c1_dist_competitor >= 400 ? 'Persaingan Rendah' : 'Persaingan Ketat'}
@@ -274,7 +277,7 @@ ${survey.swot.verdict}
                     {survey.c1_dist_competitor} <span className="text-xs text-slate-400 font-normal">meter</span>
                   </div>
                   <div className="text-[11px] text-slate-400 truncate" title={survey.nearestCompetitorName}>
-                    Kafe Terdekat: <strong className="text-slate-200">{survey.nearestCompetitorName}</strong>
+                    Kompetitor Terdekat: <strong className="text-slate-200">{survey.nearestCompetitorName}</strong>
                   </div>
                   <p className="text-[10px] text-slate-500">
                     {survey.c1_dist_competitor >= 400

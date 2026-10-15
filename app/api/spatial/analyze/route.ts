@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { buildAhpMatrix, calculateAhp } from '@/lib/ahp';
 import { calculateTopsis } from '@/lib/topsis';
-import { BOGOR_GRID_CANDIDATES } from '@/data/bogor-spatial';
+import { BOGOR_GRID_CANDIDATES, getCandidatesForBusinessType } from '@/data/bogor-spatial';
 import { getSupabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
-import { SpatialCandidate } from '@/lib/types';
+import { SpatialCandidate, BusinessType } from '@/lib/types';
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    let { matrix, pairs, weights } = body;
+    let { matrix, pairs, weights, businessType = 'coffee_shop' } = body;
 
     let ahpResult = null;
 
@@ -65,7 +65,12 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 3. Run TOPSIS calculation
+    // 3. Adjust C1 distance according to selected business type
+    if (businessType && businessType !== 'coffee_shop') {
+      candidateData = getCandidatesForBusinessType(candidateData, businessType as BusinessType);
+    }
+
+    // 4. Run TOPSIS calculation
     const topsisResult = calculateTopsis(candidateData, weights as [number, number, number, number]);
 
     return NextResponse.json({

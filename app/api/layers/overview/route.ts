@@ -5,8 +5,10 @@ import {
   BOGOR_ROADS,
   BOGOR_CROWD_CENTERS,
   BOGOR_GRID_CANDIDATES,
+  getStrictDistrictForPoint,
 } from '@/data/bogor-spatial';
 import { getSupabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
+import { BusinessType } from '@/lib/types';
 
 export async function GET() {
   try {
@@ -27,15 +29,34 @@ export async function GET() {
             success: true,
             source: 'supabase_live',
             districts: BOGOR_DISTRICTS,
-            competitors: compRes.data.map((c: any) => ({
-              id: c.id,
-              name: c.name || c.nama || 'Coffee Shop',
-              category: c.category || c.kategori || 'Coffee Shop',
-              district: c.district_name || c.district || c.kecamatan || 'Kota Bogor',
-              address: c.address || c.alamat || '',
-              lat: Number(c.latitude ?? c.lat ?? -6.5971),
-              lng: Number(c.longitude ?? c.lng ?? 106.7972),
-            })),
+            competitors: compRes.data.map((c: any) => {
+              const lat = Number(c.latitude ?? c.lat ?? -6.5971);
+              const lng = Number(c.longitude ?? c.lng ?? 106.7972);
+              const bType = (c.business_type || 'coffee_shop') as BusinessType;
+              const defaultCat =
+                bType === 'minimarket'
+                  ? 'Minimarket'
+                  : bType === 'apotek'
+                  ? 'Apotek'
+                  : 'Coffee Shop';
+              const districtName =
+                c.district_name ||
+                c.district ||
+                c.kecamatan ||
+                getStrictDistrictForPoint(lat, lng)?.districtName ||
+                'Kota Bogor';
+
+              return {
+                id: c.id,
+                name: c.name || c.nama || defaultCat,
+                category: c.category || c.kategori || defaultCat,
+                businessType: bType,
+                district: districtName,
+                address: c.address || c.alamat || '',
+                lat,
+                lng,
+              };
+            }),
             roads: BOGOR_ROADS,
             crowdCenters:
               crowdRes.data && crowdRes.data.length > 0

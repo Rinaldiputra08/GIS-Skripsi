@@ -12,6 +12,7 @@ import {
   BOGOR_ROADS,
   BOGOR_CROWD_CENTERS,
   BOGOR_GRID_CANDIDATES,
+  getCandidatesForBusinessType,
 } from '@/data/bogor-spatial';
 import { buildAhpMatrix, calculateAhp, AHP_PRESETS } from '@/lib/ahp';
 import { calculateTopsis } from '@/lib/topsis';
@@ -25,6 +26,7 @@ import {
   CompetitorPoint,
   CrowdCenterPoint,
   SurveyPointEvaluation,
+  BusinessType,
 } from '@/lib/types';
 
 export default function Home() {
@@ -87,6 +89,7 @@ export default function Home() {
     minScore: 0,
     category: 'all',
     excludeRestricted: true,
+    businessType: 'coffee_shop',
   });
 
   // Fetch live layers from Supabase API on mount
@@ -131,10 +134,46 @@ export default function Home() {
     }
   };
 
+  // Handle Business Line Switching (Kedai Kopi, Minimarket, Apotek)
+  const handleBusinessTypeChange = (newType: BusinessType) => {
+    setFilters((prev) => ({
+      ...prev,
+      businessType: newType,
+    }));
+
+    // Compute candidates for selected business type (for coffee_shop it preserves original data)
+    const candidatesForType = getCandidatesForBusinessType(
+      BOGOR_GRID_CANDIDATES,
+      newType,
+      competitors
+    );
+
+    const newTopsis = calculateTopsis(candidatesForType, ahpResult.weightsArray);
+    setTopsisResult(newTopsis);
+
+    const firstValid = newTopsis.candidates.find((c) => !c.isRestricted) || newTopsis.candidates[0];
+    if (firstValid) {
+      setSelectedCandidate(firstValid);
+    }
+
+    if (surveyResult) {
+      const updatedSurvey = evaluateSurveyLocation(
+        surveyResult.lat,
+        surveyResult.lng,
+        ahpResult.weightsArray,
+        candidatesForType,
+        newType,
+        competitors
+      );
+      setSurveyResult(updatedSurvey);
+    }
+  };
+
   // Handle TOPSIS Computation Trigger
   const handleCalculate = async () => {
     if (!ahpResult.isConsistent) return;
     setIsCalculating(true);
+    const activeType = filters.businessType || 'coffee_shop';
 
     try {
       const res = await fetch('/api/spatial/analyze', {
@@ -143,6 +182,7 @@ export default function Home() {
         body: JSON.stringify({
           weights: ahpResult.weightsArray,
           pairs,
+          businessType: activeType,
         }),
       });
 
@@ -156,7 +196,12 @@ export default function Home() {
           }
         }
       } else {
-        const result = calculateTopsis(BOGOR_GRID_CANDIDATES, ahpResult.weightsArray);
+        const candidatesForType = getCandidatesForBusinessType(
+          BOGOR_GRID_CANDIDATES,
+          activeType,
+          competitors
+        );
+        const result = calculateTopsis(candidatesForType, ahpResult.weightsArray);
         setTopsisResult(result);
         const firstValid = result.candidates.find((c) => !c.isRestricted) || result.candidates[0];
         if (firstValid) {
@@ -166,11 +211,18 @@ export default function Home() {
 
       // Re-evaluate survey point if active
       if (surveyResult) {
+        const candidatesForType = getCandidatesForBusinessType(
+          BOGOR_GRID_CANDIDATES,
+          activeType,
+          competitors
+        );
         const updatedSurvey = evaluateSurveyLocation(
           surveyResult.lat,
           surveyResult.lng,
           ahpResult.weightsArray,
-          BOGOR_GRID_CANDIDATES
+          candidatesForType,
+          activeType,
+          competitors
         );
         setSurveyResult(updatedSurvey);
       }
@@ -178,7 +230,12 @@ export default function Home() {
       setActiveTab('recommendations');
     } catch (err) {
       console.warn('API call fallback to local calculation:', err);
-      const result = calculateTopsis(BOGOR_GRID_CANDIDATES, ahpResult.weightsArray);
+      const candidatesForType = getCandidatesForBusinessType(
+        BOGOR_GRID_CANDIDATES,
+        activeType,
+        competitors
+      );
+      const result = calculateTopsis(candidatesForType, ahpResult.weightsArray);
       setTopsisResult(result);
       const firstValid = result.candidates.find((c) => !c.isRestricted) || result.candidates[0];
       if (firstValid) {
@@ -193,7 +250,13 @@ export default function Home() {
   // Reset to default balanced preset
   const handleReset = () => {
     handleApplyPreset('balanced');
-    setFilters({ district: 'ALL', minScore: 0, category: 'all', excludeRestricted: true });
+    setFilters({
+      district: 'ALL',
+      minScore: 0,
+      category: 'all',
+      excludeRestricted: true,
+      businessType: 'coffee_shop',
+    });
     const defaultRes = calculateTopsis(BOGOR_GRID_CANDIDATES, [0.25, 0.25, 0.25, 0.25]);
     setTopsisResult(defaultRes);
     const firstValid = defaultRes.candidates.find((c) => !c.isRestricted) || defaultRes.candidates[0];
@@ -231,11 +294,14 @@ export default function Home() {
 
   // Field Survey Handlers
   const handleSurveyPointSelected = (lat: number, lng: number) => {
+    const activeType = filters.businessType || 'coffee_shop';
     const evalResult = evaluateSurveyLocation(
       lat,
       lng,
       ahpResult.weightsArray,
-      BOGOR_GRID_CANDIDATES
+      topsisResult.candidates,
+      activeType,
+      competitors
     );
     setSurveyResult(evalResult);
     setIsSurveyModalOpen(true);
@@ -251,6 +317,12 @@ export default function Home() {
     setIsSurveyClickMode(false);
   };
 
+  // Active competitors count for current business line
+  const activeCompetitorsCount = useMemo(() => {
+    const bType = filters.businessType || 'coffee_shop';
+    return competitors.filter((c) => (c.businessType || 'coffee_shop') === bType).length;
+  }, [competitors, filters.businessType]);
+
   const visibleCandidatesCount = useMemo(() => {
     return topsisResult.candidates.filter((c) => {
       if (filters.excludeRestricted && c.isRestricted) return false;
@@ -265,11 +337,13 @@ export default function Home() {
 
   return (
     <div className="flex flex-col h-screen w-screen overflow-hidden bg-slate-950 font-sans text-slate-100">
-      {/* Header Navigation */}
+      {/* Header Navigation with Multi-Business Switcher */}
       <Header
         ahpResult={ahpResult}
-        totalCompetitors={competitors.length}
+        totalCompetitors={activeCompetitorsCount}
         totalCandidates={topsisResult.candidates.length}
+        selectedBusinessType={filters.businessType || 'coffee_shop'}
+        onChangeBusinessType={handleBusinessTypeChange}
         onOpenAudit={() => setIsAuditModalOpen(true)}
         onOpenInfo={() => setActiveTab('info')}
         onReset={handleReset}
@@ -338,6 +412,7 @@ export default function Home() {
         onClose={() => setIsAuditModalOpen(false)}
         ahpResult={ahpResult}
         topsisResult={topsisResult}
+        businessType={filters.businessType || 'coffee_shop'}
       />
 
       {/* Live Field Survey Modal */}
@@ -345,6 +420,7 @@ export default function Home() {
         isOpen={isSurveyModalOpen}
         onClose={() => setIsSurveyModalOpen(false)}
         survey={surveyResult}
+        businessType={filters.businessType || 'coffee_shop'}
         onFocusMap={(lat, lng) => {
           setIsSurveyModalOpen(false);
         }}

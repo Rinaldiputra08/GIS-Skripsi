@@ -125,6 +125,64 @@ export interface TopsisSummary {
   executionTimeMs: number;
 }
 
+export type BusinessType = 'coffee_shop' | 'minimarket' | 'apotek';
+
+export interface BusinessTypeInfo {
+  id: BusinessType;
+  name: string;
+  shortName: string;
+  icon: 'coffee' | 'store' | 'pill';
+  color: string;
+  badgeBg: string;
+  badgeText: string;
+  description: string;
+  competitorLabel: string;
+  c1TargetDescription: string;
+  swotKeyword: string;
+}
+
+export const BUSINESS_TYPES: Record<BusinessType, BusinessTypeInfo> = {
+  coffee_shop: {
+    id: 'coffee_shop',
+    name: 'Kedai Kopi (Coffee Shop)',
+    shortName: 'Kedai Kopi',
+    icon: 'coffee',
+    color: '#f59e0b',
+    badgeBg: 'bg-amber-500/15 border-amber-500/30',
+    badgeText: 'text-amber-400',
+    description: 'Analisis celah pasar & potensi lokasi kedai kopi baru di Kota Bogor.',
+    competitorLabel: 'Kedai Kopi Eksisting',
+    c1TargetDescription: 'Semakin JAUH dari kedai kopi eksisting semakin baik (Celah pasar / Low competition).',
+    swotKeyword: 'kedai kopi',
+  },
+  minimarket: {
+    id: 'minimarket',
+    name: 'Minimarket (Retail Mikro)',
+    shortName: 'Minimarket',
+    icon: 'store',
+    color: '#0284c7',
+    badgeBg: 'bg-sky-500/15 border-sky-500/30',
+    badgeText: 'text-sky-400',
+    description: 'Analisis lokasi strategis minimarket baru berbasis kepadatan & minim kanibalisasi pasar.',
+    competitorLabel: 'Minimarket Eksisting (Indomaret/Alfamart)',
+    c1TargetDescription: 'Semakin JAUH dari minimarket eksisting semakin baik (Zona bebas kanibalisasi gerai).',
+    swotKeyword: 'minimarket',
+  },
+  apotek: {
+    id: 'apotek',
+    name: 'Apotek (Farmasi & Kesehatan)',
+    shortName: 'Apotek',
+    icon: 'pill',
+    color: '#e11d48',
+    badgeBg: 'bg-rose-500/15 border-rose-500/30',
+    badgeText: 'text-rose-400',
+    description: 'Rekomendasi pendirian apotek strategis dekat fasilitas publik & pemukiman berdaya beli.',
+    competitorLabel: 'Apotek Eksisting (Farmasi)',
+    c1TargetDescription: 'Semakin JAUH dari apotek lain semakin baik (Area jangkauan layanan farmasi terbuka).',
+    swotKeyword: 'apotek',
+  },
+};
+
 export interface CompetitorPoint {
   id: string;
   name: string;
@@ -133,6 +191,7 @@ export interface CompetitorPoint {
   district: string;
   address?: string;
   category?: string;
+  businessType?: BusinessType;
 }
 
 export interface DistrictGeo {
@@ -182,6 +241,8 @@ export interface FilterState {
   minScore: number; // 0 to 1
   category: 'all' | 'high' | 'medium' | 'low';
   excludeRestricted: boolean; // Filter out cemeteries, police, military, etc.
+  businessType: BusinessType; // 'coffee_shop' | 'minimarket' | 'apotek'
+  showAllCompetitorTypes?: boolean;
 }
 
 export interface SurveyPointEvaluation {

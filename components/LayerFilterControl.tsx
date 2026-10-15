@@ -18,7 +18,7 @@ import {
   Target,
   Info,
 } from 'lucide-react';
-import { LayerToggleState, FilterState, RecommendationDisplayMode } from '@/lib/types';
+import { LayerToggleState, FilterState, RecommendationDisplayMode, BusinessType, BUSINESS_TYPES } from '@/lib/types';
 import { BOGOR_DISTRICTS, BOGOR_EXCLUSION_ZONES } from '@/data/bogor-spatial';
 
 interface LayerFilterControlProps {
@@ -38,6 +38,9 @@ export const LayerFilterControl: React.FC<LayerFilterControlProps> = ({
   onFilterChange,
   totalVisibleCandidates,
 }) => {
+  const bType = filters.businessType || 'coffee_shop';
+  const currentBusiness = BUSINESS_TYPES[bType] || BUSINESS_TYPES.coffee_shop;
+
   return (
     <div className="flex flex-col gap-5 text-slate-100">
       {/* Header */}
@@ -280,8 +283,11 @@ export const LayerFilterControl: React.FC<LayerFilterControlProps> = ({
             }`}
           >
             <div className="flex items-center gap-2">
-              <span className="w-3 h-3 rounded-full bg-amber-500" />
-              <span className="font-medium">Kedai Kopi Eksisting (Kompetitor C1)</span>
+              <span
+                className="w-3 h-3 rounded-full"
+                style={{ backgroundColor: currentBusiness.color }}
+              />
+              <span className="font-medium">{currentBusiness.shortName} Eksisting (Kompetitor C1)</span>
             </div>
             {layers.showCompetitors ? (
               <Eye className="w-4 h-4 text-amber-400" />
@@ -289,6 +295,28 @@ export const LayerFilterControl: React.FC<LayerFilterControlProps> = ({
               <EyeOff className="w-4 h-4 text-slate-500" />
             )}
           </button>
+
+          {/* Optional: Show All Business Lines Toggle */}
+          {layers.showCompetitors && (
+            <div className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-950/60 border border-slate-800/80 text-[11px]">
+              <span className="text-slate-400">Tampilkan semua lini bisnis di peta</span>
+              <button
+                type="button"
+                onClick={() =>
+                  onFilterChange({
+                    showAllCompetitorTypes: !filters.showAllCompetitorTypes,
+                  })
+                }
+                className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer border ${
+                  filters.showAllCompetitorTypes
+                    ? 'bg-blue-600/30 text-blue-300 border-blue-500/50'
+                    : 'bg-slate-800 text-slate-400 border-slate-700'
+                }`}
+              >
+                {filters.showAllCompetitorTypes ? 'Semua Aktif' : `Hanya ${currentBusiness.shortName}`}
+              </button>
+            </div>
+          )}
 
           {/* Layer: Roads */}
           <button

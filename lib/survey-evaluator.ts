@@ -2,6 +2,9 @@ import {
   SpatialCandidate,
   SurveyPointEvaluation,
   TopsisCandidateResult,
+  BusinessType,
+  CompetitorPoint,
+  BUSINESS_TYPES,
 } from './types';
 import {
   BOGOR_GRID_CANDIDATES,
@@ -23,7 +26,9 @@ export function evaluateSurveyLocation(
   lat: number,
   lng: number,
   weights: [number, number, number, number] = [0.25, 0.25, 0.25, 0.25],
-  baselineCandidates: SpatialCandidate[] = BOGOR_GRID_CANDIDATES
+  baselineCandidates: SpatialCandidate[] = BOGOR_GRID_CANDIDATES,
+  businessType: BusinessType = 'coffee_shop',
+  competitorList?: CompetitorPoint[]
 ): SurveyPointEvaluation {
   const timestamp = new Date().toISOString();
   const id = `survey_${Date.now()}`;
@@ -81,7 +86,8 @@ export function evaluateSurveyLocation(
   }
 
   // 3. Extract Spatial Attribute Criteria (Haversine distances in meters & Population)
-  const competitor = getNearestCompetitor(lat, lng);
+  const businessInfo = BUSINESS_TYPES[businessType] || BUSINESS_TYPES.coffee_shop;
+  const competitor = getNearestCompetitor(lat, lng, businessType, competitorList);
   const road = getDistanceToRoads(lat, lng);
   const crowd = getNearestCrowd(lat, lng);
 
@@ -132,7 +138,7 @@ export function evaluateSurveyLocation(
     verdictType = 'restricted';
     weaknesses.push(`Terletak di ${constraint.restrictionReason} (Zona Terlarang Usaha Komersial).`);
     threats.push('Risiko penertiban Satpol PP / Pelanggaran RTRW Kota Bogor.');
-    verdictText = `TIDAK LAYAK USAHA: Titik ini berada di ${constraint.restrictionReason}. Dilarang mendirikan kedai kopi di zona ini.`;
+    verdictText = `TIDAK LAYAK USAHA: Titik ini berada di ${constraint.restrictionReason}. Dilarang mendirikan ${businessInfo.swotKeyword} di zona ini.`;
   } else {
     // --- STRENGTHS ---
     if (road.distance <= 60) {
@@ -203,7 +209,7 @@ export function evaluateSurveyLocation(
       );
     }
     threats.push(
-      'Potensi kemunculan kedai kopi baru di koridor jalan yang sama dalam 6-12 bulan ke depan.'
+      `Potensi kemunculan gerai ${businessInfo.swotKeyword} baru di koridor jalan yang sama dalam 6-12 bulan ke depan.`
     );
 
     // --- VERDICT ---
@@ -212,7 +218,7 @@ export function evaluateSurveyLocation(
       verdictText = `SANGAT DIREKOMENDASIKAN (Skor TOPSIS: ${rankedCandidate.score.toFixed(3)} - Top ${percentile}%): Lokasi memiliki nilai strategis tinggi dengan kombinasi aksesibilitas prima, potensi keramaian kuat, dan celah pasar yang menguntungkan.`;
     } else if (rankedCandidate.score >= 0.45) {
       verdictType = 'moderate';
-      verdictText = `CUKUP POTENSIAL (Skor TOPSIS: ${rankedCandidate.score.toFixed(3)} - Peringkat #${rank}): Lokasi layak untuk dibuka kedai kopi dengan catatan memperkuat konsep diferensiasi menu dan promosi digital untuk mengatasi titik lemah persaingan/akses.`;
+      verdictText = `CUKUP POTENSIAL (Skor TOPSIS: ${rankedCandidate.score.toFixed(3)} - Peringkat #${rank}): Lokasi layak untuk dibuka ${businessInfo.swotKeyword} dengan catatan memperkuat konsep diferensiasi dan promosi untuk mengatasi titik lemah persaingan/akses.`;
     } else {
       verdictType = 'not_recommended';
       verdictText = `KURANG DIREKOMENDASIKAN (Skor TOPSIS: ${rankedCandidate.score.toFixed(3)} - Peringkat #${rank}): Lokasi memiliki skor kelayakan rendah akibat kombinasi kejenuhan kompetitor, akses jalan yang jauh, atau keterbatasan potensi keramaian.`;

@@ -14,7 +14,7 @@ import {
   Sparkles,
   HelpCircle,
 } from 'lucide-react';
-import { AhpResult, CRITERIA_METADATA, CriterionId } from '@/lib/types';
+import { AhpResult, CRITERIA_METADATA, CriterionId, BusinessType, BUSINESS_TYPES } from '@/lib/types';
 import { AHP_PRESETS } from '@/lib/ahp';
 
 interface PairDefinition {
@@ -92,6 +92,7 @@ interface AhpFormProps {
   ahpResult: AhpResult;
   onCalculate: () => void;
   isCalculating: boolean;
+  businessType?: BusinessType;
 }
 
 export const AhpForm: React.FC<AhpFormProps> = ({
@@ -102,8 +103,10 @@ export const AhpForm: React.FC<AhpFormProps> = ({
   ahpResult,
   onCalculate,
   isCalculating,
+  businessType = 'coffee_shop',
 }) => {
   const [viewMode, setViewMode] = useState<'guided' | 'formal_matrix'>('guided');
+  const currentBusiness = BUSINESS_TYPES[businessType] || BUSINESS_TYPES.coffee_shop;
 
   // Convert raw numeric value to friendly semantic step
   // Options: 5 (Kiri Sangat Penting), 3 (Kiri Lebih Penting), 1 (Sama Penting), 1/3 (Kanan Lebih Penting), 1/5 (Kanan Sangat Penting)
@@ -171,7 +174,7 @@ export const AhpForm: React.FC<AhpFormProps> = ({
         </div>
 
         <p className="text-xs text-slate-300 leading-relaxed">
-          Tentukan mana kriteria yang lebih Anda prioritaskan dalam menentukan lokasi kedai kopi baru. Sistem otomatis menghitung bobot dan memvalidasi konsistensi (<em className="text-emerald-300 not-italic">CR ≤ 10%</em>).
+          Tentukan mana kriteria yang lebih Anda prioritaskan dalam menentukan lokasi {currentBusiness.name.toLowerCase()} baru. Sistem otomatis menghitung bobot dan memvalidasi konsistensi (<em className="text-emerald-300 not-italic">CR ≤ 10%</em>).
         </p>
       </div>
 
@@ -380,7 +383,7 @@ export const AhpForm: React.FC<AhpFormProps> = ({
                 {ahpResult.rawMatrix.map((row, i) => (
                   <tr key={i} className="hover:bg-slate-900/50">
                     <td className="p-2 font-sans font-bold text-emerald-400">
-                      {['C1 (Jarak Kopi)', 'C2 (Populasi)', 'C3 (Akses Jalan)', 'C4 (Keramaian)'][i]}
+                      {[`C1 (Jarak ${currentBusiness.shortName})`, 'C2 (Populasi)', 'C3 (Akses Jalan)', 'C4 (Keramaian)'][i]}
                     </td>
                     {row.map((val, j) => (
                       <td key={j} className="p-2 font-bold">

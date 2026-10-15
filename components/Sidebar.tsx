@@ -30,6 +30,7 @@ import {
   LayerToggleState,
   FilterState,
   SurveyPointEvaluation,
+  BUSINESS_TYPES,
 } from '@/lib/types';
 
 interface SidebarProps {
@@ -131,6 +132,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
   isSurveyClickMode = false,
   onToggleSurveyClickMode,
 }) => {
+  const bType = filters.businessType || 'coffee_shop';
+  const currentBusiness = BUSINESS_TYPES[bType] || BUSINESS_TYPES.coffee_shop;
+
   const [manualLat, setManualLat] = useState('-6.5971');
   const [manualLng, setManualLng] = useState('106.7972');
   const [isGpsLoading, setIsGpsLoading] = useState(false);
@@ -263,6 +267,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               ahpResult={ahpResult}
               onCalculate={onCalculate}
               isCalculating={isCalculating}
+              businessType={filters.businessType}
             />
           )}
 
@@ -272,6 +277,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               selectedCandidateId={selectedCandidateId}
               onSelectCandidate={onSelectCandidate}
               radiusMeters={layers.recommendationRadiusMeters}
+              businessType={filters.businessType}
             />
           )}
 
@@ -353,7 +359,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                   {/* 4 Criteria Summary */}
                   <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
                     <div>
-                      <span className="text-slate-400 block text-[10px]">C1: Jarak Kompetitor</span>
+                      <span className="text-slate-400 block text-[10px]">C1: Jarak {currentBusiness.shortName}</span>
                       <strong className="text-amber-300 font-mono">{surveyResult.c1_dist_competitor} m</strong>
                     </div>
                     <div>
@@ -478,18 +484,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
                 <Sparkles className="w-4 h-4 text-amber-400" />
                 <h3 className="text-sm font-bold text-white">
-                  Tentang KopiSpasial Kota Bogor
+                  Tentang SIG Multi-Bisnis Kota Bogor ({currentBusiness.name})
                 </h3>
               </div>
 
               <p>
-                Sistem Informasi Geografis (SIG) berbasis Web untuk analisis celah pasar (*market gap/blank spot*) lokasi kedai kopi (*coffee shop*) baru di 6 wilayah administratif Kota Bogor:
+                Sistem Informasi Geografis (SIG) berbasis Web untuk analisis celah pasar (*market gap/blank spot*) penentuan lokasi usaha ({currentBusiness.name}, minimarket, dan apotek) di 6 wilayah administratif Kota Bogor:
               </p>
 
               <div className="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
                 <div className="font-semibold text-emerald-400">4 Kriteria Evaluasi Spasial:</div>
                 <ul className="space-y-1.5 pl-4 list-disc text-slate-300">
-                  <li><strong>C1 (Benefit):</strong> Jarak ke kompetitor terdekat. Semakin jauh, semakin minim persaingan langsung.</li>
+                  <li><strong>C1 (Benefit):</strong> Jarak ke kompetitor terdekat ({currentBusiness.shortName}). Semakin jauh, semakin minim persaingan langsung.</li>
                   <li><strong>C2 (Benefit):</strong> Kepadatan penduduk kecamatan. Semakin padat, semakin tinggi potensi pasar.</li>
                   <li><strong>C3 (Cost):</strong> Jarak ke jalan utama (arteri/kolektor). Semakin dekat, semakin mudah diakses pengunjung.</li>
                   <li><strong>C4 (Cost):</strong> Jarak ke simpul keramaian (mall/stasiun/kampus/taman). Semakin dekat, semakin tinggi foot traffic.</li>
@@ -506,7 +512,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
 
               <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-800/30 text-[11px] text-emerald-300">
-                💡 <strong>Tips:</strong> Klik tab <strong>Survei</strong> atau tombol <strong>Survei GPS</strong> untuk mengevaluasi kelayakan calon tempat usaha kedai kopi secara instan.
+                💡 <strong>Tips:</strong> Klik tab <strong>Survei</strong> atau tombol <strong>Survei GPS</strong> untuk mengevaluasi kelayakan calon tempat usaha {currentBusiness.name.toLowerCase()} secara instan.
               </div>
             </div>
           )}

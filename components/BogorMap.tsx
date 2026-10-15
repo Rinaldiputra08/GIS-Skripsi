@@ -24,6 +24,8 @@ import {
   LayerToggleState,
   FilterState,
   SurveyPointEvaluation,
+  BusinessType,
+  BUSINESS_TYPES,
 } from '@/lib/types';
 import { BOGOR_EXCLUSION_ZONES } from '@/data/bogor-spatial';
 import {
@@ -91,6 +93,66 @@ const createCoffeeIcon = () => {
     iconAnchor: [13, 13],
     popupAnchor: [0, -14],
   });
+};
+
+const createCompetitorIcon = (businessType: BusinessType = 'coffee_shop') => {
+  if (businessType === 'minimarket') {
+    return L.divIcon({
+      className: 'custom-minimarket-pin',
+      html: `
+        <div style="
+          width: 26px;
+          height: 26px;
+          background: linear-gradient(135deg, #0284c7, #0369a1);
+          border: 2px solid #bae6fd;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5);
+        ">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m2 7 4.41-4.41A2 2 0 0 1 7.83 2h8.34a2 2 0 0 1 1.42.59L22 7"></path>
+            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
+            <path d="M15 22v-4a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2v4"></path>
+            <path d="M2 7h20"></path>
+          </svg>
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -14],
+    });
+  }
+
+  if (businessType === 'apotek') {
+    return L.divIcon({
+      className: 'custom-apotek-pin',
+      html: `
+        <div style="
+          width: 26px;
+          height: 26px;
+          background: linear-gradient(135deg, #e11d48, #9f1239);
+          border: 2px solid #fecdd3;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5);
+        ">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </div>
+      `,
+      iconSize: [26, 26],
+      iconAnchor: [13, 13],
+      popupAnchor: [0, -14],
+    });
+  }
+
+  return createCoffeeIcon();
 };
 
 const createCrowdIcon = (category: string) => {
@@ -300,6 +362,15 @@ export const BogorMap: React.FC<BogorMapProps> = ({
       return false;
     }
     return true;
+  });
+
+  const activeBusinessType: BusinessType = filters.businessType || 'coffee_shop';
+  const currentBusiness = BUSINESS_TYPES[activeBusinessType] || BUSINESS_TYPES.coffee_shop;
+
+  const visibleCompetitors = competitors.filter((comp) => {
+    if (filters.showAllCompetitorTypes) return true;
+    const bType = comp.businessType || 'coffee_shop';
+    return bType === activeBusinessType;
   });
 
   const getCandidateColor = (score: number) => {
@@ -631,33 +702,43 @@ export const BogorMap: React.FC<BogorMapProps> = ({
             </Marker>
           ))}
 
-        {/* 5. Competitor Coffee Shops Markers */}
+        {/* 5. Competitors Markers */}
         {layers.showCompetitors &&
-          competitors.map((comp) => (
-            <Marker
-              key={comp.id}
-              position={[comp.lat, comp.lng]}
-              icon={createCoffeeIcon()}
-            >
-              <Popup>
-                <div className="p-1 space-y-1.5 text-slate-100 max-w-[240px]">
-                  <div className="flex items-center gap-1.5">
-                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] uppercase font-bold">
-                      Kompetitor Eksisting
-                    </span>
-                    <span className="text-[10px] text-slate-400">{comp.category}</span>
+          visibleCompetitors.map((comp) => {
+            const compType = comp.businessType || 'coffee_shop';
+            const compInfo = BUSINESS_TYPES[compType] || BUSINESS_TYPES.coffee_shop;
+            return (
+              <Marker
+                key={comp.id}
+                position={[comp.lat, comp.lng]}
+                icon={createCompetitorIcon(compType)}
+              >
+                <Popup>
+                  <div className="p-1 space-y-1.5 text-slate-100 max-w-[240px]">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="px-1.5 py-0.5 rounded text-[10px] uppercase font-bold"
+                        style={{
+                          backgroundColor: `${compInfo.color}25`,
+                          color: compInfo.color,
+                        }}
+                      >
+                        {compInfo.shortName} Eksisting
+                      </span>
+                      <span className="text-[10px] text-slate-400">{comp.category}</span>
+                    </div>
+                    <h4 className="font-bold text-xs text-white leading-snug">{comp.name}</h4>
+                    {comp.address && (
+                      <p className="text-[11px] text-slate-300">{comp.address}</p>
+                    )}
+                    <div className="text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-800">
+                      Wilayah: {comp.district}
+                    </div>
                   </div>
-                  <h4 className="font-bold text-xs text-white leading-snug">{comp.name}</h4>
-                  {comp.address && (
-                    <p className="text-[11px] text-slate-300">{comp.address}</p>
-                  )}
-                  <div className="text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-800">
-                    Wilayah: {comp.district}
-                  </div>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+                </Popup>
+              </Marker>
+            );
+          })}
 
         {/* 6. TOPSIS Recommendation Candidates Layer */}
         {layers.showRecommendations &&
@@ -731,7 +812,9 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                   {/* Criteria Grid */}
                   <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-950/70 p-2 rounded-lg border border-slate-800">
                     <div>
-                      <span className="text-slate-400 block text-[10px]">Persaingan Kafe:</span>
+                      <span className="text-slate-400 block text-[10px]">
+                        Persaingan {currentBusiness.shortName}:
+                      </span>
                       <strong className="text-white font-mono">
                         {Math.round(candidate.c1_dist_competitor)} m
                       </strong>
@@ -760,7 +843,7 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                   <div className="text-[10px] text-slate-300 leading-snug bg-emerald-950/20 p-1.5 rounded border border-emerald-900/30">
                     {candidate.isRestricted ? (
                       <span className="text-rose-300">
-                        ⚠️ <strong>Lokasi Dibatasi:</strong> Titik ini berada di zona {candidate.restrictionReason} sehingga tidak diizinkan untuk pendirian usaha kedai kopi.
+                        ⚠️ <strong>Lokasi Dibatasi:</strong> Titik ini berada di zona {candidate.restrictionReason} sehingga tidak diizinkan untuk pendirian {currentBusiness.name.toLowerCase()}.
                       </span>
                     ) : candidate.score >= 0.62 ? (
                       <span>
@@ -993,8 +1076,18 @@ export const BogorMap: React.FC<BogorMapProps> = ({
             <span>Zona Restriksi (Kuburan/Polisi)</span>
           </div>
           <div className="flex items-center gap-2 text-slate-300">
-            <span className="w-3 h-3 rounded-full bg-amber-700 border border-amber-300" />
-            <span>Kedai Kopi Eksisting (60+)</span>
+            <span
+              className="w-3 h-3 rounded-full border"
+              style={{
+                backgroundColor: currentBusiness.color,
+                borderColor: '#ffffff',
+              }}
+            />
+            <span>
+              {filters.showAllCompetitorTypes
+                ? `Semua Lini Kompetitor (${competitors.length})`
+                : `${currentBusiness.shortName} Eksisting (${visibleCompetitors.length})`}
+            </span>
           </div>
           <div className="flex items-center gap-2 text-slate-300">
             <span className="w-3 h-3 rounded bg-purple-500" />

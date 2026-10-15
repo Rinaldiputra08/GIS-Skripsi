@@ -11,13 +11,14 @@ import {
   FileSpreadsheet,
   ShieldAlert,
 } from 'lucide-react';
-import { AhpResult, TopsisSummary } from '@/lib/types';
+import { AhpResult, TopsisSummary, BusinessType, BUSINESS_TYPES } from '@/lib/types';
 
 interface MethodologyAuditModalProps {
   isOpen: boolean;
   onClose: () => void;
   ahpResult: AhpResult;
   topsisResult: TopsisSummary;
+  businessType?: BusinessType;
 }
 
 export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
@@ -25,8 +26,10 @@ export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
   onClose,
   ahpResult,
   topsisResult,
+  businessType = 'coffee_shop',
 }) => {
   const [activeTab, setActiveTab] = useState<'ahp' | 'topsis' | 'export'>('ahp');
+  const currentBusiness = BUSINESS_TYPES[businessType] || BUSINESS_TYPES.coffee_shop;
 
   if (!isOpen) return null;
 
@@ -171,7 +174,7 @@ export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
                     <thead className="bg-slate-950 text-slate-400 text-[11px]">
                       <tr>
                         <th className="p-2.5">Kriteria</th>
-                        <th className="p-2.5">C1 (Jarak Kopi)</th>
+                        <th className="p-2.5">C1 (Jarak {currentBusiness.shortName})</th>
                         <th className="p-2.5">C2 (Populasi)</th>
                         <th className="p-2.5">C3 (Akses Jalan)</th>
                         <th className="p-2.5">C4 (Keramaian)</th>

@@ -5,7 +5,9 @@ import {
   CrowdCenterPoint,
   SpatialCandidate,
   ExclusionZone,
+  BusinessType,
 } from '../lib/types';
+import SUPABASE_COMPETITORS_RAW from './cleaned-competitors.json';
 
 // ==========================================
 // 1. BOUNDARY & DATA 6 KECAMATAN KOTA BOGOR
@@ -252,11 +254,11 @@ export const BOGOR_EXCLUSION_ZONES: ExclusionZone[] = [
 ];
 
 // ==========================================
-// 3. DATA KOMPETITOR KEDAI KOPI EKSISTING
-// (60+ Titik Coffee Shop Riil di Kota Bogor)
+// 3. DATA KOMPETITOR EKSISTING BERDASARKAN LINI BISNIS
+// (Kedai Kopi 60+, Minimarket 55+, Apotek 77+)
 // ==========================================
 
-export const BOGOR_COMPETITORS: CompetitorPoint[] = [
+export const BOGOR_COFFEE_COMPETITORS: CompetitorPoint[] = [
   // Bogor Tengah
   { id: 'comp_1', name: 'Popolo Coffee Baranangsiang', lat: -6.6018, lng: 106.8068, district: 'Bogor Tengah', address: 'Jl. Malabar Ujung No.9', category: 'Specialty Coffee' },
   { id: 'comp_2', name: 'Maraca Books and Coffee', lat: -6.5925, lng: 106.8012, district: 'Bogor Tengah', address: 'Jl. Jalak Harupat No.9a', category: 'Book Cafe' },
@@ -328,6 +330,42 @@ export const BOGOR_COMPETITORS: CompetitorPoint[] = [
   { id: 'comp_58', name: 'Warung Kopi Heulang', lat: -6.5745, lng: 106.7985, district: 'Tanah Sareal', address: 'Taman Heulang No.8', category: 'Park / Outdoor' },
   { id: 'comp_59', name: 'Fore Coffee Kayumanis Hub', lat: -6.5365, lng: 106.7665, district: 'Tanah Sareal', address: 'Jl. Raya Kayumanis No.54', category: 'Grab & Go' },
   { id: 'comp_60', name: 'Kopi Tubing Express Sukaresmi', lat: -6.5592, lng: 106.7845, district: 'Tanah Sareal', address: 'Jl. Sukaresmi Raya No.9', category: 'Neighborhood Cafe' },
+];
+
+export const BOGOR_MINIMARKET_COMPETITORS: CompetitorPoint[] = (
+  SUPABASE_COMPETITORS_RAW as any[]
+)
+  .filter((c) => c.businessType === 'minimarket')
+  .map((c) => ({
+    id: c.id,
+    name: c.name,
+    lat: c.lat,
+    lng: c.lng,
+    district: c.district,
+    address: c.address || '',
+    category: c.category || 'Minimarket',
+    businessType: 'minimarket' as BusinessType,
+  }));
+
+export const BOGOR_APOTEK_COMPETITORS: CompetitorPoint[] = (
+  SUPABASE_COMPETITORS_RAW as any[]
+)
+  .filter((c) => c.businessType === 'apotek')
+  .map((c) => ({
+    id: c.id,
+    name: c.name,
+    lat: c.lat,
+    lng: c.lng,
+    district: c.district,
+    address: c.address || '',
+    category: c.category || 'Apotek',
+    businessType: 'apotek' as BusinessType,
+  }));
+
+export const BOGOR_COMPETITORS: CompetitorPoint[] = [
+  ...BOGOR_COFFEE_COMPETITORS.map((c) => ({ ...c, businessType: 'coffee_shop' as BusinessType })),
+  ...BOGOR_MINIMARKET_COMPETITORS,
+  ...BOGOR_APOTEK_COMPETITORS,
 ];
 
 // ==========================================
@@ -534,12 +572,24 @@ export function getDistanceToRoads(lat: number, lng: number): { distance: number
   return { distance: Math.max(30, minDistance), nearestRoad };
 }
 
-// Nearest competitor
-export function getNearestCompetitor(lat: number, lng: number): { distance: number; name: string } {
+// Nearest competitor (supports businessType filtering)
+export function getNearestCompetitor(
+  lat: number,
+  lng: number,
+  businessType: BusinessType = 'coffee_shop',
+  competitorList?: CompetitorPoint[]
+): { distance: number; name: string } {
   let minDistance = Infinity;
   let name = '';
 
-  for (const comp of BOGOR_COMPETITORS) {
+  const pool =
+    competitorList && competitorList.length > 0
+      ? competitorList.filter((c) => (c.businessType || 'coffee_shop') === businessType)
+      : BOGOR_COMPETITORS.filter((c) => (c.businessType || 'coffee_shop') === businessType);
+
+  const activePool = pool.length > 0 ? pool : BOGOR_COFFEE_COMPETITORS;
+
+  for (const comp of activePool) {
     const d = getHaversineDistance(lat, lng, comp.lat, comp.lng);
     if (d < minDistance) {
       minDistance = d;
@@ -548,6 +598,49 @@ export function getNearestCompetitor(lat: number, lng: number): { distance: numb
   }
 
   return { distance: Math.max(50, minDistance), name };
+}
+
+/**
+ * Dynamically recomputes Candidate Grid C1 (Jarak ke Kompetitor Terdekat)
+ * based on the active business line (coffee_shop, minimarket, apotek).
+ * For coffee_shop, returns baseCandidates directly to ensure 100% preservation of verified thesis results.
+ */
+export function getCandidatesForBusinessType(
+  baseCandidates: SpatialCandidate[],
+  businessType: BusinessType,
+  competitorList?: CompetitorPoint[]
+): SpatialCandidate[] {
+  if (businessType === 'coffee_shop') {
+    return baseCandidates; // 100% preserved as-is for coffee shop
+  }
+
+  const pool =
+    competitorList && competitorList.length > 0
+      ? competitorList.filter((c) => (c.businessType || 'coffee_shop') === businessType)
+      : BOGOR_COMPETITORS.filter((c) => (c.businessType || 'coffee_shop') === businessType);
+
+  if (pool.length === 0) {
+    return baseCandidates;
+  }
+
+  return baseCandidates.map((c) => {
+    let minDistance = Infinity;
+    let nearestName = c.nearestCompetitorName || '';
+
+    for (const comp of pool) {
+      const d = getHaversineDistance(c.lat, c.lng, comp.lat, comp.lng);
+      if (d < minDistance) {
+        minDistance = d;
+        nearestName = comp.name;
+      }
+    }
+
+    return {
+      ...c,
+      c1_dist_competitor: Math.max(50, Math.round(minDistance)),
+      nearestCompetitorName: nearestName,
+    };
+  });
 }
 
 // Nearest crowd center

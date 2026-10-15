@@ -15,7 +15,12 @@ export const supabase = isSupabaseConfigured
 
 // Server/Admin-only Supabase instance (uses service role key for migrations/batch scripts)
 export const getSupabaseAdmin = () => {
-  if (supabaseUrl && supabaseServiceRoleKey) {
+  if (
+    supabaseUrl &&
+    supabaseServiceRoleKey &&
+    supabaseServiceRoleKey !== 'your-service-role-key-here' &&
+    supabaseServiceRoleKey.length > 20
+  ) {
     return createClient(supabaseUrl, supabaseServiceRoleKey, {
       auth: {
         autoRefreshToken: false,
