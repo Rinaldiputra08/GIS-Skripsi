@@ -52,6 +52,7 @@ interface SidebarProps {
   // Layer & Filter Props
   layers: LayerToggleState;
   onToggleLayer: (layerKey: keyof LayerToggleState) => void;
+  onUpdateLayers?: (updated: Partial<LayerToggleState>) => void;
   filters: FilterState;
   onFilterChange: (filters: Partial<FilterState>) => void;
   totalVisibleCandidates: number;
@@ -119,6 +120,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectCandidate,
   layers,
   onToggleLayer,
+  onUpdateLayers,
   filters,
   onFilterChange,
   totalVisibleCandidates,
@@ -269,6 +271,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               candidates={candidates}
               selectedCandidateId={selectedCandidateId}
               onSelectCandidate={onSelectCandidate}
+              radiusMeters={layers.recommendationRadiusMeters}
             />
           )}
 
@@ -463,6 +466,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <LayerFilterControl
               layers={layers}
               onToggleLayer={onToggleLayer}
+              onUpdateLayers={onUpdateLayers}
               filters={filters}
               onFilterChange={onFilterChange}
               totalVisibleCandidates={totalVisibleCandidates}

@@ -163,6 +163,8 @@ export interface CrowdCenterPoint {
   description?: string;
 }
 
+export type RecommendationDisplayMode = 'radius' | 'point' | 'both';
+
 export interface LayerToggleState {
   showDistricts: boolean;
   showCompetitors: boolean;
@@ -171,6 +173,8 @@ export interface LayerToggleState {
   showRecommendations: boolean;
   showHeatmap: boolean;
   showExclusionZones: boolean;
+  recommendationDisplayMode: RecommendationDisplayMode;
+  recommendationRadiusMeters: number;
 }
 
 export interface FilterState {

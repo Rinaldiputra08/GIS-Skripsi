@@ -77,6 +77,8 @@ export default function Home() {
     showRecommendations: true,
     showHeatmap: true,
     showExclusionZones: true,
+    recommendationDisplayMode: 'both',
+    recommendationRadiusMeters: 250,
   });
 
   // 8. Filter State (with Exclusion Filter enabled by default to remove cemeteries/police)
@@ -201,9 +203,22 @@ export default function Home() {
   };
 
   const handleToggleLayer = (layerKey: keyof LayerToggleState) => {
+    setLayers((prev) => {
+      const val = prev[layerKey];
+      if (typeof val === 'boolean') {
+        return {
+          ...prev,
+          [layerKey]: !val,
+        };
+      }
+      return prev;
+    });
+  };
+
+  const handleUpdateLayers = (updated: Partial<LayerToggleState>) => {
     setLayers((prev) => ({
       ...prev,
-      [layerKey]: !prev[layerKey],
+      ...updated,
     }));
   };
 
@@ -281,6 +296,7 @@ export default function Home() {
           onSelectCandidate={(c) => setSelectedCandidate(c)}
           layers={layers}
           onToggleLayer={handleToggleLayer}
+          onUpdateLayers={handleUpdateLayers}
           filters={filters}
           onFilterChange={handleFilterChange}
           totalVisibleCandidates={visibleCandidatesCount}

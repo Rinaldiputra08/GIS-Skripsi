@@ -375,6 +375,24 @@ export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
                   </table>
                 </div>
               </div>
+
+              {/* C. Representasi Keruangan: Centroid Grid & Buffer Catchment Area */}
+              <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2.5">
+                <h4 className="font-bold text-slate-200 text-xs flex items-center gap-1.5">
+                  <Compass className="w-4 h-4 text-emerald-400" /> C. Justifikasi Akademik: Representasi Titik Centroid vs Zona Radius Potensi
+                </h4>
+                <div className="text-slate-300 leading-relaxed text-[11px] space-y-1.5">
+                  <p>
+                    1. <strong>Sifat Grid Sampling (Centroid Representatif):</strong> Titik koordinat yang dihasilkan dari perhitungan matematis TOPSIS merupakan <em>Centroid</em> (titik pusat representatif) dari suatu sel spasial seluas ~400&ndash;500 meter persegi, bukan batasan kapling tanah privat mikro.
+                  </p>
+                  <p>
+                    2. <strong>Konsep Catchment Area / Trade Area (Huff &amp; Reilly):</strong> Dalam bisnis ritel dan kedai kopi, pasar tidak berpusat pada satu titik absolut melainkan koridor jangkauan pejalan kaki (*walkable trade area*) dalam radius 150&ndash;300 meter (~5 menit jalan kaki).
+                  </p>
+                  <p>
+                    3. <strong>Fleksibilitas Ketersediaan Properti Lapangan:</strong> Penyajian dalam bentuk <em>Buffer Radius</em> mengedukasi calon pengusaha untuk mencari properti sewa/ruko yang tersedia di dalam lingkar radius potensi tersebut, sehingga menghindari asumsi bahwa bisnis harus berada persis di atas koordinat titik numerik.
+                  </p>
+                </div>
+              </div>
             </div>
           )}
 

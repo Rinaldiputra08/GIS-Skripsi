@@ -49,6 +49,9 @@ import {
   AlertTriangle,
   Coffee,
   Star,
+  CircleDot,
+  Radio,
+  Target,
 } from 'lucide-react';
 
 // Fix Leaflet Default Marker Icon issues in Webpack/Next.js
@@ -662,183 +665,297 @@ export const BogorMap: React.FC<BogorMapProps> = ({
             const isTop1 = candidate.rank === 1;
             const isSelected = selectedCandidate?.id === candidate.id;
             const color = candidate.isRestricted ? '#ef4444' : getCandidateColor(candidate.score);
+            const displayMode = layers.recommendationDisplayMode || 'both';
+            const radiusMeters = layers.recommendationRadiusMeters || 250;
+            const approxHectares = ((Math.PI * Math.pow(radiusMeters, 2)) / 10000).toFixed(1);
 
-            return (
-              <CircleMarker
-                key={candidate.id}
-                center={[candidate.lat, candidate.lng]}
-                radius={isTop1 ? 11 : isSelected ? 9 : 6.5}
-                pathOptions={{
-                  color: isSelected ? '#ffffff' : isTop1 ? '#f59e0b' : color,
-                  weight: isTop1 || isSelected ? 3 : 1.5,
-                  fillColor: color,
-                  fillOpacity: isSelected || isTop1 ? 0.95 : 0.75,
-                }}
-                eventHandlers={{
-                  click: () => onSelectCandidate(candidate),
-                }}
-              >
-                <Popup>
-                  <div className="p-2 space-y-2 text-slate-100 min-w-[260px] font-sans">
-                    {/* Header */}
-                    <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-1.5">
-                      <div>
-                        <div className="flex items-center gap-1.5">
-                          <span
-                            className="w-2.5 h-2.5 rounded-full"
-                            style={{ backgroundColor: color }}
-                          />
-                          <span className="text-xs font-bold text-white">
-                            Peringkat #{candidate.rank}
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
-                            {candidate.district}
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-mono">
-                          {candidate.lat.toFixed(4)}, {candidate.lng.toFixed(4)}
+            const popupContent = (
+              <Popup>
+                <div className="p-2 space-y-2 text-slate-100 min-w-[270px] font-sans">
+                  {/* Header */}
+                  <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-1.5">
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full"
+                          style={{ backgroundColor: color }}
+                        />
+                        <span className="text-xs font-bold text-white">
+                          Peringkat #{candidate.rank}
+                        </span>
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
+                          {candidate.district}
                         </span>
                       </div>
-                      <div className="text-right">
-                        <span className="text-[10px] text-slate-400 block font-sans">Skor Kelayakan</span>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-sm font-black font-mono text-emerald-400">
-                            {formatBusinessScore(candidate.score)}/100
-                          </span>
-                          <span className="text-[10px] text-slate-500 font-mono">
-                            (Vi: {candidate.score.toFixed(3)})
-                          </span>
-                        </div>
-                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        Centroid: {candidate.lat.toFixed(4)}, {candidate.lng.toFixed(4)}
+                      </span>
                     </div>
-
-                    {/* Land Suitability Tag */}
-                    <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded bg-slate-950 border border-slate-800">
-                      {candidate.isRestricted ? (
-                        <span className="text-rose-400 font-bold flex items-center gap-1">
-                          <ShieldAlert className="w-3 h-3" /> {candidate.restrictionReason}
+                    <div className="text-right">
+                      <span className="text-[10px] text-slate-400 block font-sans">Skor Kelayakan</span>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-sm font-black font-mono text-emerald-400">
+                          {formatBusinessScore(candidate.score)}/100
                         </span>
-                      ) : (
-                        <span className="text-emerald-400 font-medium flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Kawasan Komersial &amp; Permukiman Layak Usaha
+                        <span className="text-[10px] text-slate-500 font-mono">
+                          (Vi: {candidate.score.toFixed(3)})
                         </span>
-                      )}
-                    </div>
-
-                    {/* Criteria Grid */}
-                    <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                      <div>
-                        <span className="text-slate-400 block text-[10px]">Persaingan Kafe:</span>
-                        <strong className="text-white font-mono">
-                          {Math.round(candidate.c1_dist_competitor)} m
-                        </strong>
                       </div>
-                      <div>
-                        <span className="text-slate-400 block text-[10px]">Populasi Warga:</span>
-                        <strong className="text-white font-mono">
-                          {candidate.c2_population.toLocaleString('id-ID')} jiwa
-                        </strong>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[10px]">Akses Jalan:</span>
-                        <strong className="text-white font-mono">
-                          {Math.round(candidate.c3_dist_road)} m
-                        </strong>
-                      </div>
-                      <div>
-                        <span className="text-slate-400 block text-[10px]">Keramaian:</span>
-                        <strong className="text-white font-mono">
-                          {Math.round(candidate.c4_dist_crowd)} m
-                        </strong>
-                      </div>
-                    </div>
-
-                    {/* Rationale description */}
-                    <div className="text-[10px] text-slate-300 leading-snug bg-emerald-950/20 p-1.5 rounded border border-emerald-900/30">
-                      {candidate.isRestricted ? (
-                        <span className="text-rose-300">
-                          ⚠️ <strong>Lokasi Dibatasi:</strong> Titik ini berada di zona {candidate.restrictionReason} sehingga tidak diizinkan untuk pendirian usaha kedai kopi.
-                        </span>
-                      ) : candidate.score >= 0.62 ? (
-                        <span>
-                          ⭐ <strong>Potensi Sangat Tinggi:</strong> Memiliki kombinasi jarak kompetitor yang aman dan aksesibilitas/populasi prima.
-                        </span>
-                      ) : candidate.score >= 0.45 ? (
-                        <span>
-                          🟡 <strong>Potensi Moderat:</strong> Layak dipertimbangkan dengan penyesuaian segmentasi pasar.
-                        </span>
-                      ) : (
-                        <span>
-                          🔴 <strong>Potensi Rendah:</strong> Tingkat saturasi kompetitor tinggi atau aksesibilitas terbatas.
-                        </span>
-                      )}
                     </div>
                   </div>
-                </Popup>
-              </CircleMarker>
+
+                  {/* Radius Catchment Area Explanation (Metodologi Skripsi) */}
+                  <div className="flex items-start gap-1.5 text-[10px] p-2 rounded bg-blue-950/50 border border-blue-800/60 text-blue-200">
+                    <Radio className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
+                    <div className="leading-snug">
+                      <strong className="text-blue-300 block">Zona Potensi (Radius ±{radiusMeters}m):</strong>
+                      <span>
+                        Titik ini adalah <em>Centroid</em> sel grid. Pengusaha disarankan menyurvei ketersediaan ruko/lahan sewa di dalam radius ini (~{approxHectares} ha).
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Land Suitability Tag */}
+                  <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded bg-slate-950 border border-slate-800">
+                    {candidate.isRestricted ? (
+                      <span className="text-rose-400 font-bold flex items-center gap-1">
+                        <ShieldAlert className="w-3 h-3" /> {candidate.restrictionReason}
+                      </span>
+                    ) : (
+                      <span className="text-emerald-400 font-medium flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Kawasan Komersial &amp; Permukiman Layak Usaha
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Criteria Grid */}
+                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-950/70 p-2 rounded-lg border border-slate-800">
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Persaingan Kafe:</span>
+                      <strong className="text-white font-mono">
+                        {Math.round(candidate.c1_dist_competitor)} m
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Populasi Warga:</span>
+                      <strong className="text-white font-mono">
+                        {candidate.c2_population.toLocaleString('id-ID')} jiwa
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Akses Jalan:</span>
+                      <strong className="text-white font-mono">
+                        {Math.round(candidate.c3_dist_road)} m
+                      </strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block text-[10px]">Keramaian:</span>
+                      <strong className="text-white font-mono">
+                        {Math.round(candidate.c4_dist_crowd)} m
+                      </strong>
+                    </div>
+                  </div>
+
+                  {/* Rationale description */}
+                  <div className="text-[10px] text-slate-300 leading-snug bg-emerald-950/20 p-1.5 rounded border border-emerald-900/30">
+                    {candidate.isRestricted ? (
+                      <span className="text-rose-300">
+                        ⚠️ <strong>Lokasi Dibatasi:</strong> Titik ini berada di zona {candidate.restrictionReason} sehingga tidak diizinkan untuk pendirian usaha kedai kopi.
+                      </span>
+                    ) : candidate.score >= 0.62 ? (
+                      <span>
+                        ⭐ <strong>Potensi Sangat Tinggi:</strong> Memiliki kombinasi jarak kompetitor yang aman dan aksesibilitas/populasi prima.
+                      </span>
+                    ) : candidate.score >= 0.45 ? (
+                      <span>
+                        🟡 <strong>Potensi Moderat:</strong> Layak dipertimbangkan dengan penyesuaian segmentasi pasar.
+                      </span>
+                    ) : (
+                      <span>
+                        🔴 <strong>Potensi Rendah:</strong> Tingkat saturasi kompetitor tinggi atau aksesibilitas terbatas.
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </Popup>
+            );
+
+            return (
+              <React.Fragment key={candidate.id}>
+                {/* 1. Catchment Buffer Radius Circle (when mode is 'radius' or 'both') */}
+                {(displayMode === 'radius' || displayMode === 'both') && (
+                  <Circle
+                    center={[candidate.lat, candidate.lng]}
+                    radius={radiusMeters}
+                    pathOptions={{
+                      color: isSelected ? '#ffffff' : isTop1 ? '#fbbf24' : color,
+                      weight: isSelected ? 3 : isTop1 ? 2.5 : candidate.score >= 0.62 ? 1.5 : 1,
+                      opacity: isSelected ? 0.95 : isTop1 ? 0.85 : 0.65,
+                      dashArray: isSelected ? undefined : isTop1 ? '6, 4' : '4, 4',
+                      fillColor: color,
+                      fillOpacity: isSelected
+                        ? 0.38
+                        : isTop1
+                        ? 0.30
+                        : candidate.score >= 0.62
+                        ? 0.20
+                        : 0.10,
+                    }}
+                    eventHandlers={{
+                      click: () => onSelectCandidate(candidate),
+                    }}
+                  >
+                    <Tooltip sticky>
+                      <div className="text-xs p-1 font-sans">
+                        <strong className="text-emerald-700 block">
+                          🎯 Zona Potensi #{candidate.rank} (Radius {radiusMeters}m)
+                        </strong>
+                        <span className="text-slate-600 text-[10px] block">
+                          Kecamatan {candidate.district} • Skor: {formatBusinessScore(candidate.score)}/100
+                        </span>
+                        <span className="text-slate-500 text-[9px] block">
+                          Area Penyangga: ~{approxHectares} ha
+                        </span>
+                      </div>
+                    </Tooltip>
+                    {displayMode === 'radius' && popupContent}
+                  </Circle>
+                )}
+
+                {/* 2. Centroid Point Marker (when mode is 'point' or 'both') */}
+                {(displayMode === 'point' || displayMode === 'both') && (
+                  <CircleMarker
+                    center={[candidate.lat, candidate.lng]}
+                    radius={isTop1 ? 10 : isSelected ? 8.5 : displayMode === 'both' ? 5.5 : 6.5}
+                    pathOptions={{
+                      color: isSelected ? '#ffffff' : isTop1 ? '#f59e0b' : color,
+                      weight: isTop1 || isSelected ? 3 : 1.5,
+                      fillColor: color,
+                      fillOpacity: isSelected || isTop1 ? 0.95 : 0.8,
+                    }}
+                    eventHandlers={{
+                      click: () => onSelectCandidate(candidate),
+                    }}
+                  >
+                    {popupContent}
+                  </CircleMarker>
+                )}
+
+                {/* 3. Subtle Anchor Dot for 'radius' mode only so center is distinguishable */}
+                {displayMode === 'radius' && (
+                  <CircleMarker
+                    center={[candidate.lat, candidate.lng]}
+                    radius={isTop1 || isSelected ? 4 : 2.5}
+                    pathOptions={{
+                      color: '#ffffff',
+                      weight: 1,
+                      fillColor: color,
+                      fillOpacity: 0.9,
+                    }}
+                    eventHandlers={{
+                      click: () => onSelectCandidate(candidate),
+                    }}
+                  />
+                )}
+              </React.Fragment>
             );
           })}
 
-        {/* 7. CUSTOM LIVE FIELD SURVEY MARKER */}
+        {/* 7. CUSTOM LIVE FIELD SURVEY MARKER & RADIUS */}
         {surveyResult && (
-          <Marker
-            position={[surveyResult.lat, surveyResult.lng]}
-            icon={createSurveyIcon(surveyResult.category)}
-            zIndexOffset={1000}
-          >
-            <Popup autoPan={true}>
-              <div className="p-2 space-y-2 text-slate-100 min-w-[270px] font-sans">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
-                  <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase flex items-center gap-1">
-                    <Compass className="w-3 h-3" /> Titik Survei Lapangan
-                  </span>
-                  <span className="text-xs font-mono font-bold text-white">
-                    Vi: {surveyResult.score.toFixed(4)}
-                  </span>
-                </div>
-
-                <div>
-                  <h4 className="font-bold text-xs text-white">
-                    {surveyResult.districtName ? `Kecamatan ${surveyResult.districtName}` : 'Luar Kota Bogor'}
-                  </h4>
-                  <span className="text-[10px] text-slate-400 font-mono">
-                    {surveyResult.lat.toFixed(5)}, {surveyResult.lng.toFixed(5)}
-                  </span>
-                </div>
-
-                <div className="grid grid-cols-2 gap-1.5 text-[10px] bg-slate-950 p-1.5 rounded border border-slate-800">
-                  <div>
-                    <span className="text-slate-400 block">Jarak Kompetitor:</span>
-                    <strong className="text-amber-300 font-mono">{surveyResult.c1_dist_competitor} m</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">Akses Jalan Utama:</span>
-                    <strong className="text-cyan-300 font-mono">{surveyResult.c3_dist_road} m</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">Pusat Keramaian:</span>
-                    <strong className="text-purple-300 font-mono">{surveyResult.c4_dist_crowd} m</strong>
-                  </div>
-                  <div>
-                    <span className="text-slate-400 block">Status Lahan:</span>
-                    <strong className={surveyResult.isRestricted ? 'text-rose-400' : 'text-emerald-400'}>
-                      {surveyResult.isRestricted ? 'Restriksi' : 'Layak'}
+          <>
+            {/* Catchment Circle around Survey Location */}
+            {layers.recommendationDisplayMode !== 'point' && (
+              <Circle
+                center={[surveyResult.lat, surveyResult.lng]}
+                radius={layers.recommendationRadiusMeters || 250}
+                pathOptions={{
+                  color: surveyResult.isRestricted ? '#ef4444' : '#10b981',
+                  weight: 2,
+                  dashArray: '5, 5',
+                  fillColor: surveyResult.isRestricted ? '#f43f5e' : '#34d399',
+                  fillOpacity: 0.22,
+                }}
+              >
+                <Tooltip sticky>
+                  <div className="text-xs p-1 font-sans">
+                    <strong className="text-emerald-700 block">
+                      📍 Area Tangkapan Survei (Radius {layers.recommendationRadiusMeters || 250}m)
                     </strong>
+                    <span className="text-slate-500 text-[9px] block">
+                      Area Jangkauan: ~{((Math.PI * Math.pow(layers.recommendationRadiusMeters || 250, 2)) / 10000).toFixed(1)} ha
+                    </span>
                   </div>
-                </div>
+                </Tooltip>
+              </Circle>
+            )}
 
-                {onOpenSurveyModal && (
-                  <button
-                    onClick={onOpenSurveyModal}
-                    className="w-full py-1.5 px-2.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
-                  >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    <span>Lihat Diagnosa Lengkap (SWOT & TOPSIS)</span>
-                  </button>
-                )}
-              </div>
-            </Popup>
-          </Marker>
+            <Marker
+              position={[surveyResult.lat, surveyResult.lng]}
+              icon={createSurveyIcon(surveyResult.category)}
+              zIndexOffset={1000}
+            >
+              <Popup autoPan={true}>
+                <div className="p-2 space-y-2 text-slate-100 min-w-[270px] font-sans">
+                  <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase flex items-center gap-1">
+                      <Compass className="w-3 h-3" /> Titik Survei Lapangan
+                    </span>
+                    <span className="text-xs font-mono font-bold text-white">
+                      Vi: {surveyResult.score.toFixed(4)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="font-bold text-xs text-white">
+                      {surveyResult.districtName ? `Kecamatan ${surveyResult.districtName}` : 'Luar Kota Bogor'}
+                    </h4>
+                    <span className="text-[10px] text-slate-400 font-mono">
+                      {surveyResult.lat.toFixed(5)}, {surveyResult.lng.toFixed(5)}
+                    </span>
+                  </div>
+
+                  {/* Catchment Info for Survey */}
+                  <div className="text-[10px] text-emerald-300 bg-emerald-950/40 p-1.5 rounded border border-emerald-900/40">
+                    <span>
+                      🎯 <strong>Catchment Radius {layers.recommendationRadiusMeters || 250}m:</strong> Lingkaran hijau di peta menunjukkan area jangkauan 5 menit jalan kaki dari titik survei ini.
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-1.5 text-[10px] bg-slate-950 p-1.5 rounded border border-slate-800">
+                    <div>
+                      <span className="text-slate-400 block">Jarak Kompetitor:</span>
+                      <strong className="text-amber-300 font-mono">{surveyResult.c1_dist_competitor} m</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block">Akses Jalan Utama:</span>
+                      <strong className="text-cyan-300 font-mono">{surveyResult.c3_dist_road} m</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block">Pusat Keramaian:</span>
+                      <strong className="text-purple-300 font-mono">{surveyResult.c4_dist_crowd} m</strong>
+                    </div>
+                    <div>
+                      <span className="text-slate-400 block">Status Lahan:</span>
+                      <strong className={surveyResult.isRestricted ? 'text-rose-400' : 'text-emerald-400'}>
+                        {surveyResult.isRestricted ? 'Restriksi' : 'Layak'}
+                      </strong>
+                    </div>
+                  </div>
+
+                  {onOpenSurveyModal && (
+                    <button
+                      onClick={onOpenSurveyModal}
+                      className="w-full py-1.5 px-2.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Lihat Diagnosa Lengkap (SWOT & TOPSIS)</span>
+                    </button>
+                  )}
+                </div>
+              </Popup>
+            </Marker>
+          </>
         )}
       </MapContainer>
 
@@ -849,6 +966,12 @@ export const BogorMap: React.FC<BogorMapProps> = ({
         </span>
 
         <div className="space-y-1.5 text-[11px]">
+          {(layers.recommendationDisplayMode !== 'point') && (
+            <div className="flex items-center gap-2 text-slate-300 pb-1 border-b border-slate-800/60">
+              <span className="w-3.5 h-3.5 rounded-full border border-dashed border-emerald-400 bg-emerald-500/25" />
+              <span className="text-emerald-300 font-medium">Zona Radius (±{layers.recommendationRadiusMeters || 250}m)</span>
+            </div>
+          )}
           <div className="flex items-center gap-2 text-slate-300">
             <span className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
             <span>Sangat Direkomendasikan (≥ 0.62)</span>

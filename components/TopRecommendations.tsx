@@ -13,6 +13,7 @@ import {
   Filter,
   Sparkles,
   Star,
+  Radio,
 } from 'lucide-react';
 import { TopsisCandidateResult } from '@/lib/types';
 import { BOGOR_DISTRICTS } from '@/data/bogor-spatial';
@@ -25,12 +26,14 @@ interface TopRecommendationsProps {
   candidates: TopsisCandidateResult[];
   selectedCandidateId: string | null;
   onSelectCandidate: (candidate: TopsisCandidateResult) => void;
+  radiusMeters?: number;
 }
 
 export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
   candidates,
   selectedCandidateId,
   onSelectCandidate,
+  radiusMeters = 250,
 }) => {
   const [districtFilter, setDistrictFilter] = useState<string>('ALL');
 
@@ -101,7 +104,7 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
             <Trophy className="w-4 h-4 text-amber-400" />
-            <span>Top 10 Rekomendasi Lokasi Terbaik</span>
+            <span>Top 10 Zona Rekomendasi (±{radiusMeters}m)</span>
           </span>
           <span className="text-[11px] text-slate-400 bg-slate-800 px-2 py-0.5 rounded font-mono">
             {filteredCandidates.length} Titik Layak Usaha
@@ -172,7 +175,11 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
                       </div>
                       <div className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
                         <MapPin className="w-3 h-3 text-slate-500" />
-                        {candidate.lat.toFixed(4)}, {candidate.lng.toFixed(4)}
+                        <span>Centroid: {candidate.lat.toFixed(4)}, {candidate.lng.toFixed(4)}</span>
+                      </div>
+                      <div className="text-[10px] text-emerald-400 flex items-center gap-1 font-medium mt-0.5">
+                        <Radio className="w-2.5 h-2.5 text-emerald-400 shrink-0" />
+                        <span>Zona Penyangga: Radius ±{radiusMeters}m</span>
                       </div>
                     </div>
                   </div>
