@@ -10,7 +10,9 @@ import {
   Polyline,
   Circle,
   CircleMarker,
+  Rectangle,
   Tooltip,
+  ZoomControl,
   useMap,
   useMapEvents,
 } from 'react-leaflet';
@@ -20,12 +22,14 @@ import {
   DistrictGeo,
   RoadSegment,
   CrowdCenterPoint,
+  ExclusionZone,
   TopsisCandidateResult,
   LayerToggleState,
   FilterState,
   SurveyPointEvaluation,
 } from '@/lib/types';
-import { BOGOR_EXCLUSION_ZONES } from '@/data/bogor-spatial';
+import { GRID_CELL_METERS } from '@/data/bogor-spatial';
+import { getSettings } from '@/lib/settings';
 import {
   formatBusinessScore,
   getStarRating,
@@ -52,71 +56,32 @@ import {
   CircleDot,
   Radio,
   Target,
+  Info,
+  X,
+  MousePointerClick,
 } from 'lucide-react';
 
 // Fix Leaflet Default Marker Icon issues in Webpack/Next.js
-delete (L.Icon.Default.prototype as any)._getIconUrl;
+delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
   iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-// Custom DivIcons for high visual appeal
+// Penanda ringkas: kecil agar peta tidak penuh, tetap jelas saat di-zoom
 const createCoffeeIcon = () => {
   return L.divIcon({
     className: 'custom-coffee-pin',
     html: `
       <div style="
-        width: 26px;
-        height: 26px;
-        background: linear-gradient(135deg, #d97706, #78350f);
-        border: 2px solid #fef3c7;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.5);
+        width: 22px; height: 22px; background: #2a1f18; border: 2px solid #ffffff; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 2px 6px rgba(42,31,24,0.45);
       ">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#d4f254" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M17 8h1a4 4 0 1 1 0 8h-1"></path>
           <path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"></path>
-          <line x1="6" y1="2" x2="6" y2="4"></line>
-          <line x1="10" y1="2" x2="10" y2="4"></line>
-          <line x1="14" y1="2" x2="14" y2="4"></line>
-        </svg>
-      </div>
-    `,
-    iconSize: [26, 26],
-    iconAnchor: [13, 13],
-    popupAnchor: [0, -14],
-  });
-};
-
-const createCrowdIcon = (category: string) => {
-  let bg = '#8b5cf6';
-  if (category === 'mall') bg = '#ec4899';
-  if (category === 'station') bg = '#3b82f6';
-  if (category === 'park') bg = '#10b981';
-
-  return L.divIcon({
-    className: 'custom-crowd-pin',
-    html: `
-      <div style="
-        width: 22px;
-        height: 22px;
-        background: ${bg};
-        border: 2px solid #ffffff;
-        border-radius: 6px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.4);
-      ">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"></circle>
-          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path>
-          <path d="M2 12h20"></path>
         </svg>
       </div>
     `,
@@ -126,55 +91,53 @@ const createCrowdIcon = (category: string) => {
   });
 };
 
-// Pulsing Animated Survey Pin Icon
+const createCrowdIcon = (category: string) => {
+  let bg = '#0e8fa0';
+  if (category === 'mall' || category === 'supermarket') bg = '#7c5cff';
+  if (category === 'marketplace') bg = '#d97706';
+  if (category === 'station' || category === 'bus_station' || category === 'shelter') bg = '#2a5db0';
+  if (category === 'park' || category === 'attraction') bg = '#12805c';
+
+  return L.divIcon({
+    className: 'custom-crowd-pin',
+    html: `
+      <div style="
+        width: 18px; height: 18px; background: ${bg}; border: 2px solid #ffffff; border-radius: 6px;
+        box-shadow: 0 2px 6px rgba(42,31,24,0.35);
+        display: flex; align-items: center; justify-content: center;
+      ">
+        <span style="width:5px;height:5px;border-radius:50%;background:#fff;display:block"></span>
+      </div>
+    `,
+    iconSize: [18, 18],
+    iconAnchor: [9, 9],
+    popupAnchor: [0, -10],
+  });
+};
+
+// Penanda titik survei dengan efek denyut
 const createSurveyIcon = (category?: string) => {
   const isRecommended = category === 'high';
   const isRestricted = category === 'restricted';
-  const pulseColor = isRestricted
-    ? 'rgba(239, 68, 68, 0.5)'
-    : isRecommended
-    ? 'rgba(16, 185, 129, 0.5)'
-    : 'rgba(245, 158, 11, 0.5)';
-  const mainGradient = isRestricted
-    ? 'linear-gradient(135deg, #ef4444, #991b1b)'
-    : isRecommended
-    ? 'linear-gradient(135deg, #10b981, #047857)'
-    : 'linear-gradient(135deg, #f59e0b, #b45309)';
+  const main = isRestricted ? '#c2352b' : isRecommended ? '#12805c' : '#2a1f18';
+  const pulse = isRestricted ? 'rgba(194,53,43,0.35)' : isRecommended ? 'rgba(18,128,92,0.35)' : 'rgba(42,31,24,0.3)';
 
   return L.divIcon({
     className: 'custom-survey-marker',
     html: `
-      <div style="position: relative; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;">
+      <div style="position: relative; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+        <div style="position: absolute; width: 40px; height: 40px; border-radius: 50%; background: ${pulse}; animation: ping 1.6s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
         <div style="
-          position: absolute;
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          background: ${pulseColor};
-          animation: ping 1.4s cubic-bezier(0, 0, 0.2, 1) infinite;
-        "></div>
-        <div style="
-          position: relative;
-          width: 30px;
-          height: 30px;
-          background: ${mainGradient};
-          border: 2.5px solid #ffffff;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+          position: relative; width: 28px; height: 28px; background: ${main}; border: 3px solid #ffffff; border-radius: 50%;
+          display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 14px rgba(42,31,24,0.45);
         ">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"></circle>
-            <path d="M12 2v3m0 14v3M2 12h3m14 0h3"></path>
-          </svg>
+          <span style="width:8px;height:8px;border-radius:50%;background:#d4f254;display:block"></span>
         </div>
       </div>
     `,
-    iconSize: [38, 38],
-    iconAnchor: [19, 19],
-    popupAnchor: [0, -20],
+    iconSize: [40, 40],
+    iconAnchor: [20, 20],
+    popupAnchor: [0, -22],
   });
 };
 
@@ -185,18 +148,35 @@ const MapController: React.FC<{
 }> = ({ selectedCandidate, surveyResult }) => {
   const map = useMap();
 
+  // Panel (kartu kiri di desktop / bottom sheet di mobile) menutupi sebagian peta.
+  // Titik tujuan diposisikan di tengah bagian peta yang masih terlihat.
+  const flyToVisible = (lat: number, lng: number, zoom: number) => {
+    const size = map.getSize();
+    let targetX = size.x / 2;
+    let targetY = size.y / 2;
+    const panel = document.querySelector('aside[aria-label="Panel analisis"]') as HTMLElement | null;
+    if (panel) {
+      const r = panel.getBoundingClientRect();
+      if (r.width > 0 && r.height > 0) {
+        if (window.innerWidth >= 1024) {
+          targetX = (r.right + size.x) / 2; // area bebas = kanan panel
+        } else {
+          targetY = Math.max(r.top, 0) / 2; // area bebas = di atas sheet
+        }
+      }
+    }
+    const targetPt = map.project([lat, lng], zoom);
+    const centerPt = targetPt.add([size.x / 2 - targetX, size.y / 2 - targetY]);
+    map.flyTo(map.unproject(centerPt, zoom), zoom, { duration: 1.2, easeLinearity: 0.25 });
+  };
+
   useEffect(() => {
     if (surveyResult && surveyResult.isInsideBogor) {
-      map.flyTo([surveyResult.lat, surveyResult.lng], 16, {
-        duration: 1.2,
-        easeLinearity: 0.25,
-      });
+      flyToVisible(surveyResult.lat, surveyResult.lng, 16);
     } else if (selectedCandidate) {
-      map.flyTo([selectedCandidate.lat, selectedCandidate.lng], 16, {
-        duration: 1.2,
-        easeLinearity: 0.25,
-      });
+      flyToVisible(selectedCandidate.lat, selectedCandidate.lng, 16);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCandidate, surveyResult, map]);
 
   return null;
@@ -217,36 +197,43 @@ const MapEventsHandler: React.FC<{
   return null;
 };
 
-// Free Basemap Definitions without any API key requirement
-type BasemapKey = 'osm' | 'carto_dark' | 'carto_light' | 'satellite';
+// Peta dasar gratis tanpa API key (Esri & OpenStreetMap). CARTO kini mewajibkan API key sehingga tidak dipakai.
+// Default "Terang" (abu-abu muda) agar warna data (hijau/kuning/merah) paling terbaca.
+type BasemapKey = 'light' | 'osm' | 'satellite' | 'dark';
 
+const ESRI = 'https://server.arcgisonline.com/ArcGIS/rest/services';
 const BASEMAP_CONFIGS: Record<
   BasemapKey,
-  { name: string; url: string; attribution: string; icon: any }
+  { name: string; url: string; labels?: string; maxNativeZoom?: number; attribution: string; icon: React.ElementType }
 > = {
+  light: {
+    name: 'Terang',
+    url: `${ESRI}/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    labels: `${ESRI}/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+    maxNativeZoom: 16,
+    attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors',
+    icon: Sun,
+  },
   osm: {
-    name: 'OpenStreetMap (Standar)',
+    name: 'Berwarna',
     url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     icon: Map,
   },
-  carto_dark: {
-    name: 'CartoDB Dark Matter',
-    url: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a> & OpenStreetMap',
-    icon: Moon,
-  },
-  carto_light: {
-    name: 'CartoDB Positron (Terang)',
-    url: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-    attribution: '&copy; <a href="https://carto.com/">CARTO</a> & OpenStreetMap',
-    icon: Sun,
-  },
   satellite: {
-    name: 'Esri Satelit / Citra',
-    url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
-    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community',
+    name: 'Satelit',
+    url: `${ESRI}/World_Imagery/MapServer/tile/{z}/{y}/{x}`,
+    labels: `${ESRI}/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}`,
+    attribution: 'Tiles &copy; Esri &mdash; Source: Esri, Maxar, Earthstar Geographics, and the GIS User Community',
     icon: Satellite,
+  },
+  dark: {
+    name: 'Gelap',
+    url: `${ESRI}/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}`,
+    labels: `${ESRI}/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}`,
+    maxNativeZoom: 16,
+    attribution: 'Tiles &copy; Esri &mdash; Esri, HERE, Garmin, OpenStreetMap contributors',
+    icon: Moon,
   },
 };
 
@@ -255,6 +242,7 @@ interface BogorMapProps {
   competitors: CompetitorPoint[];
   roads: RoadSegment[];
   crowdCenters: CrowdCenterPoint[];
+  exclusionZones: ExclusionZone[];
   candidates: TopsisCandidateResult[];
   layers: LayerToggleState;
   filters: FilterState;
@@ -274,6 +262,7 @@ export const BogorMap: React.FC<BogorMapProps> = ({
   competitors,
   roads,
   crowdCenters,
+  exclusionZones,
   candidates,
   layers,
   filters,
@@ -286,8 +275,9 @@ export const BogorMap: React.FC<BogorMapProps> = ({
   isSurveyClickMode = false,
   onToggleSurveyClickMode,
 }) => {
-  const [activeBasemap, setActiveBasemap] = useState<BasemapKey>('osm');
+  const [activeBasemap, setActiveBasemap] = useState<BasemapKey>('light');
   const [isBasemapMenuOpen, setIsBasemapMenuOpen] = useState(false);
+  const [isLegendOpen, setIsLegendOpen] = useState(false);
   const [isGpsLoading, setIsGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState<string | null>(null);
 
@@ -302,10 +292,28 @@ export const BogorMap: React.FC<BogorMapProps> = ({
     return true;
   });
 
+  // 10 titik teratas (di luar zona terlarang) diberi penekanan khusus di peta
+  const topIds = new Set(
+    candidates
+      .filter((c) => !c.isRestricted)
+      .slice(0, 10)
+      .map((c) => c.id)
+  );
+
+  // Sel grid persegi (sisi = GRID_CELL_METERS): 1 sel = 1 titik kandidat
+  const halfCellLat = GRID_CELL_METERS / 2 / 111320;
+  const cellBounds = (lat: number, lng: number): [[number, number], [number, number]] => {
+    const halfLng = GRID_CELL_METERS / 2 / (111320 * Math.cos((lat * Math.PI) / 180));
+    return [
+      [lat - halfCellLat, lng - halfLng],
+      [lat + halfCellLat, lng + halfLng],
+    ];
+  };
+
   const getCandidateColor = (score: number) => {
-    if (score >= 0.62) return '#10b981'; // Green (High potential)
-    if (score >= 0.45) return '#f59e0b'; // Amber (Medium)
-    return '#f43f5e'; // Rose (Low)
+    if (score >= getSettings().tierHigh) return '#12a56b'; // Hijau (potensi tinggi)
+    if (score >= getSettings().tierMedium) return '#f0a30a'; // Kuning (menengah)
+    return '#e5484d'; // Merah (rendah)
   };
 
   const selectedBasemap = BASEMAP_CONFIGS[activeBasemap];
@@ -352,145 +360,135 @@ export const BogorMap: React.FC<BogorMapProps> = ({
 
   return (
     <div
-      className={`relative w-full h-full min-h-[500px] overflow-hidden ${
+      className={`relative h-full w-full overflow-hidden ${
         isSurveyClickMode ? 'cursor-crosshair' : ''
       }`}
     >
-      {/* 1. Floating Field Survey Action Bar (Top Left) */}
-      <div className="absolute top-4 left-4 z-[400] flex flex-wrap items-center gap-2 max-w-[calc(100%-160px)]">
-        {/* GPS Live Button */}
+      {/* Kontrol peta (kanan atas): peta dasar + aksi survei */}
+      <div className="absolute right-3 top-[72px] z-[400] flex flex-col items-end gap-2 sm:right-4 sm:top-[84px]">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setIsBasemapMenuOpen(!isBasemapMenuOpen)}
+            aria-expanded={isBasemapMenuOpen}
+            aria-label="Ganti peta dasar"
+            className="float-panel flex h-11 cursor-pointer items-center gap-2 rounded-full px-4 text-[13px] font-bold text-ink transition-transform hover:scale-[1.03]"
+          >
+            <Layers className="h-4 w-4" />
+            {selectedBasemap.name}
+          </button>
+
+          {isBasemapMenuOpen && (
+            <div className="float-panel animate-in absolute right-0 mt-2 w-48 rounded-2xl p-1.5">
+              {(Object.keys(BASEMAP_CONFIGS) as BasemapKey[]).map((key) => {
+                const item = BASEMAP_CONFIGS[key];
+                const Icon = item.icon;
+                const isSelected = activeBasemap === key;
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => {
+                      setActiveBasemap(key);
+                      setIsBasemapMenuOpen(false);
+                    }}
+                    className={`flex min-h-[44px] w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 text-left text-sm font-semibold transition-colors ${
+                      isSelected ? 'bg-espresso text-white' : 'text-ink hover:bg-oat-2'
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {item.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
         <button
           type="button"
           onClick={handleUseGpsLocation}
           disabled={isGpsLoading}
-          className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold shadow-xl backdrop-blur-md transition-all cursor-pointer ${
-            isGpsLoading
-              ? 'bg-emerald-950/90 text-emerald-300 border border-emerald-500/50'
-              : 'bg-slate-950/90 hover:bg-emerald-900/40 text-emerald-400 hover:text-emerald-300 border border-emerald-500/40 hover:border-emerald-400'
-          }`}
-          title="Gunakan koordinat GPS perangkat Anda saat ini untuk survei lapangan langsung"
+          title="Evaluasi lokasi GPS perangkat Anda"
+          aria-label="Survei lokasi saya"
+          className="float-panel flex h-11 cursor-pointer items-center gap-2 rounded-full px-3.5 text-[13px] font-bold text-ink transition-transform hover:scale-[1.03] disabled:opacity-60 sm:px-4"
         >
-          {isGpsLoading ? (
-            <Loader2 className="w-4 h-4 animate-spin text-emerald-400" />
-          ) : (
-            <LocateFixed className="w-4 h-4 text-emerald-400" />
-          )}
-          <span>{isGpsLoading ? 'Mencari GPS...' : 'Survei GPS Saya'}</span>
+          {isGpsLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
+          <span className="hidden sm:inline">{isGpsLoading ? 'Mencari…' : 'Lokasi saya'}</span>
         </button>
 
-        {/* Pin-Drop Click Mode Toggle Button */}
         {onToggleSurveyClickMode && (
           <button
             type="button"
             onClick={onToggleSurveyClickMode}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-bold shadow-xl backdrop-blur-md transition-all cursor-pointer ${
-              isSurveyClickMode
-                ? 'bg-amber-500 text-slate-950 border-2 border-white shadow-amber-500/50 ring-2 ring-amber-400 animate-pulse'
-                : 'bg-slate-950/90 hover:bg-slate-900 text-slate-200 border border-slate-700/80'
+            aria-pressed={isSurveyClickMode}
+            title="Klik sembarang titik di peta untuk mengevaluasi kelayakannya"
+            aria-label="Pilih titik di peta"
+            className={`flex h-11 cursor-pointer items-center gap-2 rounded-full px-3.5 text-[13px] font-bold shadow-float transition-transform hover:scale-[1.03] sm:px-4 ${
+              isSurveyClickMode ? 'bg-lime text-ink ring-2 ring-espresso' : 'float-panel text-ink'
             }`}
-            title="Aktifkan mode klik sembarang titik di peta untuk evaluasi survei ruko/tanah"
           >
-            <Crosshair className={`w-4 h-4 ${isSurveyClickMode ? 'text-slate-950' : 'text-amber-400'}`} />
-            <span>{isSurveyClickMode ? 'Mode Klik Aktif (Klik Peta)' : 'Klik Titik di Peta'}</span>
+            <MousePointerClick className="h-4 w-4" />
+            <span className="hidden sm:inline">{isSurveyClickMode ? 'Klik di peta…' : 'Pilih di peta'}</span>
           </button>
         )}
+      </div>
 
-        {/* Quick Result Pill if Survey Point Active */}
-        {surveyResult && onOpenSurveyModal && (
-          <div className="flex items-center gap-1.5 bg-slate-950/95 border border-emerald-500/50 rounded-xl px-3 py-1.5 shadow-xl text-xs backdrop-blur-md animate-in fade-in zoom-in-95">
+      {/* Hasil survei terkini (tengah atas) */}
+      {surveyResult && onOpenSurveyModal && (
+        <div className="animate-in absolute left-1/2 top-[72px] z-[400] flex -translate-x-1/2 items-center gap-1 rounded-full bg-espresso py-1 pl-1 pr-1 text-white shadow-float sm:top-[84px] lg:left-[calc(50%+210px)]">
+          <button
+            type="button"
+            onClick={onOpenSurveyModal}
+            className="flex h-10 cursor-pointer items-center gap-2 rounded-full px-3.5 text-[13px] font-bold transition-colors hover:bg-white/10"
+          >
+            <span className="chip !px-2 !py-0.5 bg-lime text-ink">Survei</span>
+            <span className="tabular font-mono">{surveyResult.score.toFixed(3)}</span>
+            {surveyResult.districtName && <span className="hidden text-white/70 sm:inline">· {surveyResult.districtName}</span>}
+          </button>
+          {onClearSurvey && (
             <button
-              onClick={onOpenSurveyModal}
-              className="flex items-center gap-1.5 text-emerald-300 hover:text-white font-bold cursor-pointer"
+              type="button"
+              onClick={onClearSurvey}
+              title="Hapus titik survei"
+              aria-label="Hapus titik survei"
+              className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-white/70 transition-colors hover:bg-white/10 hover:text-white"
             >
-              <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-              <span>
-                Survei: <strong className="font-mono">{surveyResult.score.toFixed(3)}</strong>
-                {surveyResult.districtName ? ` (${surveyResult.districtName})` : ''}
-              </span>
+              <X className="h-4 w-4" />
             </button>
-
-            {onClearSurvey && (
-              <button
-                onClick={onClearSurvey}
-                className="text-slate-400 hover:text-rose-400 p-0.5 ml-1 transition-colors cursor-pointer"
-                title="Hapus Titik Survei"
-              >
-                <XCircle className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* GPS Error Notification Toast */}
-      {gpsError && (
-        <div className="absolute top-16 left-4 z-[500] max-w-sm p-3 rounded-xl bg-rose-950/90 border border-rose-500/60 text-rose-200 text-xs shadow-2xl backdrop-blur-md flex items-start gap-2 animate-in fade-in slide-in-from-top-2">
-          <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <strong className="block text-white font-bold">Informasi GPS</strong>
-            <span>{gpsError}</span>
-          </div>
+          )}
         </div>
       )}
 
-      {/* Floating Survey Mode Banner when active */}
+      {/* Petunjuk mode klik */}
       {isSurveyClickMode && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 z-[400] px-4 py-2 rounded-full bg-amber-950/90 border border-amber-500/60 text-amber-200 text-xs font-semibold shadow-2xl backdrop-blur-md flex items-center gap-2 animate-in fade-in">
-          <Crosshair className="w-4 h-4 text-amber-400 animate-spin" />
-          <span>Klik di mana saja pada peta Kota Bogor untuk mengevaluasi kelayakan lokasi tersebut</span>
+        <div className="animate-in absolute left-1/2 top-[72px] z-[390] -translate-x-1/2 rounded-full bg-espresso px-4 py-2.5 text-[13px] font-semibold text-white shadow-float sm:top-[84px] lg:left-[calc(50%+210px)]">
+          <span className="flex items-center gap-2">
+            <Crosshair className="h-4 w-4 text-lime" />
+            Ketuk titik di peta untuk menilai lokasinya
+          </span>
         </div>
       )}
 
-      {/* Floating Basemap Selector Widget (Top Right) */}
-      <div className="absolute top-4 right-4 z-[400] flex flex-col items-end">
-        <button
-          type="button"
-          onClick={() => setIsBasemapMenuOpen(!isBasemapMenuOpen)}
-          className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-950/90 hover:bg-slate-900 border border-slate-700/80 text-white text-xs font-semibold shadow-xl backdrop-blur-md transition-all cursor-pointer"
-          title="Ganti Jenis Peta Dasar (Basemap)"
+      {/* Galat GPS */}
+      {gpsError && (
+        <div
+          role="alert"
+          className="animate-in absolute left-1/2 top-[130px] z-[500] flex w-[min(92vw,380px)] -translate-x-1/2 items-start gap-2.5 rounded-2xl bg-bad-bg p-3.5 text-sm text-bad shadow-float sm:top-[140px] lg:left-[calc(50%+210px)]"
         >
-          <Layers className="w-4 h-4 text-emerald-400" />
-          <span>{selectedBasemap.name}</span>
-        </button>
-
-        {isBasemapMenuOpen && (
-          <div className="mt-2 w-52 p-2 rounded-xl bg-slate-950/95 border border-slate-800 shadow-2xl backdrop-blur-lg flex flex-col gap-1 text-xs animate-in fade-in zoom-in-95 duration-150">
-            <span className="text-[10px] text-slate-400 font-bold px-2 py-1 uppercase tracking-wider">
-              Pilihan Peta Dasar:
-            </span>
-            {(Object.keys(BASEMAP_CONFIGS) as BasemapKey[]).map((key) => {
-              const item = BASEMAP_CONFIGS[key];
-              const Icon = item.icon;
-              const isSelected = activeBasemap === key;
-              return (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => {
-                    setActiveBasemap(key);
-                    setIsBasemapMenuOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-left transition-all cursor-pointer ${
-                    isSelected
-                      ? 'bg-emerald-950/70 text-emerald-300 font-bold border border-emerald-500/40'
-                      : 'text-slate-300 hover:bg-slate-800 hover:text-white'
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5 text-emerald-400" />
-                  <span className="truncate">{item.name}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-      </div>
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+          <span className="leading-snug">{gpsError}</span>
+        </div>
+      )}
 
       <MapContainer
         center={[-6.5971, 106.7972]}
         zoom={13}
         scrollWheelZoom={true}
+        zoomControl={false}
         className="w-full h-full"
       >
+        <ZoomControl position="bottomright" />
         <MapController selectedCandidate={selectedCandidate} surveyResult={surveyResult ?? null} />
 
         {/* Map Click Event Handler for Field Survey */}
@@ -509,7 +507,17 @@ export const BogorMap: React.FC<BogorMapProps> = ({
           attribution={selectedBasemap.attribution}
           url={selectedBasemap.url}
           maxZoom={19}
+          maxNativeZoom={selectedBasemap.maxNativeZoom ?? 19}
         />
+        {selectedBasemap.labels && (
+          <TileLayer
+            key={`${activeBasemap}-labels`}
+            url={selectedBasemap.labels}
+            maxZoom={19}
+            maxNativeZoom={selectedBasemap.maxNativeZoom ?? 19}
+            zIndex={5}
+          />
+        )}
 
         {/* 1. Districts Polygon Layer */}
         {layers.showDistricts &&
@@ -519,24 +527,18 @@ export const BogorMap: React.FC<BogorMapProps> = ({
               positions={district.coordinates}
               pathOptions={{
                 color: district.color,
-                weight: 2,
-                opacity: 0.8,
+                weight: 1.5,
+                opacity: 0.7,
                 fillColor: district.color,
-                fillOpacity: 0.12,
-                dashArray: '4, 4',
+                fillOpacity: 0.05,
+                dashArray: '2, 5',
               }}
             >
               <Tooltip sticky>
                 <div className="text-xs p-1 font-sans">
-                  <strong className="block text-slate-900 font-bold">
-                    Kecamatan {district.name}
-                  </strong>
-                  <span className="text-slate-600 block">
-                    Populasi: {district.population.toLocaleString('id-ID')} jiwa
-                  </span>
-                  <span className="text-slate-500 text-[10px] block">
-                    Kepadatan: {district.density.toLocaleString('id-ID')} jiwa/km²
-                  </span>
+                  <strong className="block font-extrabold text-ink">Kecamatan {district.name}</strong>
+                  <span className="block text-ink-2">{district.population.toLocaleString('id-ID')} jiwa</span>
+                  <span className="block text-ink-3">{district.density.toLocaleString('id-ID')} jiwa/km²</span>
                 </div>
               </Tooltip>
             </Polygon>
@@ -544,38 +546,36 @@ export const BogorMap: React.FC<BogorMapProps> = ({
 
         {/* 2. Exclusion Zones (Zona Restriksi / Lahan Terlarang) */}
         {layers.showExclusionZones &&
-          BOGOR_EXCLUSION_ZONES.map((zone) => (
+          exclusionZones.map((zone) => (
             <Circle
               key={zone.id}
               center={zone.center}
               radius={zone.radiusMeters}
               pathOptions={{
-                color: '#e11d48',
-                weight: 2,
+                color: '#c2352b',
+                weight: 1.5,
                 opacity: 0.9,
-                dashArray: '6, 6',
-                fillColor: '#f43f5e',
-                fillOpacity: 0.25,
+                dashArray: '5, 5',
+                fillColor: '#e5484d',
+                fillOpacity: 0.18,
               }}
             >
               <Popup>
-                <div className="p-1.5 space-y-1 text-slate-100 max-w-[230px]">
-                  <div className="flex items-center gap-1.5">
-                    <span className="px-1.5 py-0.5 rounded bg-rose-500/20 text-rose-300 text-[10px] uppercase font-bold flex items-center gap-1">
-                      <ShieldAlert className="w-3 h-3" /> Zona Restriksi
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-xs text-white leading-snug">{zone.name}</h4>
-                  <p className="text-[11px] text-slate-300">{zone.description}</p>
-                  <div className="text-[10px] text-rose-300 font-semibold pt-1 border-t border-slate-800">
-                    Radius Perlindungan: {zone.radiusMeters} meter
-                  </div>
+                <div className="w-[230px]">
+                  <span className="chip bg-bad-bg text-bad">
+                    <ShieldAlert className="h-3 w-3" /> Zona terlarang
+                  </span>
+                  <h4 className="mt-2 text-[15px] font-extrabold leading-snug text-ink">{zone.name}</h4>
+                  <p className="mt-1 text-xs leading-snug text-ink-2">{zone.description}</p>
+                  <p className="mt-2 border-t border-line pt-2 text-xs font-semibold text-bad">
+                    Radius perlindungan {zone.radiusMeters} m
+                  </p>
                 </div>
               </Popup>
               <Tooltip sticky>
                 <div className="text-xs p-1 font-sans">
-                  <strong className="text-rose-700 block">⚠️ {zone.name}</strong>
-                  <span className="text-slate-600 text-[10px] block">{zone.typeLabel} (Zona Terlarang)</span>
+                  <strong className="block font-extrabold text-bad">{zone.name}</strong>
+                  <span className="block text-ink-2">{zone.typeLabel} · zona terlarang</span>
                 </div>
               </Tooltip>
             </Circle>
@@ -588,16 +588,16 @@ export const BogorMap: React.FC<BogorMapProps> = ({
               key={road.id}
               positions={road.coordinates}
               pathOptions={{
-                color: '#0284c7',
-                weight: road.type === 'arterial' ? 4 : 2.5,
-                opacity: 0.85,
+                color: '#4b6cb7',
+                weight: road.type === 'arterial' ? 3.5 : 2,
+                opacity: 0.8,
               }}
             >
               <Tooltip sticky>
                 <div className="text-xs p-1 font-sans">
-                  <strong className="text-slate-900">{road.name}</strong>
-                  <span className="text-slate-500 block text-[10px]">
-                    Tipe: {road.type.toUpperCase()}
+                  <strong className="font-extrabold text-ink">{road.name}</strong>
+                  <span className="block text-ink-2">
+                    {road.type === 'arterial' ? 'Jalan arteri' : road.type === 'collector' ? 'Jalan kolektor' : 'Jalan lokal'}
                   </span>
                 </div>
               </Tooltip>
@@ -613,19 +613,11 @@ export const BogorMap: React.FC<BogorMapProps> = ({
               icon={createCrowdIcon(crowd.category)}
             >
               <Popup>
-                <div className="p-1 space-y-1 text-slate-100 max-w-[220px]">
-                  <div className="flex items-center gap-1.5">
-                    <span className="px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[10px] uppercase font-bold">
-                      {crowd.category}
-                    </span>
-                  </div>
-                  <h4 className="font-bold text-xs text-white leading-snug">{crowd.name}</h4>
-                  {crowd.description && (
-                    <p className="text-[11px] text-slate-300">{crowd.description}</p>
-                  )}
-                  <div className="text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-800">
-                    Kecamatan: {crowd.district}
-                  </div>
+                <div className="w-[220px]">
+                  <span className="chip bg-info-bg text-info capitalize">{String(crowd.category).replace('_', ' ')}</span>
+                  <h4 className="mt-2 text-[15px] font-extrabold leading-snug text-ink">{crowd.name}</h4>
+                  {crowd.description && <p className="mt-1 text-xs leading-snug text-ink-2">{crowd.description}</p>}
+                  <p className="mt-2 border-t border-line pt-2 text-xs font-medium text-ink-3">Kecamatan {crowd.district}</p>
                 </div>
               </Popup>
             </Marker>
@@ -640,20 +632,14 @@ export const BogorMap: React.FC<BogorMapProps> = ({
               icon={createCoffeeIcon()}
             >
               <Popup>
-                <div className="p-1 space-y-1.5 text-slate-100 max-w-[240px]">
-                  <div className="flex items-center gap-1.5">
-                    <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[10px] uppercase font-bold">
-                      Kompetitor Eksisting
-                    </span>
-                    <span className="text-[10px] text-slate-400">{comp.category}</span>
-                  </div>
-                  <h4 className="font-bold text-xs text-white leading-snug">{comp.name}</h4>
-                  {comp.address && (
-                    <p className="text-[11px] text-slate-300">{comp.address}</p>
-                  )}
-                  <div className="text-[10px] text-slate-400 font-mono pt-1 border-t border-slate-800">
-                    Wilayah: {comp.district}
-                  </div>
+                <div className="w-[240px]">
+                  <span className="chip bg-mid-bg text-mid">Kompetitor</span>
+                  <h4 className="mt-2 text-[15px] font-extrabold leading-snug text-ink">{comp.name}</h4>
+                  {comp.address && <p className="mt-1 text-xs leading-snug text-ink-2">{comp.address}</p>}
+                  <p className="mt-2 border-t border-line pt-2 text-xs font-medium text-ink-3">
+                    {comp.category} · {comp.district}
+                    {comp.source && <span className="text-ink-3"> · {comp.source === 'osm' ? 'OpenStreetMap' : 'Kaggle'}</span>}
+                  </p>
                 </div>
               </Popup>
             </Marker>
@@ -669,157 +655,145 @@ export const BogorMap: React.FC<BogorMapProps> = ({
             const radiusMeters = layers.recommendationRadiusMeters || 250;
             const approxHectares = ((Math.PI * Math.pow(radiusMeters, 2)) / 10000).toFixed(1);
 
+            const tierLabel = candidate.isRestricted
+              ? 'Zona terlarang'
+              : candidate.score >= getSettings().tierHigh
+              ? 'Sangat strategis'
+              : candidate.score >= getSettings().tierMedium
+              ? 'Potensial'
+              : 'Prioritas rendah';
+            const tierCls = candidate.isRestricted
+              ? 'bg-bad-bg text-bad'
+              : candidate.score >= getSettings().tierHigh
+              ? 'bg-good-bg text-good'
+              : candidate.score >= getSettings().tierMedium
+              ? 'bg-mid-bg text-mid'
+              : 'bg-bad-bg text-bad';
+
             const popupContent = (
               <Popup>
-                <div className="p-2 space-y-2 text-slate-100 min-w-[270px] font-sans">
-                  {/* Header */}
-                  <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-1.5">
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span
-                          className="w-2.5 h-2.5 rounded-full"
-                          style={{ backgroundColor: color }}
-                        />
-                        <span className="text-xs font-bold text-white">
-                          Peringkat #{candidate.rank}
-                        </span>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">
-                          {candidate.district}
-                        </span>
+                <div className="w-[270px] font-sans">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className={`chip ${tierCls}`}>{tierLabel}</span>
+                      <h4 className="mt-2 text-[15px] font-extrabold leading-tight text-ink">
+                        #{candidate.rank} · {candidate.district}
+                      </h4>
+                      <p className="tabular font-mono text-[11px] text-ink-3">
+                        {candidate.lat.toFixed(4)}, {candidate.lng.toFixed(4)}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="tabular text-3xl font-extrabold leading-none text-ink">
+                        {formatBusinessScore(candidate.score)}
                       </div>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        Centroid: {candidate.lat.toFixed(4)}, {candidate.lng.toFixed(4)}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] text-slate-400 block font-sans">Skor Kelayakan</span>
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-sm font-black font-mono text-emerald-400">
-                          {formatBusinessScore(candidate.score)}/100
-                        </span>
-                        <span className="text-[10px] text-slate-500 font-mono">
-                          (Vi: {candidate.score.toFixed(3)})
-                        </span>
-                      </div>
+                      <div className="mt-1 text-[11px] font-semibold text-ink-3">dari 100</div>
+                      <div className="tabular font-mono text-[11px] text-ink-3">Vi {candidate.score.toFixed(3)}</div>
                     </div>
                   </div>
 
-                  {/* Radius Catchment Area Explanation (Metodologi Skripsi) */}
-                  <div className="flex items-start gap-1.5 text-[10px] p-2 rounded bg-blue-950/50 border border-blue-800/60 text-blue-200">
-                    <Radio className="w-3.5 h-3.5 text-blue-400 shrink-0 mt-0.5" />
-                    <div className="leading-snug">
-                      <strong className="text-blue-300 block">Zona Potensi (Radius ±{radiusMeters}m):</strong>
-                      <span>
-                        Titik ini adalah <em>Centroid</em> sel grid. Pengusaha disarankan menyurvei ketersediaan ruko/lahan sewa di dalam radius ini (~{approxHectares} ha).
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Land Suitability Tag */}
-                  <div className="flex items-center gap-1.5 text-[10px] px-2 py-1 rounded bg-slate-950 border border-slate-800">
-                    {candidate.isRestricted ? (
-                      <span className="text-rose-400 font-bold flex items-center gap-1">
-                        <ShieldAlert className="w-3 h-3" /> {candidate.restrictionReason}
-                      </span>
-                    ) : (
-                      <span className="text-emerald-400 font-medium flex items-center gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> Kawasan Komersial &amp; Permukiman Layak Usaha
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Criteria Grid */}
-                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-950/70 p-2 rounded-lg border border-slate-800">
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">Persaingan Kafe:</span>
-                      <strong className="text-white font-mono">
+                  <div className="mt-3 grid grid-cols-2 gap-1.5 text-xs">
+                    <div className="rounded-xl bg-oat px-3 py-2">
+                      <div className="font-medium text-ink-3">Jarak kafe</div>
+                      <div className="tabular font-mono text-[13px] font-bold text-ink">
                         {Math.round(candidate.c1_dist_competitor)} m
-                      </strong>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">Populasi Warga:</span>
-                      <strong className="text-white font-mono">
-                        {candidate.c2_population.toLocaleString('id-ID')} jiwa
-                      </strong>
+                    <div className="rounded-xl bg-oat px-3 py-2">
+                      <div className="font-medium text-ink-3">Kepadatan</div>
+                      <div className="tabular font-mono text-[13px] font-bold text-ink">
+                        {candidate.c2_density.toLocaleString('id-ID')} /km²
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">Akses Jalan:</span>
-                      <strong className="text-white font-mono">
+                    <div className="rounded-xl bg-oat px-3 py-2">
+                      <div className="font-medium text-ink-3">Akses jalan</div>
+                      <div className="tabular font-mono text-[13px] font-bold text-ink">
                         {Math.round(candidate.c3_dist_road)} m
-                      </strong>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">Keramaian:</span>
-                      <strong className="text-white font-mono">
+                    <div className="rounded-xl bg-oat px-3 py-2">
+                      <div className="font-medium text-ink-3">Keramaian</div>
+                      <div className="tabular font-mono text-[13px] font-bold text-ink">
                         {Math.round(candidate.c4_dist_crowd)} m
-                      </strong>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Rationale description */}
-                  <div className="text-[10px] text-slate-300 leading-snug bg-emerald-950/20 p-1.5 rounded border border-emerald-900/30">
+                  <p className="mt-3 flex items-start gap-2 text-xs leading-snug text-ink-2">
+                    <Radio className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ink-3" />
+                    <span>
+                      Titik ini pusat sel grid. Cari ruko atau lahan di dalam zona <b className="text-ink">±{radiusMeters} m</b> (~
+                      {approxHectares} ha).
+                    </span>
+                  </p>
+
+                  <p className="mt-2 border-t border-line pt-2 text-xs leading-snug text-ink-2">
                     {candidate.isRestricted ? (
-                      <span className="text-rose-300">
-                        ⚠️ <strong>Lokasi Dibatasi:</strong> Titik ini berada di zona {candidate.restrictionReason} sehingga tidak diizinkan untuk pendirian usaha kedai kopi.
+                      <span className="text-bad">
+                        <b>Lokasi dibatasi:</b> berada di zona {candidate.restrictionReason}, tidak diizinkan untuk usaha kedai kopi.
                       </span>
-                    ) : candidate.score >= 0.62 ? (
+                    ) : candidate.score >= getSettings().tierHigh ? (
                       <span>
-                        ⭐ <strong>Potensi Sangat Tinggi:</strong> Memiliki kombinasi jarak kompetitor yang aman dan aksesibilitas/populasi prima.
+                        <b className="text-good">Potensi sangat tinggi:</b> jarak kompetitor aman dengan aksesibilitas dan kepadatan yang
+                        baik.
                       </span>
-                    ) : candidate.score >= 0.45 ? (
+                    ) : candidate.score >= getSettings().tierMedium ? (
                       <span>
-                        🟡 <strong>Potensi Moderat:</strong> Layak dipertimbangkan dengan penyesuaian segmentasi pasar.
+                        <b className="text-mid">Potensi moderat:</b> layak dipertimbangkan dengan penyesuaian segmen pasar.
                       </span>
                     ) : (
                       <span>
-                        🔴 <strong>Potensi Rendah:</strong> Tingkat saturasi kompetitor tinggi atau aksesibilitas terbatas.
+                        <b className="text-bad">Potensi rendah:</b> persaingan padat atau akses terbatas.
                       </span>
                     )}
-                  </div>
+                  </p>
                 </div>
               </Popup>
             );
 
             return (
               <React.Fragment key={candidate.id}>
-                {/* 1. Catchment Buffer Radius Circle (when mode is 'radius' or 'both') */}
+                {/* 1a. Sel grid (peta panas): menyatu tanpa tumpang tindih agar mudah dibaca */}
                 {(displayMode === 'radius' || displayMode === 'both') && (
-                  <Circle
-                    center={[candidate.lat, candidate.lng]}
-                    radius={radiusMeters}
+                  <Rectangle
+                    bounds={cellBounds(candidate.lat, candidate.lng)}
                     pathOptions={{
-                      color: isSelected ? '#ffffff' : isTop1 ? '#fbbf24' : color,
-                      weight: isSelected ? 3 : isTop1 ? 2.5 : candidate.score >= 0.62 ? 1.5 : 1,
-                      opacity: isSelected ? 0.95 : isTop1 ? 0.85 : 0.65,
-                      dashArray: isSelected ? undefined : isTop1 ? '6, 4' : '4, 4',
+                      stroke: false,
                       fillColor: color,
-                      fillOpacity: isSelected
-                        ? 0.38
-                        : isTop1
-                        ? 0.30
-                        : candidate.score >= 0.62
-                        ? 0.20
-                        : 0.10,
+                      fillOpacity: isSelected ? 0.7 : candidate.score >= getSettings().tierHigh ? 0.5 : candidate.score >= getSettings().tierMedium ? 0.36 : 0.26,
                     }}
-                    eventHandlers={{
-                      click: () => onSelectCandidate(candidate),
-                    }}
+                    eventHandlers={{ click: () => onSelectCandidate(candidate) }}
                   >
                     <Tooltip sticky>
                       <div className="text-xs p-1 font-sans">
-                        <strong className="text-emerald-700 block">
-                          🎯 Zona Potensi #{candidate.rank} (Radius {radiusMeters}m)
+                        <strong className="block font-extrabold text-ink">
+                          #{candidate.rank} · {candidate.district}
                         </strong>
-                        <span className="text-slate-600 text-[10px] block">
-                          Kecamatan {candidate.district} • Skor: {formatBusinessScore(candidate.score)}/100
-                        </span>
-                        <span className="text-slate-500 text-[9px] block">
-                          Area Penyangga: ~{approxHectares} ha
+                        <span className="block text-ink-2">
+                          Skor {formatBusinessScore(candidate.score)}/100
                         </span>
                       </div>
                     </Tooltip>
                     {displayMode === 'radius' && popupContent}
-                  </Circle>
+                  </Rectangle>
+                )}
+
+                {/* 1b. Zona radius (catchment) hanya untuk 10 teratas & titik terpilih.
+                    Non-interaktif agar tidak menghalangi klik pada sel di bawahnya. */}
+                {(displayMode === 'radius' || displayMode === 'both') && (isSelected || topIds.has(candidate.id)) && (
+                  <Circle
+                    center={[candidate.lat, candidate.lng]}
+                    radius={radiusMeters}
+                    interactive={false}
+                    pathOptions={{
+                      color: '#1f1813',
+                      weight: isSelected ? 3 : 1.8,
+                      opacity: isSelected ? 1 : 0.85,
+                      dashArray: isSelected ? undefined : '6, 5',
+                      fillColor: color,
+                      fillOpacity: isSelected ? 0.22 : 0.12,
+                    }}
+                  />
                 )}
 
                 {/* 2. Centroid Point Marker (when mode is 'point' or 'both') */}
@@ -828,10 +802,10 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                     center={[candidate.lat, candidate.lng]}
                     radius={isTop1 ? 10 : isSelected ? 8.5 : displayMode === 'both' ? 5.5 : 6.5}
                     pathOptions={{
-                      color: isSelected ? '#ffffff' : isTop1 ? '#f59e0b' : color,
+                      color: '#ffffff',
                       weight: isTop1 || isSelected ? 3 : 1.5,
                       fillColor: color,
-                      fillOpacity: isSelected || isTop1 ? 0.95 : 0.8,
+                      fillOpacity: 0.95,
                     }}
                     eventHandlers={{
                       click: () => onSelectCandidate(candidate),
@@ -841,16 +815,16 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                   </CircleMarker>
                 )}
 
-                {/* 3. Subtle Anchor Dot for 'radius' mode only so center is distinguishable */}
-                {displayMode === 'radius' && (
+                {/* 3. Titik pusat untuk mode 'radius': hanya 10 teratas & terpilih */}
+                {displayMode === 'radius' && (isSelected || topIds.has(candidate.id)) && (
                   <CircleMarker
                     center={[candidate.lat, candidate.lng]}
-                    radius={isTop1 || isSelected ? 4 : 2.5}
+                    radius={isSelected ? 7 : 5}
                     pathOptions={{
                       color: '#ffffff',
-                      weight: 1,
+                      weight: 1.5,
                       fillColor: color,
-                      fillOpacity: 0.9,
+                      fillOpacity: 1,
                     }}
                     eventHandlers={{
                       click: () => onSelectCandidate(candidate),
@@ -870,20 +844,20 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                 center={[surveyResult.lat, surveyResult.lng]}
                 radius={layers.recommendationRadiusMeters || 250}
                 pathOptions={{
-                  color: surveyResult.isRestricted ? '#ef4444' : '#10b981',
+                  color: surveyResult.isRestricted ? '#c2352b' : '#1f1813',
                   weight: 2,
                   dashArray: '5, 5',
-                  fillColor: surveyResult.isRestricted ? '#f43f5e' : '#34d399',
-                  fillOpacity: 0.22,
+                  fillColor: surveyResult.isRestricted ? '#e5484d' : '#d4f254',
+                  fillOpacity: 0.28,
                 }}
               >
                 <Tooltip sticky>
                   <div className="text-xs p-1 font-sans">
-                    <strong className="text-emerald-700 block">
-                      📍 Area Tangkapan Survei (Radius {layers.recommendationRadiusMeters || 250}m)
+                    <strong className="block font-extrabold text-ink">
+                      Zona survei ±{layers.recommendationRadiusMeters || 250} m
                     </strong>
-                    <span className="text-slate-500 text-[9px] block">
-                      Area Jangkauan: ~{((Math.PI * Math.pow(layers.recommendationRadiusMeters || 250, 2)) / 10000).toFixed(1)} ha
+                    <span className="block text-ink-2">
+                      ~{((Math.PI * Math.pow(layers.recommendationRadiusMeters || 250, 2)) / 10000).toFixed(1)} ha
                     </span>
                   </div>
                 </Tooltip>
@@ -896,60 +870,59 @@ export const BogorMap: React.FC<BogorMapProps> = ({
               zIndexOffset={1000}
             >
               <Popup autoPan={true}>
-                <div className="p-2 space-y-2 text-slate-100 min-w-[270px] font-sans">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
-                    <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 text-[10px] font-bold uppercase flex items-center gap-1">
-                      <Compass className="w-3 h-3" /> Titik Survei Lapangan
-                    </span>
-                    <span className="text-xs font-mono font-bold text-white">
-                      Vi: {surveyResult.score.toFixed(4)}
-                    </span>
+                <div className="w-[260px] font-sans">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <span className="chip bg-lime text-ink">
+                        <Compass className="h-3 w-3" /> Titik survei
+                      </span>
+                      <h4 className="mt-2 text-[15px] font-extrabold leading-tight text-ink">
+                        {surveyResult.districtName ? `Kecamatan ${surveyResult.districtName}` : 'Di luar Kota Bogor'}
+                      </h4>
+                      <p className="tabular font-mono text-[11px] text-ink-3">
+                        {surveyResult.lat.toFixed(5)}, {surveyResult.lng.toFixed(5)}
+                      </p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="tabular text-3xl font-extrabold leading-none text-ink">
+                        {formatBusinessScore(surveyResult.score)}
+                      </div>
+                      <div className="mt-1 text-[11px] font-semibold text-ink-3">dari 100</div>
+                    </div>
                   </div>
 
-                  <div>
-                    <h4 className="font-bold text-xs text-white">
-                      {surveyResult.districtName ? `Kecamatan ${surveyResult.districtName}` : 'Luar Kota Bogor'}
-                    </h4>
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      {surveyResult.lat.toFixed(5)}, {surveyResult.lng.toFixed(5)}
-                    </span>
+                  <div className="mt-3 grid grid-cols-2 gap-1.5 text-xs">
+                    <div className="rounded-xl bg-oat px-3 py-2">
+                      <div className="font-medium text-ink-3">Jarak kafe</div>
+                      <div className="tabular font-mono text-[13px] font-bold text-ink">{surveyResult.c1_dist_competitor} m</div>
+                    </div>
+                    <div className="rounded-xl bg-oat px-3 py-2">
+                      <div className="font-medium text-ink-3">Akses jalan</div>
+                      <div className="tabular font-mono text-[13px] font-bold text-ink">{surveyResult.c3_dist_road} m</div>
+                    </div>
+                    <div className="rounded-xl bg-oat px-3 py-2">
+                      <div className="font-medium text-ink-3">Keramaian</div>
+                      <div className="tabular font-mono text-[13px] font-bold text-ink">{surveyResult.c4_dist_crowd} m</div>
+                    </div>
+                    <div className="rounded-xl bg-oat px-3 py-2">
+                      <div className="font-medium text-ink-3">Status lahan</div>
+                      <div className={`text-[13px] font-bold ${surveyResult.isRestricted ? 'text-bad' : 'text-good'}`}>
+                        {surveyResult.isRestricted ? 'Terlarang' : 'Layak'}
+                      </div>
+                    </div>
                   </div>
 
-                  {/* Catchment Info for Survey */}
-                  <div className="text-[10px] text-emerald-300 bg-emerald-950/40 p-1.5 rounded border border-emerald-900/40">
-                    <span>
-                      🎯 <strong>Catchment Radius {layers.recommendationRadiusMeters || 250}m:</strong> Lingkaran hijau di peta menunjukkan area jangkauan 5 menit jalan kaki dari titik survei ini.
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-1.5 text-[10px] bg-slate-950 p-1.5 rounded border border-slate-800">
-                    <div>
-                      <span className="text-slate-400 block">Jarak Kompetitor:</span>
-                      <strong className="text-amber-300 font-mono">{surveyResult.c1_dist_competitor} m</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block">Akses Jalan Utama:</span>
-                      <strong className="text-cyan-300 font-mono">{surveyResult.c3_dist_road} m</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block">Pusat Keramaian:</span>
-                      <strong className="text-purple-300 font-mono">{surveyResult.c4_dist_crowd} m</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block">Status Lahan:</span>
-                      <strong className={surveyResult.isRestricted ? 'text-rose-400' : 'text-emerald-400'}>
-                        {surveyResult.isRestricted ? 'Restriksi' : 'Layak'}
-                      </strong>
-                    </div>
-                  </div>
+                  <p className="mt-3 text-xs leading-snug text-ink-2">
+                    Lingkaran di peta menunjukkan zona ±{layers.recommendationRadiusMeters || 250} m (sekitar 5 menit berjalan kaki).
+                  </p>
 
                   {onOpenSurveyModal && (
                     <button
+                      type="button"
                       onClick={onOpenSurveyModal}
-                      className="w-full py-1.5 px-2.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-md transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                      className="btn btn-primary mt-3 w-full !min-h-[44px] !text-[13px]"
                     >
-                      <Sparkles className="w-3.5 h-3.5" />
-                      <span>Lihat Diagnosa Lengkap (SWOT & TOPSIS)</span>
+                      <Sparkles className="h-4 w-4" /> Laporan lengkap (SWOT)
                     </button>
                   )}
                 </div>
@@ -959,52 +932,68 @@ export const BogorMap: React.FC<BogorMapProps> = ({
         )}
       </MapContainer>
 
-      {/* Floating Map Legend Overlay */}
-      <div className="absolute bottom-5 right-5 z-[400] bg-slate-950/90 border border-slate-800/90 backdrop-blur-md p-3 rounded-xl shadow-xl text-xs space-y-2 max-w-[220px]">
-        <span className="font-bold text-slate-200 text-[11px] block border-b border-slate-800 pb-1">
-          Legenda Peta SIG
-        </span>
+      {/* Legenda: tombol kecil yang membuka kartu penjelasan */}
+      <div className="absolute left-3 top-[72px] z-[400] flex flex-col items-start gap-2 lg:bottom-4 lg:left-auto lg:right-[68px] lg:top-auto lg:flex-col-reverse lg:items-end">
+        <button
+          type="button"
+          onClick={() => setIsLegendOpen((v) => !v)}
+          aria-expanded={isLegendOpen}
+          className="float-panel flex h-11 cursor-pointer items-center gap-2 rounded-full px-4 text-[13px] font-bold text-ink transition-transform hover:scale-[1.03]"
+        >
+          <Info className="h-4 w-4" />
+          Legenda
+        </button>
 
-        <div className="space-y-1.5 text-[11px]">
-          {(layers.recommendationDisplayMode !== 'point') && (
-            <div className="flex items-center gap-2 text-slate-300 pb-1 border-b border-slate-800/60">
-              <span className="w-3.5 h-3.5 rounded-full border border-dashed border-emerald-400 bg-emerald-500/25" />
-              <span className="text-emerald-300 font-medium">Zona Radius (±{layers.recommendationRadiusMeters || 250}m)</span>
-            </div>
-          )}
-          <div className="flex items-center gap-2 text-slate-300">
-            <span className="w-3 h-3 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/50" />
-            <span>Sangat Direkomendasikan (≥ 0.62)</span>
+        {isLegendOpen && (
+          <div className="float-panel animate-in w-[260px] rounded-3xl p-4 text-[13px] text-ink-2">
+            <h3 className="text-sm font-extrabold text-ink">Skor kelayakan lokasi</h3>
+            <ul className="mt-2.5 flex flex-col gap-2">
+              <li className="flex items-center gap-2.5">
+                <span className="h-3.5 w-3.5 shrink-0 rounded-full bg-[#12a56b]" />
+                Sangat strategis <span className="ml-auto tabular font-mono text-xs text-ink-3">≥ 0,62</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="h-3.5 w-3.5 shrink-0 rounded-full bg-[#f0a30a]" />
+                Potensial <span className="ml-auto tabular font-mono text-xs text-ink-3">0,45–0,62</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="h-3.5 w-3.5 shrink-0 rounded-full bg-[#e5484d]" />
+                Prioritas rendah <span className="ml-auto tabular font-mono text-xs text-ink-3">&lt; 0,45</span>
+              </li>
+            </ul>
+            {layers.recommendationDisplayMode !== 'point' && (
+              <p className="mt-2.5 text-xs leading-snug text-ink-3">
+                Lingkaran = zona ±{layers.recommendationRadiusMeters || 250} m di sekitar titik grid.
+              </p>
+            )}
+
+            <h3 className="mt-4 border-t border-line pt-3 text-sm font-extrabold text-ink">Objek peta</h3>
+            <ul className="mt-2.5 flex flex-col gap-2">
+              <li className="flex items-center gap-2.5">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-white bg-espresso shadow">
+                  <span className="h-1.5 w-1.5 rounded-full bg-lime" />
+                </span>
+                Kedai kopi eksisting <span className="ml-auto tabular font-mono text-xs text-ink-3">{competitors.length}</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="h-4 w-4 shrink-0 rounded-md border-2 border-white bg-[#7c5cff] shadow" />
+                Pusat keramaian
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="h-1 w-5 shrink-0 rounded bg-[#4b6cb7]" />
+                Jalan arteri / kolektor
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="h-4 w-4 shrink-0 rounded-full border border-dashed border-[#c2352b] bg-bad-bg" />
+                Zona terlarang
+              </li>
+              <li className="flex items-center gap-2.5">
+                <span className="h-4 w-4 shrink-0 rounded-full border-[3px] border-white bg-espresso shadow" />
+                Titik survei
+              </li>
+            </ul>
           </div>
-          <div className="flex items-center gap-2 text-slate-300">
-            <span className="w-3 h-3 rounded-full bg-amber-500" />
-            <span>Potensial Menengah (0.45 - 0.62)</span>
-          </div>
-          <div className="flex items-center gap-2 text-slate-300">
-            <span className="w-3 h-3 rounded-full bg-rose-500" />
-            <span>Prioritas Rendah (&lt; 0.45)</span>
-          </div>
-          <div className="flex items-center gap-2 text-slate-300 pt-1 border-t border-slate-800/70">
-            <span className="w-3 h-3 rounded-full bg-emerald-400 border-2 border-white animate-pulse" />
-            <span className="text-emerald-300 font-semibold">Titik Survei Lapangan (GPS/Pin)</span>
-          </div>
-          <div className="flex items-center gap-2 text-slate-300">
-            <span className="w-3 h-3 rounded bg-rose-700/80 border border-rose-400 border-dashed" />
-            <span>Zona Restriksi (Kuburan/Polisi)</span>
-          </div>
-          <div className="flex items-center gap-2 text-slate-300">
-            <span className="w-3 h-3 rounded-full bg-amber-700 border border-amber-300" />
-            <span>Kedai Kopi Eksisting (60+)</span>
-          </div>
-          <div className="flex items-center gap-2 text-slate-300">
-            <span className="w-3 h-3 rounded bg-purple-500" />
-            <span>Simpul Keramaian (Mall/Stasiun)</span>
-          </div>
-          <div className="flex items-center gap-2 text-slate-300">
-            <span className="w-4 h-1 rounded bg-sky-500" />
-            <span>Jalan Utama Arteri/Kolektor</span>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

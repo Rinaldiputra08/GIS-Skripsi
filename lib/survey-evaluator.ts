@@ -1,10 +1,13 @@
 import {
+  ExclusionZone,
+  PointCriteria,
   SpatialCandidate,
   SurveyPointEvaluation,
   TopsisCandidateResult,
 } from './types';
 import {
   BOGOR_GRID_CANDIDATES,
+  BOGOR_EXCLUSION_ZONES,
   getStrictDistrictForPoint,
   checkSpatialConstraint,
   getNearestCompetitor,
@@ -13,27 +16,38 @@ import {
   getHaversineDistance,
 } from '@/data/bogor-spatial';
 import { calculateTopsis } from './topsis';
+import { getSettings } from './settings';
 
 /**
  * Evaluates a custom survey point (from GPS or Map Pin-Drop)
  * using the full AHP-weighted TOPSIS multi-criteria framework
  * and generates a comprehensive spatial feasibility & SWOT report.
+ *
+ * `criteria` (opsional) = C1..C4 yang sudah dihitung database (PostGIS). Bila tidak diberikan,
+ * kriteria dihitung dengan data cadangan lokal (haversine) agar aplikasi tetap berfungsi offline.
  */
 export function evaluateSurveyLocation(
   lat: number,
   lng: number,
   weights: [number, number, number, number] = [0.25, 0.25, 0.25, 0.25],
-  baselineCandidates: SpatialCandidate[] = BOGOR_GRID_CANDIDATES
+  baselineCandidates: SpatialCandidate[] = BOGOR_GRID_CANDIDATES,
+  criteria?: PointCriteria | null,
+  zones: ExclusionZone[] = BOGOR_EXCLUSION_ZONES
 ): SurveyPointEvaluation {
   const timestamp = new Date().toISOString();
   const id = `survey_${Date.now()}`;
 
-  // 1. Exact Administrative Boundary Check (Ray-Casting Point-in-Polygon)
-  const districtInfo = getStrictDistrictForPoint(lat, lng);
+  // 1. Batas administratif: dari database bila tersedia, jika tidak Ray-Casting pada poligon lokal
+  const localDistrict = getStrictDistrictForPoint(lat, lng);
+  const districtInfo: { districtName: string; density: number } | null = criteria
+    ? criteria.inside
+      ? { districtName: criteria.district as string, density: criteria.density as number }
+      : null
+    : localDistrict;
   const isInsideBogor = districtInfo !== null;
 
   // 2. Spatial Constraint Check (Cemeteries, Police, Military, Ring 1 Palace)
-  const constraint = checkSpatialConstraint(lat, lng);
+  const constraint = checkSpatialConstraint(lat, lng, zones);
 
   // If outside Kota Bogor, return graceful boundary report
   if (!isInsideBogor) {
@@ -44,7 +58,7 @@ export function evaluateSurveyLocation(
       isInsideBogor: false,
       districtName: null,
       c1_dist_competitor: 0,
-      c2_population: 0,
+      c2_density: 0,
       c3_dist_road: 0,
       c4_dist_crowd: 0,
       nearestCompetitorName: '-',
@@ -81,9 +95,18 @@ export function evaluateSurveyLocation(
   }
 
   // 3. Extract Spatial Attribute Criteria (Haversine distances in meters & Population)
-  const competitor = getNearestCompetitor(lat, lng);
-  const road = getDistanceToRoads(lat, lng);
-  const crowd = getNearestCrowd(lat, lng);
+  const competitor =
+    criteria && criteria.inside
+      ? { distance: criteria.c1 as number, name: criteria.c1Name ?? '-' }
+      : getNearestCompetitor(lat, lng);
+  const road =
+    criteria && criteria.inside
+      ? { distance: criteria.c3 as number, nearestRoad: criteria.c3Name ?? '-' }
+      : getDistanceToRoads(lat, lng);
+  const crowd =
+    criteria && criteria.inside
+      ? { distance: criteria.c4 as number, name: criteria.c4Name ?? '-' }
+      : getNearestCrowd(lat, lng);
 
   const customCandidate: SpatialCandidate = {
     id,
@@ -91,7 +114,7 @@ export function evaluateSurveyLocation(
     lng,
     district: districtInfo.districtName,
     c1_dist_competitor: competitor.distance,
-    c2_population: districtInfo.population,
+    c2_density: districtInfo.density,
     c3_dist_road: road.distance,
     c4_dist_crowd: crowd.distance,
     nearestCompetitorName: competitor.name,
@@ -157,9 +180,9 @@ export function evaluateSurveyLocation(
       );
     }
 
-    if (districtInfo.population >= 180000) {
+    if (districtInfo.density >= getSettings().denseThreshold) {
       strengths.push(
-        `Potensi Pasar Masif: Kecamatan ${districtInfo.districtName} memiliki basis populasi padat (${districtInfo.population.toLocaleString('id-ID')} jiwa).`
+        `Potensi Pasar Besar: Kecamatan ${districtInfo.districtName} memiliki kepadatan penduduk tinggi (${districtInfo.density.toLocaleString('id-ID')} jiwa/km²).`
       );
     }
 
@@ -207,10 +230,10 @@ export function evaluateSurveyLocation(
     );
 
     // --- VERDICT ---
-    if (rankedCandidate.score >= 0.62) {
+    if (rankedCandidate.score >= getSettings().tierHigh) {
       verdictType = 'recommended';
       verdictText = `SANGAT DIREKOMENDASIKAN (Skor TOPSIS: ${rankedCandidate.score.toFixed(3)} - Top ${percentile}%): Lokasi memiliki nilai strategis tinggi dengan kombinasi aksesibilitas prima, potensi keramaian kuat, dan celah pasar yang menguntungkan.`;
-    } else if (rankedCandidate.score >= 0.45) {
+    } else if (rankedCandidate.score >= getSettings().tierMedium) {
       verdictType = 'moderate';
       verdictText = `CUKUP POTENSIAL (Skor TOPSIS: ${rankedCandidate.score.toFixed(3)} - Peringkat #${rank}): Lokasi layak untuk dibuka kedai kopi dengan catatan memperkuat konsep diferensiasi menu dan promosi digital untuk mengatasi titik lemah persaingan/akses.`;
     } else {
@@ -226,7 +249,7 @@ export function evaluateSurveyLocation(
     isInsideBogor: true,
     districtName: districtInfo.districtName,
     c1_dist_competitor: competitor.distance,
-    c2_population: districtInfo.population,
+    c2_density: districtInfo.density,
     c3_dist_road: road.distance,
     c4_dist_crowd: crowd.distance,
     nearestCompetitorName: competitor.name,

@@ -1,4 +1,5 @@
 import { SpatialCandidate, TopsisCandidateResult, TopsisSummary } from './types';
+import { tierOf } from './settings';
 
 /**
  * Executes the Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)
@@ -6,7 +7,7 @@ import { SpatialCandidate, TopsisCandidateResult, TopsisSummary } from './types'
  *
  * Criteria Types:
  * - C1 (Dist Competitor): BENEFIT (Larger distance = less competition = better)
- * - C2 (Population): BENEFIT (Higher population = larger market = better)
+ * - C2 (Density): BENEFIT (Higher population density = larger market = better)
  * - C3 (Dist Road): COST (Shorter distance to main road = better accessibility = better)
  * - C4 (Dist Crowd): COST (Shorter distance to crowd center = higher foot traffic = better)
  */
@@ -33,7 +34,7 @@ export function calculateTopsis(
   for (let i = 0; i < m; i++) {
     const c = candidates[i];
     sumSquares[0] += c.c1_dist_competitor * c.c1_dist_competitor;
-    sumSquares[1] += c.c2_population * c.c2_population;
+    sumSquares[1] += c.c2_density * c.c2_density;
     sumSquares[2] += c.c3_dist_road * c.c3_dist_road;
     sumSquares[3] += c.c4_dist_crowd * c.c4_dist_crowd;
   }
@@ -53,7 +54,7 @@ export function calculateTopsis(
     const c = candidates[i];
     const r: [number, number, number, number] = [
       c.c1_dist_competitor / divisors[0],
-      c.c2_population / divisors[1],
+      c.c2_density / divisors[1],
       c.c3_dist_road / divisors[2],
       c.c4_dist_crowd / divisors[3],
     ];
@@ -135,12 +136,7 @@ export function calculateTopsis(
     const denom = dPlus + dMinus;
     const score = denom > 0 ? dMinus / denom : 0;
 
-    let category: 'high' | 'medium' | 'low' = 'low';
-    if (score >= 0.62) {
-      category = 'high';
-    } else if (score >= 0.45) {
-      category = 'medium';
-    }
+    const category = tierOf(score); // ambang kategori dari parameter sistem (lib/settings.ts)
 
     results.push({
       ...candidates[i],

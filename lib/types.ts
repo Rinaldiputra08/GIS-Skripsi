@@ -29,12 +29,12 @@ export const CRITERIA_METADATA: Record<CriterionId, CriterionInfo> = {
   c2: {
     id: 'c2',
     code: 'C2',
-    name: 'Jumlah / Kepadatan Penduduk',
-    shortName: 'Populasi Kecamatan',
+    name: 'Kepadatan Penduduk',
+    shortName: 'Kepadatan Penduduk',
     type: 'benefit',
-    unit: 'jiwa',
-    description: 'Estimasi jumlah penduduk pada wilayah kecamatan kandidat lokasi berada.',
-    targetDescription: 'Semakin BANYAK semakin baik (Potensi pasar konsumen besar).'
+    unit: 'jiwa/km²',
+    description: 'Kepadatan penduduk kecamatan tempat kandidat lokasi berada (penduduk BPS ÷ luas poligon kecamatan). Data BPS hanya tersedia per kecamatan, sehingga seluruh grid dalam satu kecamatan bernilai sama.',
+    targetDescription: 'Semakin PADAT semakin baik (Potensi pasar konsumen besar).'
   },
   c3: {
     id: 'c3',
@@ -53,7 +53,7 @@ export const CRITERIA_METADATA: Record<CriterionId, CriterionInfo> = {
     shortName: 'Pusat Keramaian',
     type: 'cost',
     unit: 'meter',
-    description: 'Jarak terdekat ke titik magnet aktivitas (Mall, Stasiun, Kampus, Taman publik).',
+    description: 'Jarak terdekat ke titik magnet aktivitas (Mall, Supermarket, Pasar, Terminal, Stasiun, Taman, Atraksi).',
     targetDescription: 'Semakin DEKAT semakin baik (Tingkat foot traffic / pengunjung tinggi).'
   }
 };
@@ -95,7 +95,7 @@ export interface SpatialCandidate {
   lng: number;
   district: string;
   c1_dist_competitor: number; // in meters (Benefit)
-  c2_population: number;      // in people (Benefit)
+  c2_density: number;         // people per km² (Benefit)
   c3_dist_road: number;        // in meters (Cost)
   c4_dist_crowd: number;       // in meters (Cost)
   nearestCompetitorName?: string;
@@ -133,6 +133,7 @@ export interface CompetitorPoint {
   district: string;
   address?: string;
   category?: string;
+  source?: 'kaggle' | 'osm' | string;
 }
 
 export interface DistrictGeo {
@@ -156,7 +157,7 @@ export interface RoadSegment {
 export interface CrowdCenterPoint {
   id: string;
   name: string;
-  category: 'mall' | 'station' | 'university' | 'park' | 'hospital';
+  category: 'mall' | 'supermarket' | 'marketplace' | 'park' | 'attraction' | 'bus_station' | 'station' | 'shelter';
   lat: number;
   lng: number;
   district: string;
@@ -184,6 +185,19 @@ export interface FilterState {
   excludeRestricted: boolean; // Filter out cemeteries, police, military, etc.
 }
 
+/**
+ * Kriteria sebuah titik survei (C1, C3, C4 beserta nama objek terdekat, kecamatan & kepadatan C2).
+ * Dihitung oleh database (PostGIS, fungsi criteria_at_point) bila tersedia.
+ */
+export interface PointCriteria {
+  inside: boolean;
+  district?: string;
+  density?: number;
+  c1?: number; c1Name?: string;
+  c3?: number; c3Name?: string;
+  c4?: number; c4Name?: string;
+}
+
 export interface SurveyPointEvaluation {
   id: string;
   lat: number;
@@ -191,7 +205,7 @@ export interface SurveyPointEvaluation {
   isInsideBogor: boolean;
   districtName: string | null;
   c1_dist_competitor: number; // meters (Benefit)
-  c2_population: number;      // people (Benefit)
+  c2_density: number;         // people per km² (Benefit)
   c3_dist_road: number;       // meters (Cost)
   c4_dist_crowd: number;      // meters (Cost)
   nearestCompetitorName: string;

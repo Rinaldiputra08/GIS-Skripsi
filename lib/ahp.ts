@@ -67,7 +67,7 @@ export const AHP_PRESETS: AhpPreset[] = [
   {
     id: 'population_focus',
     label: 'Fokus Kepadatan Penduduk',
-    description: 'Mengutamakan kecamatan dengan jumlah penduduk dan kepadatan konsumen tertinggi.',
+    description: 'Mengutamakan kecamatan dengan kepadatan penduduk (konsumen) tertinggi.',
     pairs: {
       'c1-c2': 0.333333,
       'c1-c3': 1,

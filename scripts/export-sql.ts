@@ -83,7 +83,7 @@ CREATE TABLE grid_points (
     longitude FLOAT8 NOT NULL,
     district_name VARCHAR(100) NOT NULL,
     c1_dist_competitor FLOAT8 NOT NULL,
-    c2_population FLOAT8 NOT NULL,
+    c2_density FLOAT8 NOT NULL,
     c3_dist_road FLOAT8 NOT NULL,
     c4_dist_crowd FLOAT8 NOT NULL,
     nearest_competitor VARCHAR(255),
@@ -132,7 +132,12 @@ CREATE TABLE grid_points (
 
   // Roads
   lines.push(`-- Road Networks`);
+  // Satu baris per (nama, tipe) jalan; satu jalan OSM terdiri dari banyak segmen
+  const seenRoads = new Set<string>();
   for (const r of BOGOR_ROADS) {
+    const key = `${r.name}|${r.type}`;
+    if (seenRoads.has(key)) continue;
+    seenRoads.add(key);
     const name = r.name.replace(/'/g, "''");
     lines.push(`INSERT INTO road_networks (name, road_type) VALUES ('${name}', '${r.type}');`);
   }
@@ -144,7 +149,7 @@ CREATE TABLE grid_points (
     const nearestComp = g.nearestCompetitorName ? g.nearestCompetitorName.replace(/'/g, "''") : '';
     const nearestRoad = g.nearestRoadName ? g.nearestRoadName.replace(/'/g, "''") : '';
     const nearestCrowd = g.nearestCrowdName ? g.nearestCrowdName.replace(/'/g, "''") : '';
-    lines.push(`INSERT INTO grid_points (latitude, longitude, district_name, c1_dist_competitor, c2_population, c3_dist_road, c4_dist_crowd, nearest_competitor, nearest_road, nearest_crowd) VALUES (${g.lat}, ${g.lng}, '${g.district}', ${g.c1_dist_competitor}, ${g.c2_population}, ${g.c3_dist_road}, ${g.c4_dist_crowd}, '${nearestComp}', '${nearestRoad}', '${nearestCrowd}');`);
+    lines.push(`INSERT INTO grid_points (latitude, longitude, district_name, c1_dist_competitor, c2_density, c3_dist_road, c4_dist_crowd, nearest_competitor, nearest_road, nearest_crowd) VALUES (${g.lat}, ${g.lng}, '${g.district}', ${g.c1_dist_competitor}, ${g.c2_density}, ${g.c3_dist_road}, ${g.c4_dist_crowd}, '${nearestComp}', '${nearestRoad}', '${nearestCrowd}');`);
   }
   lines.push('');
 

@@ -1,138 +1,109 @@
 'use client';
 
 import React from 'react';
-import {
-  Coffee,
-  MapPin,
-  Layers,
-  CheckCircle2,
-  AlertTriangle,
-  BookOpen,
-  RotateCcw,
-  Sparkles,
-  Compass,
-} from 'lucide-react';
+import { Coffee, Store, Grid3x3, BookOpen, RotateCcw, CircleHelp, Check, TriangleAlert } from 'lucide-react';
 import { AhpResult } from '@/lib/types';
 
 interface HeaderProps {
   ahpResult: AhpResult | null;
   totalCompetitors: number;
   totalCandidates: number;
+  dataSource?: string;
   onOpenAudit: () => void;
   onOpenInfo: () => void;
   onReset: () => void;
   onOpenSurvey?: () => void;
 }
 
+/**
+ * Header melayang di atas peta (bukan bilah penuh) agar peta tetap menjadi fokus.
+ * - kiri : identitas aplikasi + indikator sumber data
+ * - kanan: statistik singkat (desktop) + aksi (audit metodologi, panduan, reset)
+ */
 export const Header: React.FC<HeaderProps> = ({
   ahpResult,
   totalCompetitors,
   totalCandidates,
+  dataSource,
   onOpenAudit,
   onOpenInfo,
   onReset,
-  onOpenSurvey,
 }) => {
+  const fromDb = dataSource === 'supabase_live';
+
   return (
-    <header className="w-full bg-slate-950/90 border-b border-slate-800 backdrop-blur-md px-4 py-2.5 sticky top-0 z-30 flex flex-wrap items-center justify-between gap-3 shadow-lg">
-      {/* Brand & Title */}
-      <div className="flex items-center gap-3">
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-amber-600 via-emerald-600 to-teal-500 flex items-center justify-center shadow-lg shadow-emerald-950/50 ring-1 ring-white/20">
-          <Coffee className="w-5 h-5 text-white" />
+    <header className="pointer-events-none absolute inset-x-0 top-0 z-[600] flex items-start justify-between gap-2 p-3 sm:p-4">
+      {/* Brand */}
+      <div className="float-panel pointer-events-auto flex items-center gap-2.5 rounded-full py-1.5 pl-1.5 pr-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-espresso text-lime">
+          <Coffee className="h-5 w-5" strokeWidth={2.4} />
         </div>
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-base font-bold text-white tracking-tight flex items-center gap-1.5">
-              KopiSpasial <span className="text-emerald-400 font-semibold">Bogor</span>
-            </h1>
-            <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">
-              AHP - TOPSIS
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-400">
-            SIG Analisis Celah Pasar &amp; Penentuan Lokasi Strategis Kedai Kopi Kota Bogor
+        <div className="leading-tight">
+          <h1 className="text-[15px] font-extrabold tracking-tight text-ink">
+            KopiSpasial <span className="text-ink-3 font-bold">Bogor</span>
+          </h1>
+          <p
+            className="flex items-center gap-1.5 text-[11px] font-medium text-ink-3"
+            title={
+              fromDb
+                ? 'Layer dan grid dibaca dari database Supabase (PostGIS)'
+                : 'Database belum siap / tidak terjangkau: memakai data cadangan lokal'
+            }
+          >
+            <span className={`h-1.5 w-1.5 rounded-full ${fromDb ? 'bg-good' : 'bg-mid'}`} />
+            <span className="hidden sm:inline">{fromDb ? 'Data langsung dari Supabase' : 'Data cadangan lokal'}</span>
+            <span className="sm:hidden">{fromDb ? 'Supabase' : 'Data lokal'}</span>
           </p>
         </div>
       </div>
 
-      {/* Metrics / Status Indicators */}
-      <div className="hidden lg:flex items-center gap-3">
-        {/* Competitors Count */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs">
-          <MapPin className="w-3.5 h-3.5 text-amber-400" />
-          <span className="text-slate-400">Kompetitor:</span>
-          <span className="font-semibold text-amber-300">{totalCompetitors} Kedai</span>
+      {/* Stats + actions */}
+      <div className="pointer-events-auto flex items-center gap-2">
+        <div className="float-panel hidden items-center gap-1 rounded-full px-2 py-1.5 text-xs font-semibold text-ink-2 md:flex">
+          <span className="flex items-center gap-1.5 rounded-full px-2.5 py-1">
+            <Store className="h-3.5 w-3.5 text-ink-3" />
+            <b className="tabular text-ink">{totalCompetitors}</b> kedai
+          </span>
+          <span className="h-4 w-px bg-line" />
+          <span className="flex items-center gap-1.5 rounded-full px-2.5 py-1">
+            <Grid3x3 className="h-3.5 w-3.5 text-ink-3" />
+            <b className="tabular text-ink">{totalCandidates.toLocaleString('id-ID')}</b> titik
+          </span>
+          {ahpResult && (
+            <>
+              <span className="h-4 w-px bg-line" />
+              <span
+                className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 ${
+                  ahpResult.isConsistent ? 'bg-good-bg text-good' : 'bg-bad-bg text-bad'
+                }`}
+                title="Consistency Ratio AHP (batas 10%)"
+              >
+                {ahpResult.isConsistent ? <Check className="h-3.5 w-3.5" strokeWidth={3} /> : <TriangleAlert className="h-3.5 w-3.5" />}
+                CR <b className="tabular">{(ahpResult.cr * 100).toFixed(1)}%</b>
+              </span>
+            </>
+          )}
         </div>
 
-        {/* Sampling Points */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-900/80 border border-slate-800 text-xs">
-          <Layers className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="text-slate-400">Grid Analisis:</span>
-          <span className="font-semibold text-cyan-300">{totalCandidates} Titik</span>
+        <div className="float-panel flex items-center gap-0.5 rounded-full p-1">
+          <IconButton label="Audit metodologi" onClick={onOpenAudit} icon={<BookOpen className="h-[18px] w-[18px]" />} />
+          <IconButton label="Panduan" onClick={onOpenInfo} icon={<CircleHelp className="h-[18px] w-[18px]" />} />
+          <IconButton label="Reset" onClick={onReset} icon={<RotateCcw className="h-[18px] w-[18px]" />} />
         </div>
-
-        {/* Consistency indicator */}
-        {ahpResult && (
-          <div
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-xs font-medium ${
-              ahpResult.isConsistent
-                ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300'
-                : 'bg-rose-950/40 border-rose-500/30 text-rose-300'
-            }`}
-          >
-            {ahpResult.isConsistent ? (
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-            ) : (
-              <AlertTriangle className="w-3.5 h-3.5 text-rose-400" />
-            )}
-            <span>
-              CR: <strong className="font-bold">{(ahpResult.cr * 100).toFixed(1)}%</strong>{' '}
-              {ahpResult.isConsistent ? '(Konsisten)' : '(Perlu Penyesuaian)'}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Quick Action Buttons */}
-      <div className="flex items-center gap-2">
-        {onOpenSurvey && (
-          <button
-            onClick={onOpenSurvey}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-950/80 hover:bg-emerald-900/90 text-emerald-300 hover:text-emerald-200 text-xs font-semibold border border-emerald-500/50 shadow-md shadow-emerald-950/40 transition-all cursor-pointer"
-            title="Buka Mode Survei Lapangan Mandiri (GPS & Klik Peta)"
-          >
-            <Compass className="w-3.5 h-3.5 text-emerald-400" />
-            <span>Survei Lapangan</span>
-          </button>
-        )}
-
-        <button
-          onClick={onOpenAudit}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700/80 transition-all hover:border-emerald-500/40 hover:text-emerald-300 shadow-sm cursor-pointer"
-          title="Tampilkan rincian matematis AHP & TOPSIS untuk audit skripsi"
-        >
-          <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
-          <span className="hidden sm:inline">Audit Metodologi</span>
-        </button>
-
-        <button
-          onClick={onOpenInfo}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800/90 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700/80 transition-all cursor-pointer"
-          title="Informasi Skripsi & Petunjuk Penggunaan"
-        >
-          <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="hidden sm:inline">Panduan</span>
-        </button>
-
-        <button
-          onClick={onReset}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-slate-200 text-xs border border-slate-800 transition-all cursor-pointer"
-          title="Reset ke Preset Bobot Default"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span className="hidden md:inline">Reset</span>
-        </button>
       </div>
     </header>
   );
 };
+
+const IconButton: React.FC<{ label: string; onClick: () => void; icon: React.ReactNode }> = ({ label, onClick, icon }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    title={label}
+    aria-label={label}
+    className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full text-ink-2 transition-colors hover:bg-oat-2 hover:text-ink sm:w-auto sm:gap-2 sm:px-3.5"
+  >
+    {icon}
+    <span className="hidden text-[13px] font-semibold lg:inline">{label}</span>
+  </button>
+);

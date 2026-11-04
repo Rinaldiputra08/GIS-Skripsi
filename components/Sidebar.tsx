@@ -1,29 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
-  Sliders,
+  SlidersHorizontal,
   Trophy,
   Layers,
   Info,
-  ChevronLeft,
-  ChevronRight,
   Compass,
   LocateFixed,
-  Crosshair,
-  Sparkles,
-  MapPin,
-  CheckCircle2,
-  AlertTriangle,
-  ShieldAlert,
-  Navigation,
+  MousePointerClick,
   Loader2,
-  XCircle,
-  ExternalLink,
+  X,
+  PanelLeftClose,
+  PanelLeftOpen,
+  ChevronUp,
+  FileText,
+  MapPin,
+  ArrowRight,
 } from 'lucide-react';
 import { AhpForm } from './AhpForm';
 import { TopRecommendations } from './TopRecommendations';
 import { LayerFilterControl } from './LayerFilterControl';
+import { ScenarioPanel } from './ScenarioPanel';
+import { SurveyHistoryPanel } from './SurveyHistoryPanel';
 import {
   AhpResult,
   TopsisCandidateResult,
@@ -32,9 +31,11 @@ import {
   SurveyPointEvaluation,
 } from '@/lib/types';
 
+type TabId = 'ahp' | 'recommendations' | 'layers' | 'survey' | 'info';
+
 interface SidebarProps {
-  activeTab: 'ahp' | 'recommendations' | 'layers' | 'survey' | 'info';
-  onTabChange: (tab: 'ahp' | 'recommendations' | 'layers' | 'survey' | 'info') => void;
+  activeTab: TabId;
+  onTabChange: (tab: TabId) => void;
   isCollapsed: boolean;
   onToggleCollapse: () => void;
   // AHP Props
@@ -56,6 +57,8 @@ interface SidebarProps {
   filters: FilterState;
   onFilterChange: (filters: Partial<FilterState>) => void;
   totalVisibleCandidates: number;
+  zoneCount?: number;
+  onLoadScenario?: (pairs: Record<string, number>) => void;
   // Field Survey Props
   surveyResult?: SurveyPointEvaluation | null;
   onSurveyPointSelected?: (lat: number, lng: number) => void;
@@ -65,41 +68,49 @@ interface SidebarProps {
   onToggleSurveyClickMode?: () => void;
 }
 
+const TABS: { id: TabId; label: string; icon: React.ElementType; title: string }[] = [
+  { id: 'ahp', label: 'Prioritas', icon: SlidersHorizontal, title: 'Atur prioritas kriteria (AHP)' },
+  { id: 'recommendations', label: 'Hasil', icon: Trophy, title: 'Rekomendasi lokasi terbaik' },
+  { id: 'survey', label: 'Survei', icon: Compass, title: 'Cek kelayakan satu titik (GPS / klik peta)' },
+  { id: 'layers', label: 'Layer', icon: Layers, title: 'Lapisan peta & filter' },
+  { id: 'info', label: 'Info', icon: Info, title: 'Tentang aplikasi & cara pakai' },
+];
+
 const DEMO_SURVEY_SPOTS = [
   {
-    name: 'Kawasan Jl. Pajajaran (Dekat Botani)',
+    name: 'Jl. Pajajaran (dekat Botani)',
     district: 'Bogor Timur',
     lat: -6.6025,
     lng: 106.8062,
     desc: 'Koridor komersial utama, dekat mall dan pintu tol Jagorawi',
   },
   {
-    name: 'Kawasan Jl. Suryakencana (Pecinan)',
+    name: 'Jl. Suryakencana (Pecinan)',
     district: 'Bogor Tengah',
     lat: -6.6042,
     lng: 106.8005,
     desc: 'Sentra kuliner legendaris dan heritage Kota Bogor',
   },
   {
-    name: 'Kawasan Jl. Pandu Raya (Indraprasta)',
+    name: 'Jl. Pandu Raya (Indraprasta)',
     district: 'Bogor Utara',
     lat: -6.5785,
     lng: 106.8152,
-    desc: 'Sentra cafe & kuliner hits anak muda Bogor Utara',
+    desc: 'Sentra kafe & kuliner anak muda Bogor Utara',
   },
   {
-    name: 'Kawasan Air Mancur (Jl. Sudirman)',
+    name: 'Air Mancur (Jl. Sudirman)',
     district: 'Bogor Tengah',
     lat: -6.5842,
     lng: 106.7948,
-    desc: 'Pusat kuliner malam dan perkantoran militer/sipil',
+    desc: 'Pusat kuliner malam dan perkantoran',
   },
   {
-    name: 'Kawasan Lahan Dekat TPU Blender',
+    name: 'Lahan dekat TPU Blender',
     district: 'Tanah Sareal',
     lat: -6.5645,
     lng: 106.7885,
-    desc: 'Uji Coba Filter Lahan Terlarang (Zona Pemakaman)',
+    desc: 'Uji coba filter lahan terlarang (zona pemakaman)',
   },
 ];
 
@@ -124,6 +135,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   filters,
   onFilterChange,
   totalVisibleCandidates,
+  zoneCount,
+  onLoadScenario,
   surveyResult,
   onSurveyPointSelected,
   onOpenSurveyModal,
@@ -135,19 +148,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [manualLng, setManualLng] = useState('106.7972');
   const [isGpsLoading, setIsGpsLoading] = useState(false);
 
+  // Di layar kecil, mode "klik peta" butuh peta terlihat: lipat panel otomatis.
+  useEffect(() => {
+    if (isSurveyClickMode && !isCollapsed && typeof window !== 'undefined' && window.innerWidth < 1024) {
+      onToggleCollapse();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isSurveyClickMode]);
+
   const handleUseGps = () => {
     if (!navigator.geolocation) return;
     setIsGpsLoading(true);
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         setIsGpsLoading(false);
-        if (onSurveyPointSelected) {
-          onSurveyPointSelected(pos.coords.latitude, pos.coords.longitude);
-        }
+        onSurveyPointSelected?.(pos.coords.latitude, pos.coords.longitude);
       },
-      () => {
-        setIsGpsLoading(false);
-      },
+      () => setIsGpsLoading(false),
       { enableHighAccuracy: true, timeout: 8000 }
     );
   };
@@ -156,362 +173,360 @@ export const Sidebar: React.FC<SidebarProps> = ({
     e.preventDefault();
     const lat = parseFloat(manualLat);
     const lng = parseFloat(manualLng);
-    if (!isNaN(lat) && !isNaN(lng) && onSurveyPointSelected) {
-      onSurveyPointSelected(lat, lng);
-    }
+    if (!isNaN(lat) && !isNaN(lng)) onSurveyPointSelected?.(lat, lng);
+  };
+
+  const handleTab = (id: TabId) => {
+    onTabChange(id);
+    if (isCollapsed) onToggleCollapse();
   };
 
   return (
-    <aside
-      className={`relative z-20 flex flex-col bg-slate-950 border-r border-slate-800 transition-all duration-300 shadow-2xl ${
-        isCollapsed ? 'w-16' : 'w-full md:w-[460px] lg:w-[480px]'
-      }`}
-    >
-      {/* Collapse Toggle Button */}
-      <button
-        onClick={onToggleCollapse}
-        className="hidden md:flex absolute -right-3.5 top-6 z-30 w-7 h-7 bg-slate-900 border border-slate-700 text-slate-300 rounded-full items-center justify-center hover:bg-emerald-600 hover:text-white transition-all shadow-md cursor-pointer"
-        title={isCollapsed ? 'Buka Sidebar' : 'Tutup Sidebar'}
-      >
-        {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-      </button>
-
-      {/* Tabs Header */}
-      <div className="flex items-center border-b border-slate-800 bg-slate-900/90 text-xs font-semibold overflow-x-auto">
+    <>
+      {/* Desktop: tombol buka panel saat disembunyikan */}
+      {isCollapsed && (
         <button
-          onClick={() => onTabChange('ahp')}
-          className={`flex-1 py-3 px-2.5 flex items-center justify-center gap-1 border-b-2 transition-all cursor-pointer ${
-            activeTab === 'ahp'
-              ? 'border-emerald-500 text-emerald-400 bg-slate-800/50'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-          title="Form AHP (Pembobotan Kriteria)"
+          type="button"
+          onClick={onToggleCollapse}
+          className="float-panel absolute left-4 top-[84px] z-[550] hidden h-12 cursor-pointer items-center gap-2 rounded-full px-4 text-sm font-bold text-ink transition-transform hover:scale-[1.03] lg:flex"
         >
-          <Sliders className="w-3.5 h-3.5" />
-          {!isCollapsed && <span>AHP</span>}
+          <PanelLeftOpen className="h-[18px] w-[18px]" />
+          Buka panel
         </button>
-
-        <button
-          onClick={() => onTabChange('recommendations')}
-          className={`flex-1 py-3 px-2.5 flex items-center justify-center gap-1 border-b-2 transition-all cursor-pointer relative ${
-            activeTab === 'recommendations'
-              ? 'border-emerald-500 text-emerald-400 bg-slate-800/50'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-          title="Top Rekomendasi Lokasi"
-        >
-          <Trophy className="w-3.5 h-3.5 text-amber-400" />
-          {!isCollapsed && <span>Rekomendasi</span>}
-          {candidates.length > 0 && !isCollapsed && (
-            <span className="w-2 h-2 rounded-full bg-emerald-500 absolute top-2 right-1.5" />
-          )}
-        </button>
-
-        {/* Tab Survei Lapangan */}
-        <button
-          onClick={() => onTabChange('survey')}
-          className={`flex-1 py-3 px-2.5 flex items-center justify-center gap-1 border-b-2 transition-all cursor-pointer relative ${
-            activeTab === 'survey'
-              ? 'border-emerald-500 text-emerald-400 bg-slate-800/50'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-          title="Survei Lapangan Mandiri (GPS / Klik Titik Peta)"
-        >
-          <Compass className="w-3.5 h-3.5 text-teal-400" />
-          {!isCollapsed && <span>Survei</span>}
-          {surveyResult && !isCollapsed && (
-            <span className="w-2 h-2 rounded-full bg-teal-400 animate-pulse absolute top-2 right-1.5" />
-          )}
-        </button>
-
-        <button
-          onClick={() => onTabChange('layers')}
-          className={`flex-1 py-3 px-2.5 flex items-center justify-center gap-1 border-b-2 transition-all cursor-pointer ${
-            activeTab === 'layers'
-              ? 'border-emerald-500 text-emerald-400 bg-slate-800/50'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-          title="Lapisan GIS & Filter"
-        >
-          <Layers className="w-3.5 h-3.5 text-cyan-400" />
-          {!isCollapsed && <span>Layer</span>}
-        </button>
-
-        <button
-          onClick={() => onTabChange('info')}
-          className={`flex-1 py-3 px-2.5 flex items-center justify-center gap-1 border-b-2 transition-all cursor-pointer ${
-            activeTab === 'info'
-              ? 'border-emerald-500 text-emerald-400 bg-slate-800/50'
-              : 'border-transparent text-slate-400 hover:text-slate-200'
-          }`}
-          title="Informasi Skripsi & Petunjuk"
-        >
-          <Info className="w-3.5 h-3.5 text-purple-400" />
-          {!isCollapsed && <span>Info</span>}
-        </button>
-      </div>
-
-      {/* Tab Content Area */}
-      {!isCollapsed && (
-        <div className="flex-1 p-4 md:p-5 overflow-y-auto">
-          {activeTab === 'ahp' && (
-            <AhpForm
-              pairs={pairs}
-              onPairChange={onPairChange}
-              onApplyPreset={onApplyPreset}
-              activePreset={activePreset}
-              ahpResult={ahpResult}
-              onCalculate={onCalculate}
-              isCalculating={isCalculating}
-            />
-          )}
-
-          {activeTab === 'recommendations' && (
-            <TopRecommendations
-              candidates={candidates}
-              selectedCandidateId={selectedCandidateId}
-              onSelectCandidate={onSelectCandidate}
-              radiusMeters={layers.recommendationRadiusMeters}
-            />
-          )}
-
-          {/* TAB SURVEI LAPANGAN */}
-          {activeTab === 'survey' && (
-            <div className="flex flex-col gap-4 text-slate-200 text-xs leading-relaxed animate-in fade-in">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div className="flex items-center gap-2">
-                  <Compass className="w-4 h-4 text-emerald-400" />
-                  <h3 className="text-sm font-bold text-white">
-                    Survei Lapangan Mandiri
-                  </h3>
-                </div>
-                <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
-                  AHP + TOPSIS Live
-                </span>
-              </div>
-
-              <p className="text-slate-400 leading-normal">
-                Sedang survei ruko/tanah di lapangan? Gunakan fitur ini untuk mendeteksi koordinat Anda atau klik sembarang titik di peta untuk mengevaluasi kelayakan lokasinya secara instan.
-              </p>
-
-              {/* Primary Action Buttons */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <button
-                  type="button"
-                  onClick={handleUseGps}
-                  disabled={isGpsLoading}
-                  className="flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold shadow-lg shadow-emerald-950/40 transition-all cursor-pointer"
-                >
-                  {isGpsLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <LocateFixed className="w-4 h-4" />
-                  )}
-                  <span>{isGpsLoading ? 'Mencari GPS...' : 'Survei Lokasi GPS Saya'}</span>
-                </button>
-
-                {onToggleSurveyClickMode && (
-                  <button
-                    type="button"
-                    onClick={onToggleSurveyClickMode}
-                    className={`flex items-center justify-center gap-2 p-3 rounded-xl font-bold transition-all cursor-pointer ${
-                      isSurveyClickMode
-                        ? 'bg-amber-500 text-slate-950 ring-2 ring-amber-400 animate-pulse'
-                        : 'bg-slate-900 hover:bg-slate-800 text-amber-300 border border-slate-700'
-                    }`}
-                  >
-                    <Crosshair className="w-4 h-4" />
-                    <span>{isSurveyClickMode ? 'Klik di Peta Aktif' : 'Klik Titik di Peta'}</span>
-                  </button>
-                )}
-              </div>
-
-              {/* Active Survey Evaluation Card */}
-              {surveyResult && (
-                <div className="p-4 rounded-xl bg-slate-900/90 border border-emerald-500/40 shadow-xl space-y-3 animate-in fade-in zoom-in-95">
-                  <div className="flex items-start justify-between gap-2 border-b border-slate-800 pb-2">
-                    <div>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold uppercase">
-                        Hasil Evaluasi Terkini
-                      </span>
-                      <h4 className="font-bold text-sm text-white pt-1">
-                        {surveyResult.districtName ? `Kecamatan ${surveyResult.districtName}` : 'Luar Wilayah Kota'}
-                      </h4>
-                      <span className="text-[10px] text-slate-400 font-mono">
-                        {surveyResult.lat.toFixed(5)}, {surveyResult.lng.toFixed(5)}
-                      </span>
-                    </div>
-
-                    <div className="text-right">
-                      <span className="text-[10px] text-slate-400 block font-mono">Skor TOPSIS</span>
-                      <span className="text-base font-extrabold font-mono text-emerald-400">
-                        {surveyResult.score.toFixed(4)}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* 4 Criteria Summary */}
-                  <div className="grid grid-cols-2 gap-2 text-[11px] bg-slate-950/80 p-2.5 rounded-lg border border-slate-800">
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">C1: Jarak Kompetitor</span>
-                      <strong className="text-amber-300 font-mono">{surveyResult.c1_dist_competitor} m</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">C2: Populasi</span>
-                      <strong className="text-blue-300 font-mono">{surveyResult.c2_population.toLocaleString('id-ID')}</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">C3: Jarak Jalan</span>
-                      <strong className="text-cyan-300 font-mono">{surveyResult.c3_dist_road} m</strong>
-                    </div>
-                    <div>
-                      <span className="text-slate-400 block text-[10px]">C4: Jarak Keramaian</span>
-                      <strong className="text-purple-300 font-mono">{surveyResult.c4_dist_crowd} m</strong>
-                    </div>
-                  </div>
-
-                  {/* Open Modal & Clear Button */}
-                  <div className="flex items-center gap-2 pt-1">
-                    {onOpenSurveyModal && (
-                      <button
-                        onClick={onOpenSurveyModal}
-                        className="flex-1 py-2 px-3 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition-all shadow-md cursor-pointer"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Buka Laporan Lengkap (SWOT)</span>
-                      </button>
-                    )}
-
-                    {onClearSurvey && (
-                      <button
-                        onClick={onClearSurvey}
-                        className="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 border border-slate-700 transition-colors cursor-pointer"
-                        title="Hapus Titik Survei"
-                      >
-                        <XCircle className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              )}
-
-              {/* Quick Presets for Demo / Testing */}
-              <div className="space-y-2 pt-2 border-t border-slate-800">
-                <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block">
-                  Contoh Titik Lapangan (1-Klik Demo):
-                </span>
-                <div className="space-y-1.5">
-                  {DEMO_SURVEY_SPOTS.map((spot, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => {
-                        if (onSurveyPointSelected) {
-                          onSurveyPointSelected(spot.lat, spot.lng);
-                        }
-                      }}
-                      className="w-full text-left p-2.5 rounded-xl bg-slate-900/60 hover:bg-slate-800/90 border border-slate-800 hover:border-emerald-500/40 transition-all cursor-pointer group"
-                    >
-                      <div className="flex items-center justify-between">
-                        <strong className="text-white text-xs group-hover:text-emerald-300 transition-colors">
-                          {spot.name}
-                        </strong>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-800 text-slate-400">
-                          {spot.district}
-                        </span>
-                      </div>
-                      <p className="text-[10px] text-slate-400 pt-0.5 leading-snug">{spot.desc}</p>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Manual Coordinate Input */}
-              <div className="p-3 rounded-xl bg-slate-900/40 border border-slate-800 space-y-2">
-                <span className="text-[11px] font-bold text-slate-300 block">
-                  Input Manual Koordinat Lapangan:
-                </span>
-                <form onSubmit={handleManualSubmit} className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div>
-                      <label className="text-[10px] text-slate-400 block font-mono">Latitude:</label>
-                      <input
-                        type="text"
-                        value={manualLat}
-                        onChange={(e) => setManualLat(e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-white font-mono text-xs focus:border-emerald-500 focus:outline-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-[10px] text-slate-400 block font-mono">Longitude:</label>
-                      <input
-                        type="text"
-                        value={manualLng}
-                        onChange={(e) => setManualLng(e.target.value)}
-                        className="w-full px-2.5 py-1.5 rounded-lg bg-slate-950 border border-slate-700 text-white font-mono text-xs focus:border-emerald-500 focus:outline-none"
-                      />
-                    </div>
-                  </div>
-                  <button
-                    type="submit"
-                    className="w-full py-1.5 px-3 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-xs border border-slate-700 transition-all cursor-pointer"
-                  >
-                    Evaluasi Koordinat Ini
-                  </button>
-                </form>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'layers' && (
-            <LayerFilterControl
-              layers={layers}
-              onToggleLayer={onToggleLayer}
-              onUpdateLayers={onUpdateLayers}
-              filters={filters}
-              onFilterChange={onFilterChange}
-              totalVisibleCandidates={totalVisibleCandidates}
-            />
-          )}
-
-          {activeTab === 'info' && (
-            <div className="flex flex-col gap-4 text-slate-200 text-xs leading-relaxed">
-              <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-                <Sparkles className="w-4 h-4 text-amber-400" />
-                <h3 className="text-sm font-bold text-white">
-                  Tentang KopiSpasial Kota Bogor
-                </h3>
-              </div>
-
-              <p>
-                Sistem Informasi Geografis (SIG) berbasis Web untuk analisis celah pasar (*market gap/blank spot*) lokasi kedai kopi (*coffee shop*) baru di 6 wilayah administratif Kota Bogor:
-              </p>
-
-              <div className="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                <div className="font-semibold text-emerald-400">4 Kriteria Evaluasi Spasial:</div>
-                <ul className="space-y-1.5 pl-4 list-disc text-slate-300">
-                  <li><strong>C1 (Benefit):</strong> Jarak ke kompetitor terdekat. Semakin jauh, semakin minim persaingan langsung.</li>
-                  <li><strong>C2 (Benefit):</strong> Kepadatan penduduk kecamatan. Semakin padat, semakin tinggi potensi pasar.</li>
-                  <li><strong>C3 (Cost):</strong> Jarak ke jalan utama (arteri/kolektor). Semakin dekat, semakin mudah diakses pengunjung.</li>
-                  <li><strong>C4 (Cost):</strong> Jarak ke simpul keramaian (mall/stasiun/kampus/taman). Semakin dekat, semakin tinggi foot traffic.</li>
-                </ul>
-              </div>
-
-              <div className="space-y-2 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-                <div className="font-semibold text-cyan-400">Metodologi yang Diterapkan:</div>
-                <ul className="space-y-1.5 pl-4 list-disc text-slate-300">
-                  <li><strong>Analytic Hierarchy Process (AHP):</strong> Menentukan bobot preferensi kriteria dengan validasi Rasio Konsistensi (CR ≤ 0.10).</li>
-                  <li><strong>TOPSIS:</strong> Merangking ratusan kandidat titik sampling spasial berdasarkan kedekatan dengan Solusi Ideal Positif ($A^+$) dan jarak terjauh dari Solusi Ideal Negatif ($A^-$).</li>
-                  <li><strong>Field Survey Evaluator:</strong> Evaluasi kelayakan lokasi secara dinamis dan real-time menggunakan GPS / Pin-Drop di lapangan.</li>
-                </ul>
-              </div>
-
-              <div className="p-3 rounded-xl bg-emerald-950/20 border border-emerald-800/30 text-[11px] text-emerald-300">
-                💡 <strong>Tips:</strong> Klik tab <strong>Survei</strong> atau tombol <strong>Survei GPS</strong> untuk mengevaluasi kelayakan calon tempat usaha kedai kopi secara instan.
-              </div>
-            </div>
-          )}
-        </div>
       )}
-    </aside>
+
+      <aside
+        aria-label="Panel analisis"
+        className={`float-panel absolute z-[550] flex flex-col overflow-hidden transition-[height] duration-300 ease-out
+          max-lg:inset-x-0 max-lg:bottom-0 max-lg:rounded-t-[28px] max-lg:pb-[env(safe-area-inset-bottom)] ${isCollapsed ? 'max-lg:h-[96px]' : 'max-lg:h-[62dvh]'}
+          lg:bottom-4 lg:left-4 lg:top-[84px] lg:w-[420px] lg:rounded-[28px] ${isCollapsed ? 'lg:hidden' : ''}`}
+      >
+        {/* Pegangan sheet (mobile) / tombol sembunyikan (desktop) */}
+        <div className="flex h-8 shrink-0 items-center justify-center px-3">
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            aria-label={isCollapsed ? 'Buka panel' : 'Tutup panel'}
+            className="flex h-8 w-24 cursor-pointer items-center justify-center lg:hidden"
+          >
+            <span className="h-1.5 w-10 rounded-full bg-line-2" />
+          </button>
+          <button
+            type="button"
+            onClick={onToggleCollapse}
+            title="Sembunyikan panel"
+            aria-label="Sembunyikan panel"
+            className="ml-auto hidden h-8 cursor-pointer items-center gap-1.5 rounded-full px-2.5 text-xs font-semibold text-ink-3 transition-colors hover:bg-oat-2 hover:text-ink lg:flex"
+          >
+            <PanelLeftClose className="h-4 w-4" />
+            Sembunyikan
+          </button>
+        </div>
+
+        {/* Tab */}
+        <nav className="shrink-0 px-3 pb-2" role="tablist" aria-label="Menu analisis">
+          <div className="grid grid-cols-5 gap-1 rounded-2xl bg-oat-2 p-1">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              const active = activeTab === t.id && !isCollapsed;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  title={t.title}
+                  onClick={() => handleTab(t.id)}
+                  className={`relative flex cursor-pointer flex-col items-center gap-1 rounded-xl py-2 text-[11px] font-bold transition-all ${
+                    active ? 'bg-paper text-ink shadow-soft' : 'text-ink-3 hover:text-ink'
+                  }`}
+                >
+                  <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.5 : 2} />
+                  {t.label}
+                  {t.id === 'recommendations' && candidates.length > 0 && (
+                    <span className="absolute right-3 top-1.5 h-2 w-2 rounded-full bg-good ring-2 ring-oat-2" />
+                  )}
+                  {t.id === 'survey' && surveyResult && (
+                    <span className="absolute right-3 top-1.5 h-2 w-2 rounded-full bg-lime ring-2 ring-espresso" />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+
+        {/* Isi tab */}
+        {!isCollapsed && (
+          <div className="min-h-0 flex-1 overflow-y-auto px-5 pb-5 pt-3">
+            {activeTab === 'ahp' && (
+              <AhpForm
+                pairs={pairs}
+                onPairChange={onPairChange}
+                onApplyPreset={onApplyPreset}
+                activePreset={activePreset}
+                ahpResult={ahpResult}
+                onCalculate={onCalculate}
+                isCalculating={isCalculating}
+              />
+            )}
+
+            {activeTab === 'recommendations' && (
+              <div className="flex flex-col gap-5">
+                <TopRecommendations
+                  candidates={candidates}
+                  selectedCandidateId={selectedCandidateId}
+                  onSelectCandidate={onSelectCandidate}
+                  radiusMeters={layers.recommendationRadiusMeters}
+                />
+                <ScenarioPanel
+                  ahpResult={ahpResult}
+                  pairs={pairs}
+                  candidates={candidates}
+                  onLoadScenario={(p) => onLoadScenario?.(p)}
+                />
+              </div>
+            )}
+
+            {activeTab === 'survey' && (
+              <div className="animate-in flex flex-col gap-5">
+                <div>
+                  <h2 className="text-xl font-extrabold tracking-tight text-ink">Survei lokasi</h2>
+                  <p className="mt-1 text-sm leading-relaxed text-ink-2">
+                    Lagi lihat ruko atau lahan? Cek kelayakan titik itu secara instan, dengan bobot prioritas yang sama.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2.5">
+                  <button type="button" onClick={handleUseGps} disabled={isGpsLoading} className="btn btn-primary !px-3">
+                    {isGpsLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LocateFixed className="h-4 w-4" />}
+                    {isGpsLoading ? 'Mencari…' : 'Lokasi saya'}
+                  </button>
+                  {onToggleSurveyClickMode && (
+                    <button
+                      type="button"
+                      onClick={onToggleSurveyClickMode}
+                      aria-pressed={isSurveyClickMode}
+                      className={`btn !px-3 ${isSurveyClickMode ? 'bg-lime text-ink ring-2 ring-espresso' : 'btn-soft'}`}
+                    >
+                      <MousePointerClick className="h-4 w-4" />
+                      {isSurveyClickMode ? 'Klik peta…' : 'Pilih di peta'}
+                    </button>
+                  )}
+                </div>
+
+                {surveyResult && (
+                  <div className="card animate-in overflow-hidden">
+                    <div className="flex items-start justify-between gap-3 bg-espresso p-4 text-white">
+                      <div className="min-w-0">
+                        <span className="chip bg-lime text-ink">Hasil terkini</span>
+                        <h3 className="mt-2 truncate text-base font-extrabold">
+                          {surveyResult.districtName ? `Kecamatan ${surveyResult.districtName}` : 'Di luar Kota Bogor'}
+                        </h3>
+                        <p className="tabular font-mono text-[11px] text-white/60">
+                          {surveyResult.lat.toFixed(5)}, {surveyResult.lng.toFixed(5)}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <div className="text-[11px] font-semibold text-white/60">Skor TOPSIS</div>
+                        <div className="tabular text-2xl font-extrabold text-lime">{surveyResult.score.toFixed(3)}</div>
+                      </div>
+                    </div>
+
+                    <dl className="grid grid-cols-2 gap-px bg-line text-sm">
+                      <Metric label="Jarak kompetitor" value={`${surveyResult.c1_dist_competitor} m`} />
+                      <Metric label="Kepadatan" value={`${surveyResult.c2_density.toLocaleString('id-ID')} /km²`} />
+                      <Metric label="Jarak jalan utama" value={`${surveyResult.c3_dist_road} m`} />
+                      <Metric label="Jarak keramaian" value={`${surveyResult.c4_dist_crowd} m`} />
+                    </dl>
+
+                    <div className="flex items-center gap-2 p-3">
+                      {onOpenSurveyModal && (
+                        <button type="button" onClick={onOpenSurveyModal} className="btn btn-primary flex-1 !text-[13px]">
+                          <FileText className="h-4 w-4" /> Laporan lengkap
+                        </button>
+                      )}
+                      {onClearSurvey && (
+                        <button
+                          type="button"
+                          onClick={onClearSurvey}
+                          title="Hapus titik survei"
+                          aria-label="Hapus titik survei"
+                          className="btn btn-soft !px-0 w-11"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                <SurveyHistoryPanel
+                  survey={surveyResult ?? null}
+                  weights={ahpResult.weightsArray}
+                  onReview={(la, ln) => onSurveyPointSelected?.(la, ln)}
+                />
+
+                <section>
+                  <h3 className="mb-2 text-xs font-bold uppercase tracking-wider text-ink-3">Coba titik contoh</h3>
+                  <div className="flex flex-col gap-2">
+                    {DEMO_SURVEY_SPOTS.map((spot) => (
+                      <button
+                        key={spot.name}
+                        type="button"
+                        onClick={() => onSurveyPointSelected?.(spot.lat, spot.lng)}
+                        className="card group flex cursor-pointer items-center gap-3 p-3 text-left transition-all hover:border-line-2 hover:shadow-float"
+                      >
+                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-oat-2 text-ink-2 transition-colors group-hover:bg-lime group-hover:text-ink">
+                          <MapPin className="h-[18px] w-[18px]" />
+                        </span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-bold text-ink">{spot.name}</span>
+                          <span className="block truncate text-xs text-ink-3">
+                            {spot.district} · {spot.desc}
+                          </span>
+                        </span>
+                        <ArrowRight className="h-4 w-4 shrink-0 text-ink-3 transition-transform group-hover:translate-x-0.5" />
+                      </button>
+                    ))}
+                  </div>
+                </section>
+
+                <details className="card group p-0">
+                  <summary className="flex cursor-pointer list-none items-center justify-between p-4 text-sm font-bold text-ink">
+                    Masukkan koordinat manual
+                    <ChevronUp className="h-4 w-4 text-ink-3 transition-transform group-open:rotate-180" />
+                  </summary>
+                  <form onSubmit={handleManualSubmit} className="flex flex-col gap-3 border-t border-line p-4">
+                    <div className="grid grid-cols-2 gap-3">
+                      <label className="text-xs font-semibold text-ink-2">
+                        Latitude
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={manualLat}
+                          onChange={(e) => setManualLat(e.target.value)}
+                          className="tabular mt-1 h-11 w-full rounded-xl border border-line-2 bg-paper px-3 font-mono text-sm text-ink"
+                        />
+                      </label>
+                      <label className="text-xs font-semibold text-ink-2">
+                        Longitude
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={manualLng}
+                          onChange={(e) => setManualLng(e.target.value)}
+                          className="tabular mt-1 h-11 w-full rounded-xl border border-line-2 bg-paper px-3 font-mono text-sm text-ink"
+                        />
+                      </label>
+                    </div>
+                    <button type="submit" className="btn btn-soft w-full">
+                      Evaluasi koordinat ini
+                    </button>
+                  </form>
+                </details>
+              </div>
+            )}
+
+            {activeTab === 'layers' && (
+              <LayerFilterControl
+                layers={layers}
+                onToggleLayer={onToggleLayer}
+                onUpdateLayers={onUpdateLayers}
+                filters={filters}
+                onFilterChange={onFilterChange}
+                totalVisibleCandidates={totalVisibleCandidates}
+                zoneCount={zoneCount}
+              />
+            )}
+
+            {activeTab === 'info' && <InfoTab onStart={() => handleTab('ahp')} />}
+          </div>
+        )}
+      </aside>
+    </>
   );
 };
+
+const Metric: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+  <div className="bg-paper p-3">
+    <dt className="text-xs font-medium text-ink-3">{label}</dt>
+    <dd className="tabular mt-0.5 font-mono text-[15px] font-bold text-ink">{value}</dd>
+  </div>
+);
+
+const InfoTab: React.FC<{ onStart: () => void }> = ({ onStart }) => (
+  <div className="animate-in flex flex-col gap-5">
+    <div>
+      <h2 className="text-xl font-extrabold tracking-tight text-ink">Cari lokasi kedai kopi, pakai data</h2>
+      <p className="mt-1 text-sm leading-relaxed text-ink-2">
+        Sistem Informasi Geografis untuk menemukan <em>celah pasar</em> (<em>blank spot</em>) kedai kopi baru di 6 kecamatan
+        Kota Bogor, menggunakan metode AHP–TOPSIS.
+      </p>
+    </div>
+
+    <ol className="flex flex-col gap-2">
+      {[
+        ['Atur prioritas', 'Tentukan kriteria mana yang lebih penting bagi usahamu.'],
+        ['Hitung', 'Sistem menilai ribuan titik di seluruh kota.'],
+        ['Lihat hasil', 'Telusuri peringkat dan cek langsung di peta.'],
+      ].map(([t, d], i) => (
+        <li key={t} className="card flex items-center gap-3 p-3.5">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-espresso text-sm font-extrabold text-lime">
+            {i + 1}
+          </span>
+          <span>
+            <b className="block text-sm text-ink">{t}</b>
+            <span className="text-[13px] text-ink-2">{d}</span>
+          </span>
+        </li>
+      ))}
+    </ol>
+
+    <section className="card p-4">
+      <h3 className="text-sm font-extrabold text-ink">4 kriteria penilaian</h3>
+      <ul className="mt-3 flex flex-col gap-3 text-[13px] leading-relaxed text-ink-2">
+        <li>
+          <b className="text-ink">C1 · Jarak ke kompetitor</b> <span className="chip bg-good-bg text-good">Benefit</span>
+          <br />
+          Semakin jauh, semakin minim persaingan langsung.
+        </li>
+        <li>
+          <b className="text-ink">C2 · Kepadatan penduduk</b> <span className="chip bg-good-bg text-good">Benefit</span>
+          <br />
+          Semakin padat, semakin besar potensi pasar.
+        </li>
+        <li>
+          <b className="text-ink">C3 · Jarak ke jalan utama</b> <span className="chip bg-info-bg text-info">Cost</span>
+          <br />
+          Semakin dekat arteri/kolektor, semakin mudah diakses.
+        </li>
+        <li>
+          <b className="text-ink">C4 · Jarak ke keramaian</b> <span className="chip bg-info-bg text-info">Cost</span>
+          <br />
+          Semakin dekat mall, pasar, terminal, atau taman, semakin tinggi lalu lintas pengunjung.
+        </li>
+      </ul>
+    </section>
+
+    <section className="card p-4">
+      <h3 className="text-sm font-extrabold text-ink">Metode</h3>
+      <ul className="mt-3 flex flex-col gap-2.5 text-[13px] leading-relaxed text-ink-2">
+        <li>
+          <b className="text-ink">AHP</b> menentukan bobot kriteria lewat perbandingan berpasangan, dengan validasi rasio
+          konsistensi (CR ≤ 0,10).
+        </li>
+        <li>
+          <b className="text-ink">TOPSIS</b> meranking titik kandidat berdasarkan kedekatannya dengan solusi ideal positif
+          dan jaraknya dari solusi ideal negatif.
+        </li>
+        <li>
+          <b className="text-ink">Survei lokasi</b> menilai satu titik pilihanmu (GPS atau klik peta) dengan cara yang sama.
+        </li>
+      </ul>
+    </section>
+
+    <button type="button" onClick={onStart} className="btn btn-primary w-full">
+      Mulai atur prioritas <ArrowRight className="h-4 w-4" />
+    </button>
+  </div>
+);

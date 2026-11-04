@@ -87,7 +87,7 @@ CREATE TABLE grid_points (
     longitude FLOAT8 NOT NULL,
     district_name VARCHAR(100),
     c1_dist_competitor FLOAT8 NOT NULL, -- Satuan meter (Benefit)
-    c2_population FLOAT8 NOT NULL,      -- Jumlah jiwa (Benefit)
+    c2_density FLOAT8 NOT NULL,         -- Kepadatan penduduk jiwa/km² (Benefit)
     c3_dist_road FLOAT8 NOT NULL,        -- Satuan meter (Cost)
     c4_dist_crowd FLOAT8 NOT NULL,       -- Satuan meter (Cost)
     nearest_competitor VARCHAR(255),
@@ -116,15 +116,15 @@ BEGIN
             ORDER BY g.geom <-> c.geom
             LIMIT 1
         ),
-        -- C2: District Population
-        c2_population = COALESCE((
-            SELECT p.population_count
+        -- C2: District Population Density (jiwa/km²)
+        c2_density = COALESCE((
+            SELECT p.density_per_km2
             FROM districts d
             JOIN population_data p ON p.bps_district_name = d.district_name
             WHERE ST_Contains(d.geom, g.geom)
             LIMIT 1
         ), (
-            SELECT population FROM districts ORDER BY g.geom <-> ST_Centroid(geom) LIMIT 1
+            SELECT density_per_km2 FROM districts ORDER BY g.geom <-> ST_Centroid(geom) LIMIT 1
         )),
         district_name = COALESCE((
             SELECT d.district_name

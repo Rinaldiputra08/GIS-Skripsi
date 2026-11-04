@@ -7,6 +7,7 @@ import {
   DistrictGeo,
   RoadSegment,
   CrowdCenterPoint,
+  ExclusionZone,
   TopsisCandidateResult,
   LayerToggleState,
   FilterState,
@@ -18,9 +19,9 @@ const DynamicBogorMap = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="w-full h-full min-h-[500px] flex flex-col items-center justify-center bg-slate-950 text-slate-400 gap-3">
-        <div className="w-10 h-10 border-3 border-emerald-500/30 border-t-emerald-500 rounded-full animate-spin" />
-        <span className="text-xs font-medium">Memuat Peta Spasial Kota Bogor...</span>
+      <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-oat text-ink-3">
+        <div className="h-10 w-10 animate-spin rounded-full border-[3px] border-line-2 border-t-espresso" />
+        <span className="text-sm font-semibold">Memuat peta Kota Bogor…</span>
       </div>
     ),
   }
@@ -31,6 +32,7 @@ interface MapWrapperProps {
   competitors: CompetitorPoint[];
   roads: RoadSegment[];
   crowdCenters: CrowdCenterPoint[];
+  exclusionZones: ExclusionZone[];
   candidates: TopsisCandidateResult[];
   layers: LayerToggleState;
   filters: FilterState;
