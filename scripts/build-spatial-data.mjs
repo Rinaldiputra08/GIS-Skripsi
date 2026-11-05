@@ -189,7 +189,12 @@ for (const f of roadFeatures) {
 
 // ---------- 4. Pusat keramaian OSM ----------
 const crowd = [];
-for (const f of readJson('pusat_keramaian_bogor.geojson').features) {
+const crowdFeatures = [
+  ...readJson('pusat_keramaian_bogor.geojson').features,
+  // kampus, rumah sakit, perkantoran instansi (scripts/import-osm-crowd-extra.mjs)
+  ...(fs.existsSync(path.join(DATASET, 'pusat_keramaian_tambahan.geojson')) ? readJson('pusat_keramaian_tambahan.geojson').features : []),
+];
+for (const f of crowdFeatures) {
   const [lng, lat] = f.geometry.coordinates;
   const district = districtOf(lat, lng);
   if (!district) continue;

@@ -199,10 +199,10 @@ export async function loadGridFromDb(opts: { fresh?: boolean } = {}): Promise<Sp
   if (opts.fresh) invalidateSpatialCache('grid');
   if (gridCache && Date.now() - gridCache.at < TTL_MS) return gridCache.data;
   try {
-    const rows = await fetchAll(
-      'grid_points',
-      'id,latitude,longitude,district_name,c1_distance_competitor,c2_population_density,c3_distance_road,c4_distance_crowd,nearest_competitor,nearest_road,nearest_crowd'
-    );
+    const cols =
+      'id,latitude,longitude,district_name,c1_distance_competitor,c2_population_density,c3_distance_road,c4_distance_crowd,nearest_competitor,nearest_road,nearest_crowd';
+    // village_name (C2 per kelurahan, supabase/villages.sql); database lama belum punya kolom ini
+    const rows = await fetchAll('grid_points', `${cols},village_name`).catch(() => fetchAll('grid_points', cols));
     const valid =
       rows.length > 0 &&
       rows.every(
@@ -233,6 +233,7 @@ export async function loadGridFromDb(opts: { fresh?: boolean } = {}): Promise<Sp
         lat,
         lng,
         district: r.district_name,
+        village: r.village_name ?? undefined,
         c1_dist_competitor: Number(r.c1_distance_competitor),
         c2_density: Number(r.c2_population_density),
         c3_dist_road: Number(r.c3_distance_road),

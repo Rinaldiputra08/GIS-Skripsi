@@ -33,7 +33,7 @@ export const CRITERIA_METADATA: Record<CriterionId, CriterionInfo> = {
     shortName: 'Kepadatan Penduduk',
     type: 'benefit',
     unit: 'jiwa/km²',
-    description: 'Kepadatan penduduk kecamatan tempat kandidat lokasi berada (penduduk BPS ÷ luas poligon kecamatan). Data BPS hanya tersedia per kecamatan, sehingga seluruh grid dalam satu kecamatan bernilai sama.',
+    description: 'Kepadatan penduduk kelurahan tempat kandidat lokasi berada (penduduk SIMDATA Disdukcapil Kota Bogor, Semester I 2026 ÷ luas poligon kelurahan OpenStreetMap). Seluruh grid dalam satu kelurahan bernilai sama.',
     targetDescription: 'Semakin PADAT semakin baik (Potensi pasar konsumen besar).'
   },
   c3: {
@@ -53,7 +53,7 @@ export const CRITERIA_METADATA: Record<CriterionId, CriterionInfo> = {
     shortName: 'Pusat Keramaian',
     type: 'cost',
     unit: 'meter',
-    description: 'Jarak terdekat ke titik magnet aktivitas (Mall, Supermarket, Pasar, Terminal, Stasiun, Taman, Atraksi).',
+    description: 'Jarak terdekat ke titik magnet aktivitas (Mal, Supermarket, Pasar, Terminal, Stasiun, Taman, Atraksi, Kampus, Rumah Sakit, Perkantoran Instansi).',
     targetDescription: 'Semakin DEKAT semakin baik (Tingkat foot traffic / pengunjung tinggi).'
   }
 };
@@ -98,6 +98,8 @@ export interface SpatialCandidate {
   lat: number;
   lng: number;
   district: string;
+  /** Kelurahan (sumber nilai C2) */
+  village?: string;
   c1_dist_competitor: number; // in meters (Benefit)
   c2_density: number;         // people per km² (Benefit)
   c3_dist_road: number;        // in meters (Cost)
@@ -163,7 +165,8 @@ export interface RoadSegment {
 export interface CrowdCenterPoint {
   id: string;
   name: string;
-  category: 'mall' | 'supermarket' | 'marketplace' | 'park' | 'attraction' | 'bus_station' | 'station' | 'shelter';
+  category: 'mall' | 'supermarket' | 'marketplace' | 'park' | 'attraction' | 'bus_station' | 'station' | 'shelter'
+    | 'university' | 'hospital' | 'office' | 'school';
   lat: number;
   lng: number;
   district: string;
@@ -198,6 +201,7 @@ export interface FilterState {
 export interface PointCriteria {
   inside: boolean;
   district?: string;
+  village?: string;
   density?: number;
   c1?: number; c1Name?: string;
   c3?: number; c3Name?: string;
@@ -210,6 +214,7 @@ export interface SurveyPointEvaluation {
   lng: number;
   isInsideBogor: boolean;
   districtName: string | null;
+  villageName?: string | null;
   c1_dist_competitor: number; // meters (Benefit)
   c2_density: number;         // people per km² (Benefit)
   c3_dist_road: number;       // meters (Cost)

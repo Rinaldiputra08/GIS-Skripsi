@@ -118,7 +118,7 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
                     <div className="border-t border-line bg-oat/60 p-3.5">
                       <dl className="grid grid-cols-2 gap-2.5 text-sm">
                         <Row icon={<Store className="h-4 w-4" />} label="Jarak kafe" value={`${Math.round(c.c1_dist_competitor)} m`} />
-                        <Row icon={<Users className="h-4 w-4" />} label="Kepadatan" value={`${c.c2_density.toLocaleString('id-ID')} /km²`} />
+                        <Row icon={<Users className="h-4 w-4" />} label={c.village ? `Kepadatan · ${c.village}` : 'Kepadatan'} value={`${c.c2_density.toLocaleString('id-ID')} /km²`} />
                         <Row icon={<Route className="h-4 w-4" />} label="Akses jalan" value={`${Math.round(c.c3_dist_road)} m`} />
                         <Row icon={<Building2 className="h-4 w-4" />} label="Keramaian" value={`${Math.round(c.c4_dist_crowd)} m`} />
                       </dl>

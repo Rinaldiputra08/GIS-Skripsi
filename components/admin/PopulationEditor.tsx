@@ -99,13 +99,13 @@ export function PopulationEditor() {
 
       <div className="flex items-start gap-2.5 rounded-2xl bg-info-bg p-3.5 text-sm text-info">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
-        <p>Kepadatan dihitung dari jumlah penduduk ÷ luas poligon kecamatan. Setelah menyimpan, terapkan perubahan di Dasbor agar nilai C2 pada grid ikut diperbarui.</p>
+        <p>Kepadatan kecamatan = jumlah penduduk ÷ luas poligon kecamatan. Nilai ini hanya menjadi C2 bila data kelurahan tidak tersedia.</p>
       </div>
 
       {error && <p role="alert" className="rounded-xl bg-bad-bg px-3.5 py-3 text-sm font-semibold text-bad">{error}</p>}
       {msg && <p role="status" className="flex items-center gap-2 rounded-xl bg-good-bg px-3.5 py-3 text-sm font-semibold text-good"><Check className="h-4 w-4" />{msg}</p>}
       <div className="flex justify-end">
-        <button className="btn btn-primary" onClick={save} disabled={busy || !year}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Simpan data penduduk</button>
+        <button className="btn btn-primary" onClick={save} disabled={busy || !year}>{busy && <Loader2 className="h-4 w-4 animate-spin" />} Simpan penduduk kecamatan</button>
       </div>
     </div>
   );

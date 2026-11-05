@@ -26,7 +26,7 @@ export default function CrowdCentersPage() {
         fields={[
           { key: 'name', label: 'Nama tempat', type: 'text', required: true, placeholder: 'mis. Botani Square' },
           { key: 'category', label: 'Kategori', type: 'text', required: true, placeholder: 'mall / marketplace / station …',
-            suggestions: ['mall', 'supermarket', 'marketplace', 'bus_station', 'station', 'university', 'school', 'hospital', 'park', 'attraction'] },
+            suggestions: ['mall', 'supermarket', 'marketplace', 'bus_station', 'station', 'university', 'hospital', 'office', 'school', 'park', 'attraction'] },
         ]}
       />
     </>

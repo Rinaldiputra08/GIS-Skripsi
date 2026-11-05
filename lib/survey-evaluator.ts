@@ -39,11 +39,15 @@ export function evaluateSurveyLocation(
 
   // 1. Batas administratif: dari database bila tersedia, jika tidak Ray-Casting pada poligon lokal
   const localDistrict = getStrictDistrictForPoint(lat, lng);
-  const districtInfo: { districtName: string; density: number } | null = criteria
+  const districtInfo: { districtName: string; villageName?: string; density: number } | null = criteria
     ? criteria.inside
-      ? { districtName: criteria.district as string, density: criteria.density as number }
+      ? { districtName: criteria.district as string, villageName: criteria.village, density: criteria.density as number }
       : null
     : localDistrict;
+  // Wilayah sumber nilai C2 (kelurahan bila tersedia), untuk narasi laporan
+  const c2Area = districtInfo?.villageName
+    ? `Kelurahan ${districtInfo.villageName} (Kec. ${districtInfo.districtName})`
+    : `Kecamatan ${districtInfo?.districtName ?? '-'}`;
   const isInsideBogor = districtInfo !== null;
 
   // 2. Spatial Constraint Check (Cemeteries, Police, Military, Ring 1 Palace)
@@ -113,6 +117,7 @@ export function evaluateSurveyLocation(
     lat,
     lng,
     district: districtInfo.districtName,
+    village: districtInfo.villageName,
     c1_dist_competitor: competitor.distance,
     c2_density: districtInfo.density,
     c3_dist_road: road.distance,
@@ -190,7 +195,7 @@ export function evaluateSurveyLocation(
 
     if (districtInfo.density >= getSettings().denseThreshold) {
       strengths.push(
-        `Potensi Pasar Besar: Kecamatan ${districtInfo.districtName} memiliki kepadatan penduduk tinggi (${districtInfo.density.toLocaleString('id-ID')} jiwa/km²).`
+        `Potensi Pasar Besar: ${c2Area} memiliki kepadatan penduduk tinggi (${districtInfo.density.toLocaleString('id-ID')} jiwa/km²).`
       );
     }
 
@@ -259,6 +264,7 @@ export function evaluateSurveyLocation(
     lng,
     isInsideBogor: true,
     districtName: districtInfo.districtName,
+    villageName: districtInfo.villageName ?? null,
     c1_dist_competitor: competitor.distance,
     c2_density: districtInfo.density,
     c3_dist_road: road.distance,

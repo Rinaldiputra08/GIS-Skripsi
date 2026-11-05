@@ -102,7 +102,7 @@ Nilai Preferensi TOPSIS (Vi): ${survey.score.toFixed(4)}
 Peringkat Estimasi: #${survey.rankEstimate} dari ${survey.totalCandidates} titik (Top ${survey.percentile}%)
 
 1. Jarak Kompetitor Terdekat: ${survey.c1_dist_competitor} m (${survey.nearestCompetitorName})
-2. Kepadatan Penduduk: ${survey.c2_density.toLocaleString('id-ID')} jiwa/km² (${survey.districtName})
+2. Kepadatan Penduduk: ${survey.c2_density.toLocaleString('id-ID')} jiwa/km² (${survey.villageName ? `Kel. ${survey.villageName}, Kec. ${survey.districtName}` : survey.districtName})
 3. Akses Jalan Utama: ${survey.c3_dist_road} m (${survey.nearestRoadName})
 4. Simpul Keramaian: ${survey.c4_dist_crowd} m (${survey.nearestCrowdName})
 5. Status Peruntukan Lahan: ${survey.landUseType}
@@ -299,12 +299,12 @@ ${survey.swot.verdict}
                     <span className="text-xs text-ink-3 font-normal">jiwa/km²</span>
                   </div>
                   <div className="text-[11px] text-ink-3 truncate">
-                    Wilayah: <strong className="text-ink">{survey.districtName || '-'}</strong>
+                    Wilayah: <strong className="text-ink">{survey.villageName ? `Kel. ${survey.villageName}, ` : ''}{survey.districtName || '-'}</strong>
                   </div>
                   <p className="text-[10px] text-ink-3">
                     {survey.c2_density >= getSettings().denseThreshold
-                      ? 'Kecamatan padat (nilai rata-rata satu kecamatan)'
-                      : 'Kepadatan sedang (nilai rata-rata satu kecamatan)'}
+                      ? `${survey.villageName ? 'Kelurahan' : 'Kecamatan'} padat (nilai rata-rata satu ${survey.villageName ? 'kelurahan' : 'kecamatan'})`
+                      : `Kepadatan sedang (nilai rata-rata satu ${survey.villageName ? 'kelurahan' : 'kecamatan'})`}
                   </p>
                 </div>
 

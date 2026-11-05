@@ -31,6 +31,7 @@ import {
 import { GRID_CELL_METERS } from '@/data/bogor-spatial';
 import { getSettings } from '@/lib/settings';
 import { cityOutline } from '@/lib/city-outline';
+import { crowdCategoryLabel } from '@/lib/crowd-categories';
 import {
   formatBusinessScore,
   getStarRating,
@@ -98,6 +99,8 @@ const createCrowdIcon = (category: string) => {
   if (category === 'marketplace') bg = '#d97706';
   if (category === 'station' || category === 'bus_station' || category === 'shelter') bg = '#2a5db0';
   if (category === 'park' || category === 'attraction') bg = '#12805c';
+  if (category === 'university' || category === 'school') bg = '#b4235a';
+  if (category === 'hospital' || category === 'office') bg = '#5b6573';
 
   return L.divIcon({
     className: 'custom-crowd-pin',
@@ -632,7 +635,7 @@ export const BogorMap: React.FC<BogorMapProps> = ({
             >
               <Popup>
                 <div className="w-[220px]">
-                  <span className="chip bg-info-bg text-info capitalize">{String(crowd.category).replace('_', ' ')}</span>
+                  <span className="chip bg-info-bg text-info">{crowdCategoryLabel(String(crowd.category))}</span>
                   <h4 className="mt-2 text-[15px] font-extrabold leading-snug text-ink">{crowd.name}</h4>
                   {crowd.description && <p className="mt-1 text-xs leading-snug text-ink-2">{crowd.description}</p>}
                   <p className="mt-2 border-t border-line pt-2 text-xs font-medium text-ink-3">Kecamatan {crowd.district}</p>
@@ -718,7 +721,7 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                       </div>
                     </div>
                     <div className="rounded-xl bg-oat px-3 py-2">
-                      <div className="font-medium text-ink-3">Kepadatan</div>
+                      <div className="font-medium text-ink-3">Kepadatan{candidate.village ? ` · ${candidate.village}` : ''}</div>
                       <div className="tabular font-mono text-[13px] font-bold text-ink">
                         {candidate.c2_density.toLocaleString('id-ID')} /km²
                       </div>

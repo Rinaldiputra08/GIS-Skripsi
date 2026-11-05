@@ -307,9 +307,10 @@ export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
               <div className="p-4 rounded-xl bg-oat border border-line space-y-1.5">
                 <span className="font-bold text-ink text-xs">Batasan data yang perlu diketahui</span>
                 <ul className="list-disc pl-4 text-ink-2 leading-relaxed text-[11px] space-y-1">
-                  <li><strong>C2 kepadatan penduduk</strong> tersedia per kecamatan (BPS), sehingga semua titik dalam satu kecamatan memiliki nilai C2 yang sama.</li>
+                  <li><strong>C2 kepadatan penduduk</strong> dihitung per kelurahan (68 kelurahan; penduduk SIMDATA Disdukcapil Semester I 2026 ÷ luas poligon OpenStreetMap), sehingga semua titik dalam satu kelurahan memiliki nilai C2 yang sama. Penduduk dihitung menurut alamat tinggal (KTP/KK), bukan jumlah orang yang beraktivitas di siang hari.</li>
                   <li><strong>Skor V_i bersifat relatif</strong>: menunjukkan posisi suatu titik dibanding titik lain di Kota Bogor menurut bobot yang dipilih, bukan jaminan kelayakan usaha.</li>
                   <li><strong>Data kompetitor</strong> (Kaggle + OpenStreetMap) bisa belum lengkap di area pinggiran; jarak C1 yang sangat jauh perlu dicek di lapangan.</li>
+                  <li><strong>C4 pusat keramaian</strong> mencakup mal, supermarket, pasar, terminal, stasiun, taman, wisata, kampus, rumah sakit, dan perkantoran instansi (OpenStreetMap). Semua jenis dianggap setara; sekolah tidak dimasukkan karena jumlahnya sangat banyak dan didominasi SD/TK.</li>
                 </ul>
               </div>
 

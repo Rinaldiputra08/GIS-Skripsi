@@ -67,7 +67,7 @@ export interface SettingMeta {
 export const SETTING_META: SettingMeta[] = [
   { key: 'tierHighPct', label: 'Kelas potensi tinggi', hint: 'Persentase titik layak dengan peringkat Vi teratas yang dikategorikan potensi tinggi. Skor Vi bersifat relatif, sehingga kelas ditentukan dari peringkat (kuantil), bukan angka Vi tetap.', unit: '% teratas', min: 5, max: 40, step: 1, affectsGrid: false },
   { key: 'tierMediumPct', label: 'Kelas potensi sedang', hint: 'Persentase titik berikutnya (setelah kelas tinggi) yang dikategorikan potensi sedang. Sisanya potensi rendah.', unit: '% berikutnya', min: 10, max: 60, step: 1, affectsGrid: false },
-  { key: 'denseThreshold', label: 'Ambang kecamatan padat', hint: 'Dipakai pada narasi laporan survei lokasi.', unit: 'jiwa/km²', min: 1000, max: 50000, step: 500, affectsGrid: false },
+  { key: 'denseThreshold', label: 'Ambang wilayah padat', hint: 'Kepadatan kelurahan (atau kecamatan bila data kelurahan belum ada) yang dianggap padat pada narasi laporan survei lokasi.', unit: 'jiwa/km²', min: 1000, max: 50000, step: 500, affectsGrid: false },
   { key: 'cellMeters', label: 'Ukuran sel grid', hint: 'Sisi sel persegi pada Spatial Grid Sampling. Makin kecil makin detail, makin banyak titik.', unit: 'meter', min: 150, max: 1000, step: 50, affectsGrid: true },
   { key: 'floorC1', label: 'Batas bawah jarak C1', hint: 'Jarak ke kompetitor lebih kecil dari ini dibulatkan ke nilai ini (menghindari nilai 0).', unit: 'meter', min: 10, max: 500, step: 5, affectsGrid: true },
   { key: 'floorC3', label: 'Batas bawah jarak C3', hint: 'Jarak ke jalan utama lebih kecil dari ini dibulatkan ke nilai ini.', unit: 'meter', min: 10, max: 500, step: 5, affectsGrid: true },
