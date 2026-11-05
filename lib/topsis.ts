@@ -1,42 +1,56 @@
 import { SpatialCandidate, TopsisCandidateResult, TopsisSummary } from './types';
-import { tierOf } from './settings';
+import { tierOfRank, c1Effective } from './settings';
 
 /**
  * Executes the Technique for Order Preference by Similarity to Ideal Solution (TOPSIS)
  * on a dataset of spatial candidate grid points using AHP-derived weights.
  *
  * Criteria Types:
- * - C1 (Dist Competitor): BENEFIT (Larger distance = less competition = better)
+ * - C1 (Dist Competitor): BENEFIT (Larger distance = less competition = better), dibatasi
+ *   batas jenuh (parameter c1Cap): jarak di atas batas dianggap sama baiknya
  * - C2 (Density): BENEFIT (Higher population density = larger market = better)
  * - C3 (Dist Road): COST (Shorter distance to main road = better accessibility = better)
  * - C4 (Dist Crowd): COST (Shorter distance to crowd center = higher foot traffic = better)
+ *
+ * Kendala spasial: titik di zona terlarang DISARING SEBELUM perhitungan (tidak ikut menentukan
+ * pembagi normalisasi maupun solusi ideal). Titik tersebut tetap dikembalikan di akhir daftar
+ * dengan skor 0 dan rank 0 agar dapat digambar di peta sebagai area terlarang.
  */
 export function calculateTopsis(
-  candidates: SpatialCandidate[],
+  allCandidates: SpatialCandidate[],
   weights: [number, number, number, number] // [w_c1, w_c2, w_c3, w_c4]
 ): TopsisSummary {
   const startTime = performance.now();
+  const candidates = allCandidates.filter((c) => !c.isRestricted);
+  const restricted = allCandidates.filter((c) => c.isRestricted);
   const m = candidates.length;
+
+  const restrictedResults = (): TopsisCandidateResult[] =>
+    restricted.map((c) => ({
+      ...c, r: [0, 0, 0, 0], y: [0, 0, 0, 0], dPlus: 0, dMinus: 0, score: 0, rank: 0, category: 'low',
+    }));
 
   if (m === 0) {
     return {
-      candidates: [],
+      candidates: restrictedResults(),
       divisors: [1, 1, 1, 1],
       weights,
       idealPositive: [0, 0, 0, 0],
       idealNegative: [0, 0, 0, 0],
+      tierCutoffs: { high: 1, medium: 1 },
       executionTimeMs: 0,
     };
   }
 
+  // Matriks keputusan X (C1 sudah dibatasi batas jenuh)
+  const X: [number, number, number, number][] = candidates.map((c) => [
+    c1Effective(c.c1_dist_competitor), c.c2_density, c.c3_dist_road, c.c4_dist_crowd,
+  ]);
+
   // 1. Calculate vector normalization divisors D_j = sqrt(sum(x_ij^2))
   const sumSquares: [number, number, number, number] = [0, 0, 0, 0];
   for (let i = 0; i < m; i++) {
-    const c = candidates[i];
-    sumSquares[0] += c.c1_dist_competitor * c.c1_dist_competitor;
-    sumSquares[1] += c.c2_density * c.c2_density;
-    sumSquares[2] += c.c3_dist_road * c.c3_dist_road;
-    sumSquares[3] += c.c4_dist_crowd * c.c4_dist_crowd;
+    for (let j = 0; j < 4; j++) sumSquares[j] += X[i][j] * X[i][j];
   }
 
   const divisors: [number, number, number, number] = [
@@ -51,12 +65,12 @@ export function calculateTopsis(
   const weightedRows: [number, number, number, number][] = [];
 
   for (let i = 0; i < m; i++) {
-    const c = candidates[i];
+    const x = X[i];
     const r: [number, number, number, number] = [
-      c.c1_dist_competitor / divisors[0],
-      c.c2_density / divisors[1],
-      c.c3_dist_road / divisors[2],
-      c.c4_dist_crowd / divisors[3],
+      x[0] / divisors[0],
+      x[1] / divisors[1],
+      x[2] / divisors[2],
+      x[3] / divisors[3],
     ];
     normalizedRows.push(r);
 
@@ -136,8 +150,6 @@ export function calculateTopsis(
     const denom = dPlus + dMinus;
     const score = denom > 0 ? dMinus / denom : 0;
 
-    const category = tierOf(score); // ambang kategori dari parameter sistem (lib/settings.ts)
-
     results.push({
       ...candidates[i],
       r,
@@ -146,7 +158,7 @@ export function calculateTopsis(
       dMinus,
       score,
       rank: 0, // Assigned after sorting
-      category,
+      category: 'low', // ditentukan setelah pengurutan (kuantil peringkat)
     });
   }
 
@@ -156,16 +168,22 @@ export function calculateTopsis(
   // Assign 1-based ranks
   for (let i = 0; i < results.length; i++) {
     results[i].rank = i + 1;
+    results[i].category = tierOfRank(i, results.length);
   }
+  const minScore = (tier: 'high' | 'medium') => {
+    const inTier = results.filter((c) => c.category === tier);
+    return inTier.length ? inTier[inTier.length - 1].score : 1;
+  };
 
   const endTime = performance.now();
 
   return {
-    candidates: results,
+    candidates: [...results, ...restrictedResults()],
     divisors,
     weights,
     idealPositive,
     idealNegative,
+    tierCutoffs: { high: minScore('high'), medium: minScore('medium') },
     executionTimeMs: Math.round((endTime - startTime) * 100) / 100,
   };
 }

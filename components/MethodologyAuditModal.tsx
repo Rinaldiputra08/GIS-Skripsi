@@ -12,6 +12,7 @@ import {
   ShieldAlert,
 } from 'lucide-react';
 import { AhpResult, TopsisSummary } from '@/lib/types';
+import { getSettings } from '@/lib/settings';
 
 interface MethodologyAuditModalProps {
   isOpen: boolean;
@@ -29,6 +30,9 @@ export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
   const [activeTab, setActiveTab] = useState<'ahp' | 'topsis' | 'export'>('ahp');
 
   if (!isOpen) return null;
+
+  const c1Cap = getSettings().c1Cap;
+  const eligibleCount = topsisResult.candidates.filter((c) => !c.isRestricted).length;
 
   // CSV Exporter
   const handleExportCsv = () => {
@@ -51,7 +55,7 @@ export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
     ];
 
     const rows = topsisResult.candidates.map((c) => [
-      c.rank,
+      c.isRestricted ? '-' : c.rank,
       c.id,
       c.district,
       c.lat,
@@ -65,7 +69,7 @@ export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
       c.dPlus.toFixed(5),
       c.dMinus.toFixed(5),
       c.score.toFixed(5),
-      c.category,
+      c.isRestricted ? 'restricted' : c.category,
     ]);
 
     const csvContent =
@@ -275,6 +279,7 @@ export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
                   <Calculator className="w-4 h-4" /> Tahapan Komputasi TOPSIS (Hwang &amp; Yoon):
                 </span>
                 <div className="text-ink-2 leading-relaxed text-[11px] space-y-1">
+                  <p>0. <strong>Matriks keputusan (x_ij):</strong> hanya titik grid di luar zona terlarang. Untuk C1 dipakai x_i1 = min(jarak kompetitor, {c1Cap > 0 ? `${c1Cap} m` : 'tanpa batas'}) {c1Cap > 0 && <>(batas jenuh: jarak di atas {c1Cap} m, ±10 menit jalan kaki, dianggap sama baiknya)</>}.</p>
                   <p>1. <strong>Normalisasi Vektor (r_ij):</strong> r_ij = x_ij / &radic;(&Sigma; x_kj&sup2;).</p>
                   <p>2. <strong>Matriks Ternormalisasi Terbobot (y_ij):</strong> y_ij = w_j &middot; r_ij.</p>
                   <p>3. <strong>Solusi Ideal Positif (A&sdot;) &amp; Negatif (A&#8315;):</strong> Benefit (C1, C2) &rarr; A&sdot; = max(y_ij), A&#8315; = min(y_ij). Cost (C3, C4) &rarr; A&sdot; = min(y_ij), A&#8315; = max(y_ij).</p>
@@ -289,12 +294,23 @@ export const MethodologyAuditModal: React.FC<MethodologyAuditModalProps> = ({
                   <ShieldAlert className="w-4 h-4 text-bad" /> Penanganan Lahan Terlarang (*Spatial Constraint Masking*):
                 </span>
                 <p className="text-ink-2 leading-relaxed text-[11px]">
-                  Pada evaluasi spasial multikriteria (*Spatial Multi-Criteria Evaluation / SMCE*), titik kandidat yang jatuh pada <strong>Zona Restriksi (TPU / Pemakaman Umum, Markas Kepolisian &amp; Militer, Ring 1 Istana, Sempadan Sungai)</strong> dikalikan dengan variabel Boolean $C_k = 0$ sehingga dieliminasi dari rekomendasi bisnis:
+                  Pada evaluasi spasial multikriteria (<em>Spatial Multi-Criteria Evaluation</em>), titik kandidat yang jatuh di <strong>zona terlarang</strong> (pemakaman, kompleks militer/kepolisian, Istana &amp; Kebun Raya, sempadan sungai, badan air; poligon dari OpenStreetMap) diberi kendala Boolean C_k = 0 dan <strong>disaring sebelum TOPSIS</strong>, sehingga tidak ikut memengaruhi normalisasi maupun solusi ideal:
                   <br />
                   <span className="font-mono text-mid block mt-1 font-bold">
-                    Skor Kelayakan Final = V_i &times; &prod; C_k, dimana C_k &isin; &#123;0, 1&#125;
+                    Kandidat TOPSIS = &#123; i | &prod; C_k(i) = 1 &#125;, C_k &isin; &#123;0, 1&#125;
                   </span>
+                  <span className="block mt-1">Titik layak: {eligibleCount.toLocaleString('id-ID')} · titik terlarang (tidak diperingkat): {(topsisResult.candidates.length - eligibleCount).toLocaleString('id-ID')}.</span>
                 </p>
+              </div>
+
+              {/* Batasan data */}
+              <div className="p-4 rounded-xl bg-oat border border-line space-y-1.5">
+                <span className="font-bold text-ink text-xs">Batasan data yang perlu diketahui</span>
+                <ul className="list-disc pl-4 text-ink-2 leading-relaxed text-[11px] space-y-1">
+                  <li><strong>C2 kepadatan penduduk</strong> tersedia per kecamatan (BPS), sehingga semua titik dalam satu kecamatan memiliki nilai C2 yang sama.</li>
+                  <li><strong>Skor V_i bersifat relatif</strong>: menunjukkan posisi suatu titik dibanding titik lain di Kota Bogor menurut bobot yang dipilih, bukan jaminan kelayakan usaha.</li>
+                  <li><strong>Data kompetitor</strong> (Kaggle + OpenStreetMap) bisa belum lengkap di area pinggiran; jarak C1 yang sangat jauh perlu dicek di lapangan.</li>
+                </ul>
               </div>
 
               {/* Solusi Ideal Table */}

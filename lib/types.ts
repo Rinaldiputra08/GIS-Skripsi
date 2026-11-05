@@ -84,9 +84,13 @@ export interface ExclusionZone {
   type: ExclusionZoneType;
   typeLabel: string;
   description: string;
-  center: [number, number]; // [lat, lng]
-  radiusMeters: number;
-  polygon?: [number, number][]; // optional polygon coordinates [lat, lng][]
+  center: [number, number]; // [lat, lng] titik pusat (lingkaran) atau titik di dalam poligon
+  /** Zona lingkaran (dibuat admin): radius dalam meter. null/undefined = zona poligon */
+  radiusMeters?: number | null;
+  /** Zona poligon (OpenStreetMap): MultiPolygon -> poligon -> ring -> [lat, lng]. Ring pertama = batas luar, sisanya lubang */
+  shape?: [number, number][][][];
+  source?: 'osm' | 'manual' | string;
+  osmRef?: string | null;
 }
 
 export interface SpatialCandidate {
@@ -122,6 +126,8 @@ export interface TopsisSummary {
   weights: [number, number, number, number];
   idealPositive: [number, number, number, number];
   idealNegative: [number, number, number, number];
+  /** Vi terendah di kelas tinggi & sedang (hasil klasifikasi kuantil), untuk legenda */
+  tierCutoffs?: { high: number; medium: number };
   executionTimeMs: number;
 }
 

@@ -9,20 +9,24 @@ export default function ZonesPage() {
     <>
       <PageHeader
         title="Zona terlarang"
-        desc="Area yang tidak layak untuk usaha kedai kopi (makam, instansi keamanan, kawasan kenegaraan, sempadan sungai). Titik rekomendasi di dalam radius zona ditandai terlarang dan disaring dari peringkat. Perubahan zona langsung berlaku tanpa membangun ulang grid."
+        desc="Area yang tidak layak untuk usaha kedai kopi: pemakaman, kompleks militer/kepolisian, Istana & Kebun Raya, sempadan sungai, dan badan air. Zona dari OpenStreetMap berupa poligon sesuai batas aslinya; zona tambahan buatan admin berupa lingkaran. Titik grid di dalam zona disaring sebelum perhitungan TOPSIS. Perubahan langsung berlaku tanpa membangun ulang grid."
       />
       <ResourceManager
         resource="zones"
         noun="zona"
         radiusKey="radius_m"
         afterSaveHint="Berlaku langsung di peta dan peringkat."
+        sources={[{ value: 'osm', label: 'OpenStreetMap' }, { value: 'manual', label: 'Buatan admin' }]}
+        canEdit={(r) => r.source !== 'osm'}
         blank={{ name: '', zone_type: 'cemetery', description: '', latitude: '', longitude: '', radius_m: 300 }}
         columns={[
           { key: 'name', label: 'Nama', className: 'max-w-[9.5rem] sm:max-w-none', render: (r) => (
             <div className="min-w-0"><p className="truncate font-bold">{r.name}</p><p className="truncate text-xs text-ink-3">{r.description || '–'}</p></div>
           ) },
           { key: 'type_label', label: 'Jenis', className: 'hidden sm:table-cell', render: (r) => <Chip tone="bad">{r.type_label}</Chip> },
-          { key: 'radius_m', label: 'Radius', render: (r) => <span className="tabular font-semibold text-ink-2">{r.radius_m} m</span> },
+          { key: 'radius_m', label: 'Bentuk', render: (r) => r.radius_m
+            ? <span className="tabular font-semibold text-ink-2">Lingkaran {r.radius_m} m</span>
+            : <span className="font-semibold text-ink-2" title={r.osm_ref ?? undefined}>Poligon OSM</span> },
         ]}
         fields={[
           { key: 'name', label: 'Nama zona', type: 'text', required: true },

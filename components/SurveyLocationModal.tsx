@@ -55,21 +55,21 @@ export const SurveyLocationModal: React.FC<SurveyLocationModalProps> = ({
       case 'recommended':
         return {
           bg: 'bg-good-bg border-good/30 text-good',
-          badgeText: 'Sangat direkomendasikan',
+          badgeText: 'Potensi tinggi',
           barColor: 'bg-good',
           textColor: 'text-good',
         };
       case 'moderate':
         return {
           bg: 'bg-mid-bg border-mid/30 text-mid',
-          badgeText: 'Cukup potensial',
+          badgeText: 'Potensi sedang',
           barColor: 'bg-mid',
           textColor: 'text-mid',
         };
       case 'not_recommended':
         return {
           bg: 'bg-bad-bg border-bad/30 text-bad',
-          badgeText: 'Kurang strategis',
+          badgeText: 'Potensi rendah',
           barColor: 'bg-bad',
           textColor: 'text-bad',
         };
@@ -97,7 +97,7 @@ export const SurveyLocationModal: React.FC<SurveyLocationModalProps> = ({
 === LAPORAN EVALUASI KELAYAKAN LOKASI KEDAI KOPI ===
 Koordinat: ${survey.lat.toFixed(5)}, ${survey.lng.toFixed(5)}
 Kecamatan: ${survey.districtName || 'Luar Wilayah Kota'}
-Skor Kelayakan: ${businessScore}/100 (${badge.badgeText})
+Skor Potensi (relatif): ${businessScore}/100 (${badge.badgeText})
 Nilai Preferensi TOPSIS (Vi): ${survey.score.toFixed(4)}
 Peringkat Estimasi: #${survey.rankEstimate} dari ${survey.totalCandidates} titik (Top ${survey.percentile}%)
 
@@ -179,7 +179,7 @@ ${survey.swot.verdict}
               <div className="space-y-1.5 pt-1">
                 <div className="flex flex-wrap justify-between items-center gap-x-3 gap-y-2 text-xs">
                   <span className="text-ink-3 font-medium flex items-center gap-1.5">
-                    Skor Kelayakan Lokasi:
+                    Skor potensi (relatif terhadap titik lain):
                   </span>
                   <div className="flex items-center gap-2">
                     <div className="flex text-mid">
@@ -279,7 +279,7 @@ ${survey.swot.verdict}
                   </div>
                   <p className="text-[10px] text-ink-3">
                     {survey.c1_dist_competitor >= 400
-                      ? 'Celah pasar terbuka lebar / aman dari perang harga'
+                      ? 'Persaingan langsung relatif rendah'
                       : 'Berdekatan dengan kompetitor eksisting'}
                   </p>
                 </div>
@@ -303,8 +303,8 @@ ${survey.swot.verdict}
                   </div>
                   <p className="text-[10px] text-ink-3">
                     {survey.c2_density >= getSettings().denseThreshold
-                      ? 'Basis demografis pasar sangat padat'
-                      : 'Kepadatan penduduk menengah'}
+                      ? 'Kecamatan padat (nilai rata-rata satu kecamatan)'
+                      : 'Kepadatan sedang (nilai rata-rata satu kecamatan)'}
                   </p>
                 </div>
 
@@ -327,7 +327,9 @@ ${survey.swot.verdict}
                   <p className="text-[10px] text-ink-3">
                     {survey.c3_dist_road <= 60
                       ? 'Sangat mudah dijangkau kendaraan & pejalan kaki'
-                      : 'Lokasi masuk ke jalan lingkungan perumahan'}
+                      : survey.c3_dist_road <= 250
+                        ? 'Cukup dekat dari jalan utama'
+                        : 'Masuk ke jalan lingkungan, jauh dari jalan utama'}
                   </p>
                 </div>
 
@@ -349,7 +351,7 @@ ${survey.swot.verdict}
                   </div>
                   <p className="text-[10px] text-ink-3">
                     {survey.c4_dist_crowd <= 250
-                      ? 'Menjamin foot traffic dan calon pembeli harian'
+                      ? 'Berpotensi mendapat arus pengunjung harian'
                       : 'Jarak menengah ke pusat aktivitas'}
                   </p>
                 </div>

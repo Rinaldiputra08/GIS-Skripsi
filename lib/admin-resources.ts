@@ -89,9 +89,9 @@ export const RESOURCES: Record<string, ResourceConfig> = {
     affectsGrid: false,
     isPoint: false,
     orderBy: 'name',
-    select: 'id,code,name,zone_type,type_label,description,latitude,longitude,radius_m,updated_at',
+    select: 'id,code,name,zone_type,type_label,description,latitude,longitude,radius_m,source,osm_ref,updated_at',
     labelKey: 'name',
-    createDefaults: {},
+    createDefaults: { source: 'manual' },
     fields: [
       { key: 'name', label: 'Nama', kind: 'string', required: true, maxLen: 120 },
       { key: 'zone_type', label: 'Jenis zona', kind: 'enum', required: true, options: Object.keys(ZONE_TYPES) },

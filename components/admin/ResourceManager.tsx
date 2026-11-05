@@ -154,7 +154,8 @@ export function ResourceManager({ resource, noun, columns, fields, blank, radius
                     <td className="px-2 py-1.5 text-right align-middle">
                       <div className="inline-flex gap-1">
                         <button onClick={() => { setIsNew(false); setEditing({ ...r }); }} aria-label={`Ubah ${r.name}`}
-                          className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 hover:bg-oat-2" disabled={!editable}>
+                          title={editable ? undefined : 'Data impor tidak diubah manual (perbarui lewat impor ulang)'}
+                          className="flex h-10 w-10 items-center justify-center rounded-full text-ink-2 hover:bg-oat-2 disabled:cursor-not-allowed disabled:opacity-30" disabled={!editable}>
                           <Pencil className="h-4 w-4" />
                         </button>
                         <button onClick={() => setDeleting(r)} aria-label={`Hapus ${r.name}`}

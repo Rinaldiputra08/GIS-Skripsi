@@ -59,6 +59,7 @@ const DISTRICT_COLORS: Record<string, { id: string; color: string }> = {
 };
 
 const ROAD_TYPE: Record<string, RoadSegment['type']> = {
+  trunk: 'arterial', // jalan nasional (Pajajaran, Sholeh Iskandar, Tajur, dll.)
   primary: 'arterial',
   secondary: 'collector',
   tertiary: 'secondary',
@@ -84,20 +85,34 @@ export function invalidateSpatialCache(which: 'all' | 'layers' | 'grid' | 'zones
   if (which === 'zones') gridCache = null; // status terlarang per titik ikut berubah
 }
 
+/** Baris restricted_zones -> ExclusionZone. Lingkaran (radius_m terisi) tidak perlu mengirim poligonnya. */
+export function zoneFromRow(z: Row): ExclusionZone {
+  const radius = z.radius_m == null ? null : Number(z.radius_m);
+  let shape: ExclusionZone['shape'];
+  if (!radius && z.geom && (z.geom.type === 'MultiPolygon' || z.geom.type === 'Polygon')) {
+    const polys: number[][][][] = z.geom.type === 'MultiPolygon' ? z.geom.coordinates : [z.geom.coordinates];
+    shape = polys.map((poly) => poly.map((ring) => ring.map(flip)));
+  }
+  return {
+    id: z.id,
+    name: z.name,
+    type: z.zone_type,
+    typeLabel: z.type_label,
+    description: z.description ?? '',
+    center: [Number(z.latitude), Number(z.longitude)],
+    radiusMeters: radius,
+    ...(shape ? { shape } : {}),
+    source: z.source ?? 'manual',
+    osmRef: z.osm_ref ?? null,
+  };
+}
+
 /** Zona terlarang dari tabel restricted_zones; null bila tabel belum ada (pakai daftar bawaan di kode) */
 export async function loadZonesFromDb(): Promise<ExclusionZone[] | null> {
   if (zonesCache && Date.now() - zonesCache.at < TTL_MS) return zonesCache.data;
   try {
     const rows = await fetchAll('restricted_zones', '*', 'created_at');
-    const data: ExclusionZone[] = rows.map((z) => ({
-      id: z.id,
-      name: z.name,
-      type: z.zone_type,
-      typeLabel: z.type_label,
-      description: z.description ?? '',
-      center: [Number(z.latitude), Number(z.longitude)],
-      radiusMeters: Number(z.radius_m),
-    }));
+    const data: ExclusionZone[] = rows.map((z) => zoneFromRow(z));
     zonesCache = { at: Date.now(), data };
     return data;
   } catch (err) {

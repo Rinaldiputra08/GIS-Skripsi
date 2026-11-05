@@ -2,6 +2,6 @@
 export const ZONE_TYPES: Record<string, string> = {
   cemetery: 'Pemakaman Umum (TPU)',
   military_police: 'Instansi Keamanan / Militer',
-  palace_conservation: 'Kawasan Khusus Kenegaraan',
+  palace_conservation: 'Kawasan Istana & Konservasi',
   water_body: 'Sempadan Sungai / Badan Air',
 };

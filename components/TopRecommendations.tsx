@@ -13,15 +13,14 @@ interface TopRecommendationsProps {
   radiusMeters?: number;
 }
 
-import { getSettings } from '@/lib/settings';
 
-/** Ambang kategori skor (Vi) - sama dengan yang dipakai peta & filter */
-const tier = (score: number) =>
-  score >= getSettings().tierHigh
-    ? { label: 'Sangat strategis', cls: 'bg-good-bg text-good', bar: 'bg-good' }
-    : score >= getSettings().tierMedium
-    ? { label: 'Potensial', cls: 'bg-mid-bg text-mid', bar: 'bg-mid' }
-    : { label: 'Prioritas rendah', cls: 'bg-bad-bg text-bad', bar: 'bg-bad' };
+/** Kelas potensi (kuantil peringkat Vi) - sama dengan yang dipakai peta & filter */
+const tier = (category: string) =>
+  category === 'high'
+    ? { label: 'Potensi tinggi', cls: 'bg-good-bg text-good', bar: 'bg-good' }
+    : category === 'medium'
+    ? { label: 'Potensi sedang', cls: 'bg-mid-bg text-mid', bar: 'bg-mid' }
+    : { label: 'Potensi rendah', cls: 'bg-bad-bg text-bad', bar: 'bg-bad' };
 
 export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
   candidates,
@@ -76,7 +75,7 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
             const rank = idx + 1;
             const selected = selectedCandidateId === c.id;
             const score100 = formatBusinessScore(c.score);
-            const t = tier(c.score);
+            const t = tier(c.category);
             const near = c.nearestCrowdName ? `Dekat ${c.nearestCrowdName}` : c.nearestRoadName ? `Ruas ${c.nearestRoadName}` : '';
 
             return (

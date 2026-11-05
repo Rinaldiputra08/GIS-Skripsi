@@ -33,6 +33,12 @@ export async function PUT(req: NextRequest, ctx: Ctx) {
 
   const { data: before } = await db.from(cfg.table).select(cfg.select).eq('id', id).maybeSingle();
   if (!before) return NextResponse.json({ success: false, error: 'Data tidak ditemukan.' }, { status: 404 });
+  if (cfg.table === 'restricted_zones' && (before as unknown as Record<string, unknown>).source === 'osm') {
+    return NextResponse.json({
+      success: false,
+      error: 'Zona dari OpenStreetMap berupa poligon dan diperbarui lewat impor ulang (scripts/import-osm-zones.mjs). Hapus zona ini atau tambahkan zona lingkaran baru bila perlu.',
+    }, { status: 400 });
+  }
 
   const { data, error } = await db.from(cfg.table).update({ ...v.data, updated_at: new Date().toISOString() }).eq('id', id).select(cfg.select).single();
   if (error) return NextResponse.json({ success: false, error: error.message }, { status: 400 });

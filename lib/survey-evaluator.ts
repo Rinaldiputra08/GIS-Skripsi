@@ -125,16 +125,19 @@ export function evaluateSurveyLocation(
     landUseType: constraint.landUseType,
   };
 
-  // 4. Run Combined TOPSIS Evaluation against baseline grid dataset
-  const combinedCandidates: SpatialCandidate[] = [customCandidate, ...baselineCandidates];
+  // 4. TOPSIS gabungan: titik survei + titik grid yang layak (titik grid terlarang disaring di
+  //    calculateTopsis). Titik survei selalu ikut dihitung agar skornya tetap informatif; bila ia di
+  //    zona terlarang, kategorinya tetap "terlarang" (lihat di bawah).
+  const combinedCandidates: SpatialCandidate[] = [{ ...customCandidate, isRestricted: false }, ...baselineCandidates];
   const topsisSummary = calculateTopsis(combinedCandidates, weights);
 
   // Find our custom candidate in the ranked TOPSIS results
   const rankedCandidate = topsisSummary.candidates.find((c) => c.id === id) || topsisSummary.candidates[0];
 
-  const totalValid = topsisSummary.candidates.length;
+  const totalValid = topsisSummary.candidates.filter((c) => c.rank > 0).length;
   const rank = rankedCandidate.rank;
-  const percentile = Math.round(((totalValid - rank + 1) / totalValid) * 100);
+  // "Top X%": posisi titik di antara seluruh titik layak (peringkat 1 = 1% teratas)
+  const percentile = Math.max(1, Math.ceil((rank / totalValid) * 100));
 
   // Determine category
   let category: 'high' | 'medium' | 'low' | 'restricted' | 'outside' = rankedCandidate.category;
@@ -160,7 +163,7 @@ export function evaluateSurveyLocation(
     // --- STRENGTHS ---
     if (road.distance <= 60) {
       strengths.push(
-        `Aksesibilitas Sangat Prima: Hanya ${road.distance} m dari ${road.nearestRoad} (visibilitas jalan raya sangat tinggi).`
+        `Akses Sangat Baik: Hanya ${road.distance} m dari ${road.nearestRoad} (mudah terlihat dari jalan utama).`
       );
     } else if (road.distance <= 150) {
       strengths.push(`Akses Transportasi Baik: Berjarak ${road.distance} m dari ${road.nearestRoad}.`);
@@ -168,7 +171,7 @@ export function evaluateSurveyLocation(
 
     if (crowd.distance <= 250) {
       strengths.push(
-        `Magnet Keramaian Tinggi: Sangat dekat ke ${crowd.name} (${crowd.distance} m), menjamin arus pengunjung (foot traffic) harian.`
+        `Dekat Pusat Keramaian: ${crowd.distance} m dari ${crowd.name}, berpotensi mendapat arus pengunjung (foot traffic) harian.`
       );
     } else if (crowd.distance <= 500) {
       strengths.push(`Dekat Simpul Aktivitas: ${crowd.distance} m dari ${crowd.name}.`);
@@ -176,7 +179,12 @@ export function evaluateSurveyLocation(
 
     if (competitor.distance >= 400) {
       strengths.push(
-        `Celah Pasar Terbuka (Blank Spot): Berjarak ${competitor.distance} m dari kompetitor terdekat (${competitor.name}), tingkat kejenuhan rendah.`
+        `Persaingan Langsung Rendah: Berjarak ${competitor.distance} m dari kedai kopi terdekat yang tercatat (${competitor.name}).`
+      );
+    }
+    if (competitor.distance >= 1500 && crowd.distance > 700) {
+      weaknesses.push(
+        'Jauh dari kedai kopi lain sekaligus dari pusat keramaian: bisa berarti pasar belum terbentuk. Cek langsung kondisi lapangan, karena data kompetitor (Kaggle + OpenStreetMap) mungkin belum lengkap di area ini.'
       );
     }
 
@@ -230,15 +238,18 @@ export function evaluateSurveyLocation(
     );
 
     // --- VERDICT ---
-    if (rankedCandidate.score >= getSettings().tierHigh) {
+    // Skor TOPSIS bersifat RELATIF: dibandingkan dengan seluruh titik grid layak di Kota Bogor
+    // menurut bobot kriteria yang dipilih, bukan jaminan kelayakan usaha.
+    const scoreText = `Skor Vi ${rankedCandidate.score.toFixed(3)}, peringkat #${rank} dari ${totalValid} titik (${percentile}% teratas)`;
+    if (rankedCandidate.category === 'high') {
       verdictType = 'recommended';
-      verdictText = `SANGAT DIREKOMENDASIKAN (Skor TOPSIS: ${rankedCandidate.score.toFixed(3)} - Top ${percentile}%): Lokasi memiliki nilai strategis tinggi dengan kombinasi aksesibilitas prima, potensi keramaian kuat, dan celah pasar yang menguntungkan.`;
-    } else if (rankedCandidate.score >= getSettings().tierMedium) {
+      verdictText = `POTENSI TINGGI (${scoreText}): Dibanding titik lain di Kota Bogor, lokasi ini unggul pada kombinasi kriteria yang Anda prioritaskan. Tetap lakukan survei lapangan (ketersediaan lahan, harga sewa, perizinan).`;
+    } else if (rankedCandidate.category === 'medium') {
       verdictType = 'moderate';
-      verdictText = `CUKUP POTENSIAL (Skor TOPSIS: ${rankedCandidate.score.toFixed(3)} - Peringkat #${rank}): Lokasi layak untuk dibuka kedai kopi dengan catatan memperkuat konsep diferensiasi menu dan promosi digital untuk mengatasi titik lemah persaingan/akses.`;
+      verdictText = `POTENSI SEDANG (${scoreText}): Lokasi cukup bersaing. Perhatikan kelemahan di atas dan pertimbangkan diferensiasi konsep atau promosi digital.`;
     } else {
       verdictType = 'not_recommended';
-      verdictText = `KURANG DIREKOMENDASIKAN (Skor TOPSIS: ${rankedCandidate.score.toFixed(3)} - Peringkat #${rank}): Lokasi memiliki skor kelayakan rendah akibat kombinasi kejenuhan kompetitor, akses jalan yang jauh, atau keterbatasan potensi keramaian.`;
+      verdictText = `POTENSI RENDAH (${scoreText}): Dibanding titik lain, lokasi ini tertinggal pada kriteria yang Anda prioritaskan (persaingan, akses jalan, atau kedekatan keramaian).`;
     }
   }
 

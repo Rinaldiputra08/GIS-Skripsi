@@ -172,9 +172,14 @@ for (const r of readCsv(MERGED ? 'competitors_merged.csv' : 'competitors_cleaned
 }
 
 // ---------- 3. Jalan utama OSM ----------
-const ROAD_TYPE = { primary: 'arterial', secondary: 'collector', tertiary: 'secondary' };
+// trunk = jalan nasional (Pajajaran, Sholeh Iskandar, Tajur, ...), dari scripts/import-osm-trunk-roads.mjs
+const ROAD_TYPE = { trunk: 'arterial', primary: 'arterial', secondary: 'collector', tertiary: 'secondary' };
 const roads = [];
-for (const f of readJson('jalan_utama_bogor.geojson').features) {
+const roadFeatures = [
+  ...readJson('jalan_utama_bogor.geojson').features,
+  ...(fs.existsSync(path.join(DATASET, 'jalan_trunk_bogor.geojson')) ? readJson('jalan_trunk_bogor.geojson').features : []),
+];
+for (const f of roadFeatures) {
   const type = ROAD_TYPE[f.properties.road_type];
   if (!type) continue;
   const pts = f.geometry.coordinates.map(([lng, lat]) => [lat, lng]); // GeoJSON [lng,lat] -> [lat,lng]

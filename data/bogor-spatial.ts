@@ -10,6 +10,7 @@ import districtsData from './generated/districts.json';
 import competitorsData from './generated/competitors.json';
 import roadsData from './generated/roads.json';
 import crowdData from './generated/crowd.json';
+import zonesData from './generated/zones.json';
 
 // Data di bawah ini dibangun dari dataset penelitian oleh scripts/build-spatial-data.mjs
 // (jalankan ulang skrip tersebut bila dataset berubah; jangan edit data/generated/ manual).
@@ -24,109 +25,12 @@ export const BOGOR_DISTRICTS = districtsData as DistrictGeo[];
 
 // ==========================================
 // 2. ZONA RESTRIKSI / LAHAN TERLARANG KOTA BOGOR
-// (TPU / Kuburan, Kantor Polisi, Markas Militer,
-//  Istana Kepresidenan, Cagar Alam, Sempadan Sungai)
+// Cadangan lokal dari tabel restricted_zones (poligon OpenStreetMap: pemakaman, militer/polisi,
+// Istana & Kebun Raya, sempadan sungai, badan air). Ditulis oleh scripts/import-osm-zones.mjs.
+// Sumber utama saat aplikasi berjalan tetap database (lib/spatial-db.ts -> loadZones).
 // ==========================================
 
-export const BOGOR_EXCLUSION_ZONES: ExclusionZone[] = [
-  // TPU / Kuburan (Cemeteries)
-  {
-    id: 'ex_tpu_blender',
-    name: 'TPU Blender (Kebon Pedes)',
-    type: 'cemetery',
-    typeLabel: 'Pemakaman Umum (TPU)',
-    description: 'Kompleks Tempat Pemakaman Umum Blender - Zona Terlarang Non-Komersial',
-    center: [-6.5615, 106.7865],
-    radiusMeters: 320,
-  },
-  {
-    id: 'ex_tpu_dreded',
-    name: 'TPU Dreded & Makam Pahlawan',
-    type: 'cemetery',
-    typeLabel: 'Pemakaman Umum (TPU)',
-    description: 'Kawasan TPU Dreded dan Taman Makam Pahlawan - Zona Sakral Non-Usaha',
-    center: [-6.6185, 106.8012],
-    radiusMeters: 300,
-  },
-  {
-    id: 'ex_tpu_gunung_gadung',
-    name: 'TPU Gunung Gadung Cipaku',
-    type: 'cemetery',
-    typeLabel: 'Pemakaman Umum (TPU)',
-    description: 'Kompleks Pemakaman Tionghoa Gunung Gadung seluas puluhan hektar',
-    center: [-6.6435, 106.8195],
-    radiusMeters: 480,
-  },
-  {
-    id: 'ex_tpu_kayumanis',
-    name: 'TPU Kayumanis',
-    type: 'cemetery',
-    typeLabel: 'Pemakaman Umum (TPU)',
-    description: 'Lahan Tempat Pemakaman Umum Kayumanis Tanah Sareal',
-    center: [-6.5325, 106.7645],
-    radiusMeters: 280,
-  },
-
-  // Kantor Kepolisian & Markas Militer
-  {
-    id: 'ex_polresta_bogor',
-    name: 'Mako Polresta Bogor Kota',
-    type: 'military_police',
-    typeLabel: 'Instansi Keamanan / Polisi',
-    description: 'Markas Komando Kepolisian Resor Kota Bogor - Kawasan Otoritas Terbatas',
-    center: [-6.5938, 106.7885],
-    radiusMeters: 220,
-  },
-  {
-    id: 'ex_korem_suryakancana',
-    name: 'Korem 061/Suryakancana & Kodim 0606',
-    type: 'military_police',
-    typeLabel: 'Markas Militer / TNI',
-    description: 'Komando Resor Militer dan Distrik Militer - Zona Pertahanan Terbatas',
-    center: [-6.5895, 106.7852],
-    radiusMeters: 220,
-  },
-  {
-    id: 'ex_pusdikzi_tni',
-    name: 'Pusdikzi TNI-AD Sudirman',
-    type: 'military_police',
-    typeLabel: 'Pusat Pendidikan Militer TNI',
-    description: 'Pusat Pendidikan Zeni Angkatan Darat - Kompleks Militer Tertutup',
-    center: [-6.5845, 106.7942],
-    radiusMeters: 260,
-  },
-  {
-    id: 'ex_brimob_sukasari',
-    name: 'Mako Brimob & Satlantas Sukasari',
-    type: 'military_police',
-    typeLabel: 'Instansi Kepolisian Khusus',
-    description: 'Kawasan Asrama dan Kantor Kepolisian Tertutup',
-    center: [-6.6192, 106.8135],
-    radiusMeters: 200,
-  },
-
-  // Kawasan Khusus / Istana Kepresidenan
-  {
-    id: 'ex_istana_bogor',
-    name: 'Istana Kepresidenan Bogor (Ring 1)',
-    type: 'palace_conservation',
-    typeLabel: 'Kawasan Khusus Kenegaraan (Ring 1)',
-    description: 'Zona Otoritas Khusus Istana Kepresidenan RI - Dilarang Bangunan Komersial',
-    center: [-6.5945, 106.7972],
-    radiusMeters: 380,
-  },
-
-  // Sempadan Sungai Rawan Banjir
-  {
-    id: 'ex_sungai_ciliwung',
-    name: 'Sempadan Rawan Sungai Ciliwung',
-    type: 'water_body',
-    typeLabel: 'Sempadan Aliran Sungai',
-    description: 'Bantaran Sungai Ciliwung - Zona Hijau Perlindungan Air & Bebas Bangunan',
-    center: [-6.6065, 106.8045],
-    radiusMeters: 180,
-  },
-];
+export const BOGOR_EXCLUSION_ZONES = zonesData as ExclusionZone[];
 
 // ==========================================
 // 3. DATA KOMPETITOR KEDAI KOPI EKSISTING
@@ -260,6 +164,34 @@ export function getNearestCrowd(lat: number, lng: number): { distance: number; n
   return { distance: Math.max(40, minDistance), name };
 }
 
+// Kotak pembatas tiap zona poligon (dihitung sekali per objek zona) untuk penyaringan cepat
+const zoneBoxes = new WeakMap<ExclusionZone, [number, number, number, number]>();
+function zoneBox(zone: ExclusionZone): [number, number, number, number] {
+  let box = zoneBoxes.get(zone);
+  if (!box) {
+    box = [Infinity, -Infinity, Infinity, -Infinity];
+    for (const poly of zone.shape ?? []) for (const [la, ln] of poly[0] ?? []) {
+      box[0] = Math.min(box[0], la); box[1] = Math.max(box[1], la);
+      box[2] = Math.min(box[2], ln); box[3] = Math.max(box[3], ln);
+    }
+    zoneBoxes.set(zone, box);
+  }
+  return box;
+}
+
+/** Titik di dalam zona: lingkaran (jarak <= radius) atau poligon (di dalam batas luar, bukan di lubang) */
+export function isPointInZone(lat: number, lng: number, zone: ExclusionZone): boolean {
+  if (zone.radiusMeters) {
+    return getHaversineDistance(lat, lng, zone.center[0], zone.center[1]) <= zone.radiusMeters;
+  }
+  if (!zone.shape?.length) return false;
+  const [la0, la1, ln0, ln1] = zoneBox(zone);
+  if (lat < la0 || lat > la1 || lng < ln0 || lng > ln1) return false;
+  return zone.shape.some(
+    (poly) => poly.length > 0 && isPointInPolygon(lat, lng, poly[0]) && !poly.slice(1).some((hole) => isPointInPolygon(lat, lng, hole))
+  );
+}
+
 // Spatial Constraint Masking: Check if a point falls within any Restricted Exclusion Zone
 export function checkSpatialConstraint(lat: number, lng: number, zones: ExclusionZone[] = BOGOR_EXCLUSION_ZONES): {
   isRestricted: boolean;
@@ -267,8 +199,7 @@ export function checkSpatialConstraint(lat: number, lng: number, zones: Exclusio
   landUseType: string;
 } {
   for (const zone of zones) {
-    const dist = getHaversineDistance(lat, lng, zone.center[0], zone.center[1]);
-    if (dist <= zone.radiusMeters) {
+    if (isPointInZone(lat, lng, zone)) {
       return {
         isRestricted: true,
         restrictionReason: `${zone.typeLabel}: ${zone.name}`,

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   MapContainer,
   TileLayer,
@@ -30,6 +30,7 @@ import {
 } from '@/lib/types';
 import { GRID_CELL_METERS } from '@/data/bogor-spatial';
 import { getSettings } from '@/lib/settings';
+import { cityOutline } from '@/lib/city-outline';
 import {
   formatBusinessScore,
   getStarRating,
@@ -275,6 +276,7 @@ export const BogorMap: React.FC<BogorMapProps> = ({
   isSurveyClickMode = false,
   onToggleSurveyClickMode,
 }) => {
+  const outline = useMemo(() => cityOutline(districts), [districts]);
   const [activeBasemap, setActiveBasemap] = useState<BasemapKey>('light');
   const [isBasemapMenuOpen, setIsBasemapMenuOpen] = useState(false);
   const [isLegendOpen, setIsLegendOpen] = useState(false);
@@ -310,9 +312,10 @@ export const BogorMap: React.FC<BogorMapProps> = ({
     ];
   };
 
-  const getCandidateColor = (score: number) => {
-    if (score >= getSettings().tierHigh) return '#12a56b'; // Hijau (potensi tinggi)
-    if (score >= getSettings().tierMedium) return '#f0a30a'; // Kuning (menengah)
+  // Warna mengikuti kelas potensi (kuantil peringkat Vi, lihat lib/settings.ts -> tierOfRank)
+  const getCandidateColor = (category: string) => {
+    if (category === 'high') return '#12a56b'; // Hijau (potensi tinggi)
+    if (category === 'medium') return '#f0a30a'; // Kuning (menengah)
     return '#e5484d'; // Merah (rendah)
   };
 
@@ -546,40 +549,55 @@ export const BogorMap: React.FC<BogorMapProps> = ({
 
         {/* 2. Exclusion Zones (Zona Restriksi / Lahan Terlarang) */}
         {layers.showExclusionZones &&
-          exclusionZones.map((zone) => (
-            <Circle
-              key={zone.id}
-              center={zone.center}
-              radius={zone.radiusMeters}
-              pathOptions={{
-                color: '#c2352b',
-                weight: 1.5,
-                opacity: 0.9,
-                dashArray: '5, 5',
-                fillColor: '#e5484d',
-                fillOpacity: 0.18,
-              }}
-            >
-              <Popup>
-                <div className="w-[230px]">
-                  <span className="chip bg-bad-bg text-bad">
-                    <ShieldAlert className="h-3 w-3" /> Zona terlarang
-                  </span>
-                  <h4 className="mt-2 text-[15px] font-extrabold leading-snug text-ink">{zone.name}</h4>
-                  <p className="mt-1 text-xs leading-snug text-ink-2">{zone.description}</p>
-                  <p className="mt-2 border-t border-line pt-2 text-xs font-semibold text-bad">
-                    Radius perlindungan {zone.radiusMeters} m
-                  </p>
-                </div>
-              </Popup>
-              <Tooltip sticky>
-                <div className="text-xs p-1 font-sans">
-                  <strong className="block font-extrabold text-bad">{zone.name}</strong>
-                  <span className="block text-ink-2">{zone.typeLabel} · zona terlarang</span>
-                </div>
-              </Tooltip>
-            </Circle>
-          ))}
+          exclusionZones.map((zone) => {
+            const style = {
+              color: '#c2352b',
+              weight: 1.5,
+              opacity: 0.9,
+              dashArray: '5, 5',
+              fillColor: '#e5484d',
+              fillOpacity: 0.18,
+            };
+            const body = (
+              <>
+                <Popup>
+                  <div className="w-[230px]">
+                    <span className="chip bg-bad-bg text-bad">
+                      <ShieldAlert className="h-3 w-3" /> Zona terlarang
+                    </span>
+                    <h4 className="mt-2 text-[15px] font-extrabold leading-snug text-ink">{zone.name}</h4>
+                    <p className="mt-1 text-xs leading-snug text-ink-2">{zone.description}</p>
+                    <p className="mt-2 border-t border-line pt-2 text-xs font-semibold text-bad">
+                      {zone.radiusMeters
+                        ? `Radius perlindungan ${zone.radiusMeters} m`
+                        : zone.source === 'osm'
+                          ? 'Batas area dari OpenStreetMap'
+                          : 'Batas area poligon'}
+                    </p>
+                  </div>
+                </Popup>
+                <Tooltip sticky>
+                  <div className="text-xs p-1 font-sans">
+                    <strong className="block font-extrabold text-bad">{zone.name}</strong>
+                    <span className="block text-ink-2">{zone.typeLabel} · zona terlarang</span>
+                  </div>
+                </Tooltip>
+              </>
+            );
+            if (zone.radiusMeters) {
+              return (
+                <Circle key={zone.id} center={zone.center} radius={zone.radiusMeters} pathOptions={style}>
+                  {body}
+                </Circle>
+              );
+            }
+            if (!zone.shape?.length) return null;
+            return (
+              <Polygon key={zone.id} positions={zone.shape} pathOptions={{ ...style, weight: 1.2 }}>
+                {body}
+              </Polygon>
+            );
+          })}
 
         {/* 3. Road Network Polylines */}
         {layers.showRoads &&
@@ -650,23 +668,23 @@ export const BogorMap: React.FC<BogorMapProps> = ({
           visibleCandidates.map((candidate) => {
             const isTop1 = candidate.rank === 1;
             const isSelected = selectedCandidate?.id === candidate.id;
-            const color = candidate.isRestricted ? '#ef4444' : getCandidateColor(candidate.score);
+            const color = candidate.isRestricted ? '#ef4444' : getCandidateColor(candidate.category);
             const displayMode = layers.recommendationDisplayMode || 'both';
             const radiusMeters = layers.recommendationRadiusMeters || 250;
             const approxHectares = ((Math.PI * Math.pow(radiusMeters, 2)) / 10000).toFixed(1);
 
             const tierLabel = candidate.isRestricted
               ? 'Zona terlarang'
-              : candidate.score >= getSettings().tierHigh
-              ? 'Sangat strategis'
-              : candidate.score >= getSettings().tierMedium
-              ? 'Potensial'
-              : 'Prioritas rendah';
+              : candidate.category === 'high'
+              ? 'Potensi tinggi'
+              : candidate.category === 'medium'
+              ? 'Potensi sedang'
+              : 'Potensi rendah';
             const tierCls = candidate.isRestricted
               ? 'bg-bad-bg text-bad'
-              : candidate.score >= getSettings().tierHigh
+              : candidate.category === 'high'
               ? 'bg-good-bg text-good'
-              : candidate.score >= getSettings().tierMedium
+              : candidate.category === 'medium'
               ? 'bg-mid-bg text-mid'
               : 'bg-bad-bg text-bad';
 
@@ -677,7 +695,7 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                     <div className="min-w-0">
                       <span className={`chip ${tierCls}`}>{tierLabel}</span>
                       <h4 className="mt-2 text-[15px] font-extrabold leading-tight text-ink">
-                        #{candidate.rank} · {candidate.district}
+                        {candidate.isRestricted ? 'Tidak diperingkat' : `#${candidate.rank}`} · {candidate.district}
                       </h4>
                       <p className="tabular font-mono text-[11px] text-ink-3">
                         {candidate.lat.toFixed(4)}, {candidate.lng.toFixed(4)}
@@ -732,12 +750,12 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                       <span className="text-bad">
                         <b>Lokasi dibatasi:</b> berada di zona {candidate.restrictionReason}, tidak diizinkan untuk usaha kedai kopi.
                       </span>
-                    ) : candidate.score >= getSettings().tierHigh ? (
+                    ) : candidate.category === 'high' ? (
                       <span>
                         <b className="text-good">Potensi sangat tinggi:</b> jarak kompetitor aman dengan aksesibilitas dan kepadatan yang
                         baik.
                       </span>
-                    ) : candidate.score >= getSettings().tierMedium ? (
+                    ) : candidate.category === 'medium' ? (
                       <span>
                         <b className="text-mid">Potensi moderat:</b> layak dipertimbangkan dengan penyesuaian segmen pasar.
                       </span>
@@ -760,14 +778,14 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                     pathOptions={{
                       stroke: false,
                       fillColor: color,
-                      fillOpacity: isSelected ? 0.7 : candidate.score >= getSettings().tierHigh ? 0.5 : candidate.score >= getSettings().tierMedium ? 0.36 : 0.26,
+                      fillOpacity: isSelected ? 0.7 : candidate.category === 'high' ? 0.5 : candidate.category === 'medium' ? 0.36 : 0.26,
                     }}
                     eventHandlers={{ click: () => onSelectCandidate(candidate) }}
                   >
                     <Tooltip sticky>
                       <div className="text-xs p-1 font-sans">
                         <strong className="block font-extrabold text-ink">
-                          #{candidate.rank} · {candidate.district}
+                          {candidate.isRestricted ? 'Zona terlarang' : `#${candidate.rank}`} · {candidate.district}
                         </strong>
                         <span className="block text-ink-2">
                           Skor {formatBusinessScore(candidate.score)}/100
@@ -834,6 +852,13 @@ export const BogorMap: React.FC<BogorMapProps> = ({
               </React.Fragment>
             );
           })}
+
+        {/* Batas luar Kota Bogor (selalu tampil, di atas grid): wilayah di luar garis = Kabupaten Bogor, tidak dihitung */}
+        <Polyline
+          positions={outline}
+          pathOptions={{ color: '#1f1813', weight: 2.5, opacity: 0.85, lineCap: 'round', lineJoin: 'round' }}
+          interactive={false}
+        />
 
         {/* 7. CUSTOM LIVE FIELD SURVEY MARKER & RADIUS */}
         {surveyResult && (
@@ -946,19 +971,19 @@ export const BogorMap: React.FC<BogorMapProps> = ({
 
         {isLegendOpen && (
           <div className="float-panel animate-in w-[260px] rounded-3xl p-4 text-[13px] text-ink-2">
-            <h3 className="text-sm font-extrabold text-ink">Skor kelayakan lokasi</h3>
+            <h3 className="text-sm font-extrabold text-ink">Potensi lokasi (skor Vi relatif)</h3>
             <ul className="mt-2.5 flex flex-col gap-2">
               <li className="flex items-center gap-2.5">
                 <span className="h-3.5 w-3.5 shrink-0 rounded-full bg-[#12a56b]" />
-                Sangat strategis <span className="ml-auto tabular font-mono text-xs text-ink-3">≥ 0,62</span>
+                Potensi tinggi <span className="ml-auto tabular font-mono text-xs text-ink-3">{getSettings().tierHighPct}% teratas</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="h-3.5 w-3.5 shrink-0 rounded-full bg-[#f0a30a]" />
-                Potensial <span className="ml-auto tabular font-mono text-xs text-ink-3">0,45–0,62</span>
+                Potensi sedang <span className="ml-auto tabular font-mono text-xs text-ink-3">{getSettings().tierMediumPct}% berikutnya</span>
               </li>
               <li className="flex items-center gap-2.5">
                 <span className="h-3.5 w-3.5 shrink-0 rounded-full bg-[#e5484d]" />
-                Prioritas rendah <span className="ml-auto tabular font-mono text-xs text-ink-3">&lt; 0,45</span>
+                Potensi rendah <span className="ml-auto tabular font-mono text-xs text-ink-3">sisanya</span>
               </li>
             </ul>
             {layers.recommendationDisplayMode !== 'point' && (
@@ -969,6 +994,10 @@ export const BogorMap: React.FC<BogorMapProps> = ({
 
             <h3 className="mt-4 border-t border-line pt-3 text-sm font-extrabold text-ink">Objek peta</h3>
             <ul className="mt-2.5 flex flex-col gap-2">
+              <li className="flex items-center gap-2.5">
+                <span className="h-[3px] w-5 shrink-0 rounded-full bg-[#1f1813]" />
+                Batas Kota Bogor (luar garis = Kab. Bogor)
+              </li>
               <li className="flex items-center gap-2.5">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 border-white bg-espresso shadow">
                   <span className="h-1.5 w-1.5 rounded-full bg-lime" />
