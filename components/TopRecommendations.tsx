@@ -5,6 +5,7 @@ import { MapPin, Users, Route, Store, Building2, Navigation, Radio, Trophy } fro
 import { TopsisCandidateResult } from '@/lib/types';
 import { BOGOR_DISTRICTS } from '@/data/bogor-spatial';
 import { formatBusinessScore } from '@/lib/business-logic';
+import { MapLinks } from './MapLinks';
 
 interface TopRecommendationsProps {
   candidates: TopsisCandidateResult[];
@@ -79,14 +80,17 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
             const near = c.nearestCrowdName ? `Dekat ${c.nearestCrowdName}` : c.nearestRoadName ? `Ruas ${c.nearestRoadName}` : '';
 
             return (
-              <li key={c.id}>
+              <li
+                key={c.id}
+                className={`card overflow-hidden p-0 transition-all ${
+                  selected ? '!border-espresso shadow-float ring-2 ring-espresso/10' : 'hover:border-line-2 hover:shadow-float'
+                }`}
+              >
                 <button
                   type="button"
                   onClick={() => onSelectCandidate(c)}
                   aria-pressed={selected}
-                  className={`card block w-full cursor-pointer overflow-hidden p-0 text-left transition-all ${
-                    selected ? '!border-espresso shadow-float ring-2 ring-espresso/10' : 'hover:border-line-2 hover:shadow-float'
-                  }`}
+                  className="block w-full cursor-pointer text-left"
                 >
                   <div className="flex items-center gap-3 p-3.5">
                     <span
@@ -113,6 +117,7 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
                   <div className="mx-3.5 mb-3.5 h-1.5 overflow-hidden rounded-full bg-oat-2">
                     <div className={`h-full rounded-full ${t.bar}`} style={{ width: `${score100}%` }} />
                   </div>
+                </button>
 
                   {selected && (
                     <div className="border-t border-line bg-oat/60 p-3.5">
@@ -134,11 +139,11 @@ export const TopRecommendations: React.FC<TopRecommendationsProps> = ({
                         </span>
                       </div>
                       <div className="mt-3 flex items-center gap-1.5 text-xs font-bold text-ink">
-                        <Navigation className="h-3.5 w-3.5" /> Ditampilkan di peta
+                        <Navigation className="h-3.5 w-3.5" /> Ditampilkan di peta · cek kondisi aslinya:
                       </div>
+                      <MapLinks lat={c.lat} lng={c.lng} className="mt-2" />
                     </div>
                   )}
-                </button>
               </li>
             );
           })}

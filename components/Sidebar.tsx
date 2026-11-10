@@ -22,7 +22,9 @@ import { AhpForm } from './AhpForm';
 import { TopRecommendations } from './TopRecommendations';
 import { LayerFilterControl } from './LayerFilterControl';
 import { ScenarioPanel } from './ScenarioPanel';
-import { SurveyHistoryPanel } from './SurveyHistoryPanel';
+import { SurveyHistoryPanel, type SavedEvaluator, type CompareState } from './SurveyHistoryPanel';
+import { MapLinks } from './MapLinks';
+import { PlaceSearch } from './PlaceSearch';
 import {
   AhpResult,
   TopsisCandidateResult,
@@ -66,6 +68,8 @@ interface SidebarProps {
   onClearSurvey?: () => void;
   isSurveyClickMode?: boolean;
   onToggleSurveyClickMode?: () => void;
+  /** Hitung ulang skor lokasi tersimpan dengan prioritas saat ini (untuk perbandingan) */
+  evaluateSaved?: SavedEvaluator;
 }
 
 const TABS: { id: TabId; label: string; icon: React.ElementType; title: string }[] = [
@@ -143,10 +147,15 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onClearSurvey,
   isSurveyClickMode = false,
   onToggleSurveyClickMode,
+  evaluateSaved,
 }) => {
   const [manualLat, setManualLat] = useState('-6.5971');
   const [manualLng, setManualLng] = useState('106.7972');
   const [isGpsLoading, setIsGpsLoading] = useState(false);
+  // Nama tempat hasil pencarian -> saran nama saat menyimpan survei titik itu
+  const [pickedPlace, setPickedPlace] = useState<{ lat: number; lng: number; name: string } | null>(null);
+  // Pilihan perbandingan lokasi disimpan di sini agar tetap ada saat pengguna pindah tab
+  const [compare, setCompare] = useState<CompareState>({ picked: [], open: false });
 
   // Di layar kecil, mode "klik peta" butuh peta terlihat: lipat panel otomatis.
   useEffect(() => {
@@ -292,9 +301,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <div>
                   <h2 className="text-xl font-extrabold tracking-tight text-ink">Survei lokasi</h2>
                   <p className="mt-1 text-sm leading-relaxed text-ink-2">
-                    Lagi lihat ruko atau lahan? Cek kelayakan titik itu secara instan, dengan bobot prioritas yang sama.
+                    Lagi lihat ruko atau lahan? Ketik alamatnya, pakai GPS, atau pilih di peta. Kelayakannya dicek dengan bobot prioritas yang sama.
                   </p>
                 </div>
+
+                <PlaceSearch
+                  onPick={(lat, lng, name) => {
+                    setPickedPlace({ lat, lng, name });
+                    onSurveyPointSelected?.(lat, lng);
+                  }}
+                />
 
                 <div className="grid grid-cols-2 gap-2.5">
                   <button type="button" onClick={handleUseGps} disabled={isGpsLoading} className="btn btn-primary !px-3">
@@ -339,6 +355,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       <Metric label="Jarak keramaian" value={`${surveyResult.c4_dist_crowd} m`} />
                     </dl>
 
+                    {surveyResult.isInsideBogor && (
+                      <MapLinks lat={surveyResult.lat} lng={surveyResult.lng} className="px-3 pt-3" />
+                    )}
+
                     <div className="flex items-center gap-2 p-3">
                       {onOpenSurveyModal && (
                         <button type="button" onClick={onOpenSurveyModal} className="btn btn-primary flex-1 !text-[13px]">
@@ -363,7 +383,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <SurveyHistoryPanel
                   survey={surveyResult ?? null}
                   weights={ahpResult.weightsArray}
+                  suggestedName={
+                    pickedPlace && surveyResult && pickedPlace.lat === surveyResult.lat && pickedPlace.lng === surveyResult.lng ? pickedPlace.name : ''
+                  }
                   onReview={(la, ln) => onSurveyPointSelected?.(la, ln)}
+                  evaluate={evaluateSaved}
+                  compare={compare}
+                  onCompareChange={setCompare}
                 />
 
                 <section>

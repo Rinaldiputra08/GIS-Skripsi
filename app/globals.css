@@ -162,6 +162,16 @@ input[type="range"] {
 }
 
 /* ---------- Leaflet ---------- */
+/* Mode "Pilih di peta": sel grid, zona, dan ikon tidak menangkap klik, sehingga klik di mana pun
+   diterima peta sebagai titik survei (bukan membuka popup sel/ikon). */
+.survey-click-mode .leaflet-overlay-pane path,
+.survey-click-mode .leaflet-marker-pane .leaflet-marker-icon {
+  pointer-events: none !important;
+}
+.survey-click-mode .leaflet-container,
+.survey-click-mode .leaflet-interactive {
+  cursor: crosshair !important;
+}
 .leaflet-container {
   width: 100%;
   height: 100%;

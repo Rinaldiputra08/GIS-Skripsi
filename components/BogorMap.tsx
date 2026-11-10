@@ -62,6 +62,7 @@ import {
   X,
   MousePointerClick,
 } from 'lucide-react';
+import { MapLinks } from './MapLinks';
 
 // Fix Leaflet Default Marker Icon issues in Webpack/Next.js
 delete (L.Icon.Default.prototype as unknown as Record<string, unknown>)._getIconUrl;
@@ -367,7 +368,7 @@ export const BogorMap: React.FC<BogorMapProps> = ({
   return (
     <div
       className={`relative h-full w-full overflow-hidden ${
-        isSurveyClickMode ? 'cursor-crosshair' : ''
+        isSurveyClickMode ? 'survey-click-mode cursor-crosshair' : ''
       }`}
     >
       {/* Kontrol peta (kanan atas): peta dasar + aksi survei */}
@@ -768,6 +769,8 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                       </span>
                     )}
                   </p>
+
+                  {!candidate.isRestricted && <MapLinks lat={candidate.lat} lng={candidate.lng} compact className="mt-3" />}
                 </div>
               </Popup>
             );
@@ -953,6 +956,8 @@ export const BogorMap: React.FC<BogorMapProps> = ({
                       <Sparkles className="h-4 w-4" /> Laporan lengkap (SWOT)
                     </button>
                   )}
+
+                  {surveyResult.isInsideBogor && <MapLinks lat={surveyResult.lat} lng={surveyResult.lng} compact className="mt-2" />}
                 </div>
               </Popup>
             </Marker>

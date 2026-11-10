@@ -224,6 +224,9 @@ function EditorDialog({ resource, noun, fields, initial, isNew, radiusKey, conte
     try {
       const payload: Row = {};
       for (const f of fields) payload[f.key] = form[f.key] ?? '';
+      // Koordinat diisi lewat peta / kolom Latitude-Longitude (bukan bagian dari `fields`), jadi dikirim terpisah
+      payload.latitude = form.latitude ?? '';
+      payload.longitude = form.longitude ?? '';
       if (isNew) {
         await adminFetch(`/api/admin/${resource}`, { method: 'POST', json: { ...payload, force } });
         onSaved(`${capitalize(noun)} "${payload.name}" ditambahkan.`);

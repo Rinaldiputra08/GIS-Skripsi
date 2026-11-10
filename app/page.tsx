@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { Header } from '@/components/Header';
 import { Sidebar } from '@/components/Sidebar';
 import { MapWrapper } from '@/components/MapWrapper';
@@ -302,6 +302,21 @@ export default function Home() {
     setIsSurveyClickMode(false);
   };
 
+  // Perbandingan lokasi tersimpan: kriteria C1..C4 yang tersimpan dinilai ulang dengan bobot saat ini,
+  // agar skor semua lokasi yang dibandingkan memakai prioritas yang sama.
+  const evaluateSaved = useCallback(
+    (lat: number, lng: number, crit: { c1: number; c2: number; c3: number; c4: number }, district: string | null) =>
+      evaluateSurveyLocation(
+        lat,
+        lng,
+        ahpResult.weightsArray,
+        gridCandidates,
+        { inside: true, district: district ?? undefined, density: crit.c2, c1: crit.c1, c3: crit.c3, c4: crit.c4 },
+        exclusionZones
+      ),
+    [ahpResult.weightsArray, gridCandidates, exclusionZones]
+  );
+
   const handleToggleSurveyClickMode = () => {
     setIsSurveyClickMode((prev) => !prev);
   };
@@ -394,6 +409,7 @@ export default function Home() {
         onClearSurvey={handleClearSurvey}
         isSurveyClickMode={isSurveyClickMode}
         onToggleSurveyClickMode={handleToggleSurveyClickMode}
+        evaluateSaved={evaluateSaved}
       />
 
       {/* Skripsi Methodology & Academic Audit Modal */}

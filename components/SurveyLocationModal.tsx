@@ -20,6 +20,7 @@ import {
   BarChart3,
   Star,
 } from 'lucide-react';
+import { MapLinks } from './MapLinks';
 import { SurveyPointEvaluation } from '@/lib/types';
 import { getSettings } from '@/lib/settings';
 import {
@@ -499,6 +500,13 @@ ${survey.swot.verdict}
             </div>
           )}
         </div>
+
+        {survey.isInsideBogor && (
+          <div className="border-t border-line px-5 py-3">
+            <p className="mb-2 text-xs font-semibold text-ink-3">Cek kondisi asli lokasi ini:</p>
+            <MapLinks lat={survey.lat} lng={survey.lng} />
+          </div>
+        )}
 
         {/* Modal Footer */}
         <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3.5 border-t border-line bg-oat text-xs">

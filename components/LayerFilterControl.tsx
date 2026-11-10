@@ -21,7 +21,7 @@ const LAYER_ITEMS: { key: keyof LayerToggleState; label: string; hint: string; c
   { key: 'showCrowdCenters', label: 'Pusat keramaian', hint: 'Mall, pasar, terminal, taman (C4)', color: '#0e8fa0' },
   { key: 'showRoads', label: 'Jaringan jalan', hint: 'Akses jalan (C3)', color: '#4b6cb7' },
   { key: 'showDistricts', label: 'Batas kecamatan', hint: '6 kecamatan Kota Bogor', color: '#1f1813' },
-  { key: 'showExclusionZones', label: 'Zona terlarang', hint: 'Makam, polisi, militer, istana', color: '#c2352b' },
+  { key: 'showExclusionZones', label: 'Zona terlarang', hint: 'Makam, sungai, militer/polisi, istana', color: '#c2352b' },
 ];
 
 const MODES = [

@@ -18,7 +18,7 @@
  *    (3) batas jenuh C1 (0/500/800/1200/1600 m).
  *
  * Jalankan:  node --env-file=.env scripts/validate-model.mjs
- * Keluaran : docs/validasi/hasil-validasi.md dan docs/validasi/hasil-validasi.json
+ * Keluaran : ../Dokumen-Skripsi-KopiSpasial/04-validasi/hasil-validasi.{md,json}
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -27,7 +27,9 @@ import { createJiti } from 'jiti';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const OUT_DIR = path.join(ROOT, 'docs', 'validasi');
+// Hasil validasi disimpan di folder dokumen skripsi (di luar proyek kode)
+const DOC_ROOT = process.env.SKRIPSI_DOCS || path.join(__dirname, '..', '..', 'Dokumen-Skripsi-KopiSpasial');
+const OUT_DIR = path.join(DOC_ROOT, '04-validasi');
 const jiti = createJiti(import.meta.url, { alias: { '@': ROOT } });
 
 const { buildAhpMatrix, calculateAhp, AHP_PRESETS } = await jiti.import(path.join(ROOT, 'lib/ahp.ts'));
