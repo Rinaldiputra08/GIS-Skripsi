@@ -16,6 +16,7 @@ interface Stats {
   zones: number | null;
   gridPoints: number | null;
   populationYear: number | null;
+  settings?: { cellMeters?: number };
   scenarios: number | null;
   surveys: number | null;
   lastRun: { at: string; n_points: number; duration_ms: number; n_competitors: number } | null;
@@ -59,8 +60,8 @@ export function Dashboard() {
             <StatCard label="Kompetitor" value={s.competitors.inCity ?? s.competitors.total}
               sub={`Kaggle ${s.competitors.kaggle ?? 0} · OSM ${s.competitors.osm ?? 0} · Manual ${s.competitors.manual ?? 0}`} />
             <StatCard label="Pusat keramaian" value={s.crowd.inCity ?? s.crowd.total ?? '–'} sub="dalam batas kota" />
-            <StatCard label="Zona terlarang" value={s.zones ?? '–'} sub={s.zones === null ? 'jalankan cms.sql' : 'lingkaran terlarang'} />
-            <StatCard label="Titik grid" value={(s.gridPoints ?? 0).toLocaleString('id-ID')} sub={`penduduk BPS ${s.populationYear ?? '–'}`} />
+            <StatCard label="Zona terlarang" value={s.zones ?? '–'} sub={s.zones === null ? 'jalankan cms.sql' : 'poligon & lingkaran'} />
+            <StatCard label="Titik grid" value={(s.gridPoints ?? 0).toLocaleString('id-ID')} sub={`sel ${s.settings?.cellMeters ?? 300} m · C2 per kelurahan`} />
           </div>
 
           {/* Terapkan perubahan */}
@@ -111,7 +112,7 @@ export function Dashboard() {
               { href: '/admin/kompetitor', icon: Store, t: 'Kompetitor', d: 'Tambah kedai baru atau perbaiki lokasi' },
               { href: '/admin/keramaian', icon: MapPinned, t: 'Pusat keramaian', d: 'Mal, pasar, terminal, kampus' },
               { href: '/admin/zona', icon: ShieldAlert, t: 'Zona terlarang', d: 'Gambar area yang tak boleh direkomendasikan' },
-              { href: '/admin/penduduk', icon: Users, t: 'Data penduduk', d: 'Perbarui angka BPS per kecamatan' },
+              { href: '/admin/penduduk', icon: Users, t: 'Data penduduk', d: 'Perbarui penduduk per kelurahan' },
               { href: '/admin/parameter', icon: Grid3x3, t: 'Parameter sistem', d: 'Ambang kategori, ukuran grid, batas jarak' },
               { href: '/admin/riwayat', icon: History, t: 'Riwayat', d: 'Jejak perubahan & perbandingan ranking' },
             ].map(({ href, icon: Icon, t, d }) => (
